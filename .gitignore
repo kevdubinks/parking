@@ -1,0 +1,28 @@
+# dépendances
+node_modules/
+.pnp
+.pnp.js
+
+# next
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# environnement — ne jamais committer de clé
+.env
+.env.local
+.env*.local
+
+# supabase cli
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# vercel
+.vercel
+
+# système
+.DS_Store
+Thumbs.db
+*.log

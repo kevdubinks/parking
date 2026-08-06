@@ -1,0 +1,73 @@
+@import '../styles/tokens.css';
+
+/* =====================================================================
+   Feuille de base. Aucune valeur en dur : uniquement des tokens.
+   ===================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--police-texte);
+  font-size: var(--taille-base);
+  background: var(--fond);
+  color: var(--texte);
+  display: flex;
+  justify-content: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Le focus doit rester visible : l'outil se pilote au clavier depuis un
+   PC de comptoir, tabulation comprise. */
+:focus-visible {
+  outline: 3px solid var(--action);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Lu par les lecteurs d'écran, invisible à l'œil. Sert à ne jamais
+   porter une information par la seule couleur. */
+.lecteur-seul {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

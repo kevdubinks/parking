@@ -1,0 +1,407 @@
+/* Registre — toutes les règles lisent des tokens, aucune valeur en dur. */
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100%;
+  background: var(--fond);
+  display: flex;
+  flex-direction: column;
+  border-left: var(--trait) solid var(--bordure);
+  border-right: var(--trait) solid var(--bordure);
+}
+
+/* ---------- En-tête ---------- */
+.entete {
+  background: var(--action);
+  color: #fff;
+  padding: var(--pas-3) var(--pas-4) var(--pas-4);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.enteteHaut {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pas-3);
+}
+
+.lieu {
+  font-size: var(--taille-etiquette);
+  letter-spacing: var(--interlettre-etiquette);
+  text-transform: uppercase;
+  opacity: 0.78;
+  font-weight: var(--graisse-moyenne);
+}
+
+.compteur {
+  font-family: var(--police-plaque);
+  font-weight: var(--graisse-forte);
+  font-size: var(--taille-compteur);
+  line-height: 1;
+  margin-top: var(--pas-1);
+}
+
+.compteur small {
+  font-size: var(--taille-base);
+  opacity: 0.7;
+  font-weight: var(--graisse-moyenne);
+}
+
+.jauge {
+  margin-top: var(--pas-3);
+  height: 6px;
+  border-radius: var(--rayon-plein);
+  background: rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+}
+
+.jauge > span {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transition: width var(--duree-moyenne) var(--courbe);
+}
+
+.jaugePleine > span {
+  background: var(--signal);
+}
+
+.etat {
+  margin-top: var(--pas-2);
+  font-size: var(--taille-petit);
+  opacity: 0.85;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pas-2);
+}
+
+/* ---------- Bandeau réseau ---------- */
+.reseau {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
+  font-size: var(--taille-petit);
+  font-weight: var(--graisse-moyenne);
+  background: var(--signal);
+  color: #16181a;
+}
+
+.pastille {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--rayon-plein);
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ---------- Saisie ---------- */
+.saisie {
+  padding: var(--pas-3) var(--pas-4);
+  border-bottom: var(--trait) solid var(--bordure);
+  background: var(--fond);
+}
+
+.champs {
+  display: flex;
+  gap: var(--pas-2);
+  align-items: stretch;
+}
+
+.champPlaque {
+  flex: 1;
+  min-width: 0;
+}
+
+.champChambre {
+  width: 104px;
+  flex-shrink: 0;
+}
+
+.etiquette {
+  font-size: var(--taille-etiquette);
+  letter-spacing: var(--interlettre-etiquette);
+  text-transform: uppercase;
+  color: var(--texte-faible);
+  font-weight: var(--graisse-moyenne);
+  margin-bottom: var(--pas-1);
+  display: block;
+}
+
+.obligatoire {
+  color: var(--signal);
+}
+
+.entree {
+  font-family: var(--police-plaque);
+  font-weight: var(--graisse-forte);
+  font-size: var(--taille-grand);
+  letter-spacing: var(--interlettre-plaque);
+  text-transform: uppercase;
+  width: 100%;
+  min-height: var(--cible);
+  padding: var(--pas-3);
+  border: var(--trait-fort) solid var(--bordure-forte);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  outline: none;
+}
+
+.entree::placeholder {
+  color: var(--texte-faible);
+  opacity: 0.7;
+}
+
+.entree:focus {
+  border-color: var(--action);
+  box-shadow: 0 0 0 3px var(--action-voile);
+}
+
+.champChambre .entree {
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.valider {
+  margin-top: var(--pas-3);
+  width: 100%;
+  min-height: var(--cible);
+  padding: var(--pas-3);
+  font-size: var(--taille-moyen);
+  font-weight: var(--graisse-moyenne);
+  background: var(--surface-inverse);
+  color: var(--texte-inverse);
+  border: none;
+  border-radius: var(--rayon);
+  transition: background var(--duree-courte) var(--courbe);
+}
+
+.valider:hover:not(:disabled) {
+  background: var(--action);
+  color: #fff;
+}
+
+.valider:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.indice {
+  margin-top: var(--pas-2);
+  font-size: var(--taille-petit);
+  color: var(--texte-faible);
+  min-height: 1.15rem;
+  line-height: 1.4;
+}
+
+.indice b {
+  color: var(--signal);
+  font-weight: var(--graisse-moyenne);
+}
+
+/* ---------- Liste ---------- */
+.liste {
+  flex: 1;
+  padding-bottom: calc(var(--cible) + var(--pas-6));
+}
+
+.titreListe {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--pas-4) var(--pas-4) var(--pas-2);
+  font-size: var(--taille-etiquette);
+  letter-spacing: var(--interlettre-etiquette);
+  text-transform: uppercase;
+  color: var(--texte-faible);
+  font-weight: var(--graisse-moyenne);
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-3);
+  padding: var(--pas-2) var(--pas-4);
+  border-bottom: var(--trait) solid var(--bordure);
+  animation: apparait var(--duree-moyenne) var(--courbe);
+}
+
+@keyframes apparait {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.plaque {
+  display: flex;
+  align-items: stretch;
+  border: var(--trait-fort) solid var(--bordure-forte);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.bande {
+  width: 19px;
+  background: var(--action);
+  color: #fff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-family: var(--police-chiffre);
+  font-size: 9px;
+  padding-bottom: 3px;
+}
+
+.numero {
+  font-family: var(--police-plaque);
+  font-weight: var(--graisse-forte);
+  font-size: var(--taille-plaque);
+  letter-spacing: var(--interlettre-plaque);
+  padding: var(--pas-1) var(--pas-2);
+  white-space: nowrap;
+  color: var(--texte);
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.chambre {
+  font-size: var(--taille-base);
+  font-weight: var(--graisse-moyenne);
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+}
+
+.sansChambre {
+  color: var(--signal);
+  font-size: var(--taille-petit);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: var(--graisse-moyenne);
+}
+
+.duree {
+  font-family: var(--police-chiffre);
+  font-size: var(--taille-petit);
+  color: var(--texte-faible);
+  margin-top: 2px;
+}
+
+.sortie {
+  flex-shrink: 0;
+  min-height: var(--cible);
+  min-width: var(--cible);
+  padding: var(--pas-2) var(--pas-3);
+  font-size: var(--taille-petit);
+  font-weight: var(--graisse-moyenne);
+  background: var(--surface);
+  color: var(--action);
+  border: var(--trait) solid var(--bordure);
+  border-radius: var(--rayon);
+  transition: all var(--duree-courte) var(--courbe);
+}
+
+.sortie:hover {
+  background: var(--action);
+  color: #fff;
+  border-color: var(--action);
+}
+
+.vide {
+  padding: var(--pas-6) var(--pas-5);
+  text-align: center;
+  color: var(--texte-faible);
+  line-height: 1.55;
+}
+
+/* ---------- Barre d'annulation ---------- */
+.annulation {
+  position: fixed;
+  bottom: var(--pas-4);
+  left: 50%;
+  transform: translate(-50%, calc(100% + var(--pas-6)));
+  width: min(448px, calc(100% - var(--pas-6)));
+  background: var(--surface-inverse);
+  color: var(--texte-inverse);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre-flottant);
+  padding: var(--pas-3) var(--pas-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-3);
+  font-size: var(--taille-petit);
+  transition: transform var(--duree-moyenne) var(--courbe);
+  z-index: 30;
+}
+
+.annulationVisible {
+  transform: translate(-50%, 0);
+}
+
+.annulation button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-weight: var(--graisse-moyenne);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: var(--cible);
+  padding: 0 var(--pas-2);
+}
+
+/* ---------- Connexion ---------- */
+.connexion {
+  width: 100%;
+  max-width: 380px;
+  margin: auto;
+  padding: var(--pas-5) var(--pas-4);
+}
+
+.titre {
+  font-family: var(--police-plaque);
+  font-weight: var(--graisse-forte);
+  font-size: var(--taille-grand);
+  margin-bottom: var(--pas-5);
+}
+
+.champTexte {
+  font-family: var(--police-texte);
+  font-size: var(--taille-base);
+  font-weight: var(--graisse-normale);
+  letter-spacing: 0;
+  text-transform: none;
+  width: 100%;
+  min-height: var(--cible);
+  padding: var(--pas-3);
+  margin-bottom: var(--pas-3);
+  border: var(--trait) solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  outline: none;
+}
+
+.champTexte:focus {
+  border-color: var(--action);
+  box-shadow: 0 0 0 3px var(--action-voile);
+}
+
+.messageErreur {
+  color: var(--danger);
+  font-size: var(--taille-petit);
+  margin-top: var(--pas-3);
+  line-height: 1.45;
+}

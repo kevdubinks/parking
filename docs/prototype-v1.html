@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Parking — Registre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Saira+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --panneau:#0B4F91;
+    --panneau-fonce:#07386A;
+    --plaque:#F4F4F0;
+    --encre:#16181A;
+    --granit:#7E8388;
+    --signal:#E39A12;
+    --trait:#D3D5D2;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--plaque);color:var(--encre);display:flex;justify-content:center;font-size:16px}
+  .app{width:100%;max-width:440px;min-height:100%;background:var(--plaque);display:flex;flex-direction:column;border-left:1px solid var(--trait);border-right:1px solid var(--trait)}
+
+  header{background:var(--panneau);color:#fff;padding:14px 16px 16px;position:sticky;top:0;z-index:20}
+  .entete{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .lieu{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.72;font-weight:500}
+  .compteur{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:34px;line-height:.9;letter-spacing:-.01em;margin-top:2px}
+  .compteur small{font-size:16px;opacity:.6;font-weight:600}
+  .lien-reglages{background:none;border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:var(--radius);padding:7px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s ease;flex-shrink:0}
+  .lien-reglages:hover{background:rgba(255,255,255,.16)}
+  .jauge{margin-top:12px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+  .jauge span{display:block;height:100%;background:#fff;transition:width .35s ease}
+  .jauge.pleine span{background:var(--signal)}
+  .etat{margin-top:8px;font-size:12.5px;opacity:.8;display:flex;justify-content:space-between}
+
+  .saisie{padding:14px 16px;border-bottom:1px solid var(--trait)}
+  .champs{display:flex;gap:8px;align-items:stretch}
+  .champ-plaque{flex:1}
+  input{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:26px;letter-spacing:.06em;text-transform:uppercase;width:100%;padding:12px;border:2px solid var(--encre);border-radius:var(--radius);background:#fff;color:var(--encre);outline:none}
+  input::placeholder{color:#B9BBB7;letter-spacing:.04em}
+  input:focus{border-color:var(--panneau);box-shadow:0 0 0 3px rgba(11,79,145,.16)}
+  .champ-chambre{width:96px}
+  .champ-chambre input{text-align:center;font-size:24px;letter-spacing:0}
+  .etiquette{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--granit);font-weight:600;margin-bottom:5px;display:block}
+  .etiquette .obl{color:var(--signal)}
+  .ajouter{margin-top:10px;width:100%;padding:14px;font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;background:var(--encre);color:var(--plaque);border:none;border-radius:var(--radius);cursor:pointer;transition:background .15s ease,opacity .15s ease}
+  .ajouter:hover{background:var(--panneau)}
+  .ajouter:disabled{opacity:.3;cursor:default;background:var(--encre)}
+  .indice{margin-top:8px;font-size:12.5px;color:var(--granit);min-height:17px;line-height:1.35}
+  .indice b{color:var(--signal);font-weight:600}
+
+  .liste{flex:1;padding:4px 0 96px}
+  .titre-liste{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 8px;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--granit);font-weight:600}
+  .ligne{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--trait);animation:apparait .28s ease}
+  @keyframes apparait{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  .plaque{display:flex;align-items:stretch;border:2px solid var(--encre);border-radius:var(--radius);background:#fff;overflow:hidden;flex-shrink:0}
+  .plaque .bande{width:19px;background:var(--panneau);color:#fff;display:flex;align-items:flex-end;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;padding-bottom:3px}
+  .plaque .num{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:21px;letter-spacing:.05em;padding:5px 9px 4px;white-space:nowrap}
+  .meta{flex:1;min-width:0}
+  .chambre{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .chambre .visiteur{color:var(--signal);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+  .duree{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--granit);margin-top:2px}
+  .sortie{flex-shrink:0;padding:9px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;font-weight:600;background:none;color:var(--panneau);border:1.5px solid var(--trait);border-radius:var(--radius);cursor:pointer;transition:.15s ease}
+  .sortie:hover{background:var(--panneau);color:#fff;border-color:var(--panneau)}
+  .vide{padding:48px 32px;text-align:center;color:var(--granit);font-size:14.5px;line-height:1.5}
+
+  .annuler{position:fixed;bottom:16px;left:50%;transform:translate(-50%,90px);width:min(408px,calc(100% - 32px));background:var(--encre);color:var(--plaque);border-radius:var(--radius);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;transition:transform .25s ease;z-index:30}
+  .annuler.visible{transform:translate(-50%,0)}
+  .annuler button{background:none;border:none;color:#fff;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+  /* ---------- Réglages ---------- */
+  .reglages{padding:20px 16px 40px}
+  .groupe{margin-bottom:22px}
+  .groupe > .etiquette{margin-bottom:7px}
+  .champ-texte{font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;border-width:1.5px;padding:11px 12px}
+  .aide{font-size:12.5px;color:var(--granit);margin-top:6px;line-height:1.45}
+  .segments{display:flex;gap:6px}
+  .segments button{flex:1;padding:11px 6px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:500;background:#fff;color:var(--encre);border:1.5px solid var(--trait);border-radius:var(--radius);cursor:pointer;transition:.12s ease}
+  .segments button[aria-pressed="true"]{background:var(--panneau);border-color:var(--panneau);color:#fff;font-weight:600}
+  .enregistrer{width:100%;padding:14px;font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;background:var(--encre);color:var(--plaque);border:none;border-radius:var(--radius);cursor:pointer}
+  .enregistrer:hover{background:var(--panneau)}
+  .confirme{text-align:center;font-size:13px;color:var(--panneau);font-weight:600;min-height:19px;margin-top:10px}
+  .rgpd{border-left:3px solid var(--signal);padding:10px 0 10px 12px;font-size:12.5px;color:var(--granit);line-height:1.5;margin-top:8px}
+  .titre-page{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:26px;margin-bottom:18px;letter-spacing:.01em}
+
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======== REGISTRE ======== -->
+  <div id="vue-registre">
+    <header>
+      <div class="entete">
+        <div>
+          <div class="lieu" id="nom-etab">Parking — Réception</div>
+          <div class="compteur"><span id="occupees">0</span><small>/<span id="capacite">18</span> places</small></div>
+        </div>
+        <button class="lien-reglages" id="ouvrir-reglages">Réglages</button>
+      </div>
+      <div class="jauge" id="jauge"><span style="width:0%"></span></div>
+      <div class="etat">
+        <span id="restantes">—</span>
+        <span id="alerte"></span>
+      </div>
+    </header>
+
+    <div class="saisie">
+      <div class="champs">
+        <div class="champ-plaque">
+          <label class="etiquette" for="plaque">Plaque</label>
+          <input id="plaque" placeholder="AB123CD" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div class="champ-chambre">
+          <label class="etiquette" for="chambre">Chambre <span class="obl" id="marque-obl" hidden>•</span></label>
+          <input id="chambre" placeholder="—" autocomplete="off" inputmode="numeric">
+        </div>
+      </div>
+      <button class="ajouter" id="ajouter" disabled>Enregistrer l'entrée</button>
+      <div class="indice" id="indice"></div>
+    </div>
+
+    <div class="liste">
+      <div class="titre-liste">
+        <span id="titre-liste">Véhicules présents</span>
+        <span id="nb-liste"></span>
+      </div>
+      <div id="lignes"></div>
+    </div>
+  </div>
+
+  <!-- ======== RÉGLAGES ======== -->
+  <div id="vue-reglages" hidden>
+    <header>
+      <div class="entete">
+        <div>
+          <div class="lieu">Administration</div>
+          <div class="compteur" style="font-size:26px">Réglages</div>
+        </div>
+        <button class="lien-reglages" id="fermer-reglages">Retour</button>
+      </div>
+    </header>
+
+    <div class="reglages">
+      <div class="groupe">
+        <label class="etiquette" for="r-nom">Nom de l'établissement</label>
+        <input class="champ-texte" id="r-nom" autocomplete="off">
+        <div class="aide">Affiché en haut du registre, sur chaque appareil de l'hôtel.</div>
+      </div>
+
+      <div class="groupe">
+        <label class="etiquette" for="r-places">Nombre de places</label>
+        <input class="champ-texte" id="r-places" inputmode="numeric" style="width:110px;text-align:center">
+        <div class="aide">Sert au compteur d'occupation et à l'alerte « parking complet ».</div>
+      </div>
+
+      <div class="groupe">
+        <span class="etiquette">Numéro de chambre obligatoire</span>
+        <div class="segments" id="r-obligatoire">
+          <button type="button" data-val="non">Facultatif</button>
+          <button type="button" data-val="oui">Obligatoire</button>
+        </div>
+        <div class="aide">En « obligatoire », une entrée sans chambre est refusée. À n'activer que si l'hôtel n'accueille aucun visiteur extérieur.</div>
+      </div>
+
+      <div class="groupe">
+        <span class="etiquette">Conservation des données</span>
+        <div class="segments" id="r-conservation">
+          <button type="button" data-val="30">30 jours</button>
+          <button type="button" data-val="90">90 jours</button>
+          <button type="button" data-val="180">180 jours</button>
+        </div>
+        <div class="rgpd" id="texte-rgpd"></div>
+      </div>
+
+      <div class="groupe">
+        <label class="etiquette" for="r-code">Code d'accès réception</label>
+        <input class="champ-texte" id="r-code" inputmode="numeric" style="width:140px;text-align:center;letter-spacing:.3em">
+        <div class="aide">Code partagé par l'équipe pour ouvrir le registre. Les réglages, eux, restent réservés à la direction.</div>
+      </div>
+
+      <button class="enregistrer" id="r-enregistrer">Enregistrer les réglages</button>
+      <div class="confirme" id="r-confirme"></div>
+    </div>
+  </div>
+
+  <div class="annuler" id="annuler">
+    <span id="annuler-texte"></span>
+    <button id="annuler-btn">Annuler</button>
+  </div>
+</div>
+
+<script>
+const MINUTE = 60000;
+
+/* Réglages par établissement — c'est cette table qui rend le produit
+   multi-hôtel sans forker le code. */
+let config = {
+  nom: "Hôtel — Parking",
+  places: 18,
+  chambreObligatoire: false,
+  conservationJours: 90,
+  code: "4271"
+};
+
+let vehicules = [
+  { id:1, plaque:'AB742XK', chambre:'12',  entree: Date.now() - 190*MINUTE },
+  { id:2, plaque:'GE491TR', chambre:'7',   entree: Date.now() - 145*MINUTE },
+  { id:3, plaque:'FH228PL', chambre:null,  entree: Date.now() -  95*MINUTE },
+  { id:4, plaque:'CD305BN', chambre:'203', entree: Date.now() -  40*MINUTE },
+  { id:5, plaque:'MJ617VC', chambre:'14',  entree: Date.now() -  12*MINUTE },
+];
+let prochainId = 6, dernierRetrait = null, minuteur = null;
+
+const $ = id => document.getElementById(id);
+const normaliser = v => v.toUpperCase().replace(/[^A-Z0-9]/g,'');
+const FR = /^([A-Z]{2})(\d{3})([A-Z]{2})$/;
+const estFrancaise = p => FR.test(p);
+function afficher(p){ const m = p.match(FR); return m ? `${m[1]}-${m[2]}-${m[3]}` : p; }
+function duree(d){ const min = Math.floor((Date.now()-d)/MINUTE); if(min<60) return `${min} min`; const h=Math.floor(min/60); return `${h} h ${String(min%60).padStart(2,'0')}`; }
+function heure(ts){ return new Date(ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+
+function dessiner(){
+  const recherche = normaliser($('plaque').value);
+  const filtres = recherche ? vehicules.filter(v => v.plaque.includes(recherche)) : vehicules;
+
+  const n = vehicules.length, cap = config.places;
+  $('nom-etab').textContent = config.nom;
+  $('occupees').textContent = n;
+  $('capacite').textContent = cap;
+  $('jauge').firstElementChild.style.width = Math.min(100, Math.round(n/cap*100)) + '%';
+  $('jauge').classList.toggle('pleine', n >= cap);
+  const libres = cap - n;
+  $('restantes').textContent = libres > 0 ? `${libres} place${libres>1?'s':''} libre${libres>1?'s':''}` : 'Parking complet';
+  const sansChambre = vehicules.filter(v => !v.chambre).length;
+  $('alerte').textContent = sansChambre ? `${sansChambre} sans chambre` : '';
+
+  $('titre-liste').textContent = recherche ? 'Résultats' : 'Véhicules présents';
+  $('nb-liste').textContent = filtres.length || '';
+
+  const zone = $('lignes');
+  zone.innerHTML = '';
+  if (!filtres.length){
+    zone.innerHTML = recherche
+      ? `<div class="vide">Aucun véhicule avec <b>${afficher(recherche)}</b> sur le parking.<br>Enregistrez son entrée ci-dessus.</div>`
+      : `<div class="vide">Le parking est vide.<br>Enregistrez la première entrée.</div>`;
+    return;
+  }
+  [...filtres].sort((a,b)=>b.entree-a.entree).forEach(v => {
+    const l = document.createElement('div');
+    l.className = 'ligne';
+    l.innerHTML = `
+      <div class="plaque">
+        <div class="bande">${estFrancaise(v.plaque)?'F':''}</div>
+        <div class="num">${afficher(v.plaque)}</div>
+      </div>
+      <div class="meta">
+        <div class="chambre">${v.chambre ? 'Chambre '+v.chambre : '<span class="visiteur">Sans chambre</span>'}</div>
+        <div class="duree">Entrée ${heure(v.entree)} · ${duree(v.entree)}</div>
+      </div>
+      <button class="sortie" data-id="${v.id}">Sortie</button>`;
+    zone.appendChild(l);
+  });
+  zone.querySelectorAll('.sortie').forEach(b => b.addEventListener('click', () => sortir(Number(b.dataset.id))));
+}
+
+function majSaisie(){
+  const p = normaliser($('plaque').value);
+  const ch = $('chambre').value.trim();
+  const dejaLa = vehicules.find(v => v.plaque === p);
+  const manqueChambre = config.chambreObligatoire && !ch;
+
+  $('marque-obl').hidden = !config.chambreObligatoire;
+  $('ajouter').disabled = p.length < 4 || !!dejaLa || manqueChambre;
+
+  const i = $('indice');
+  if (!p) i.textContent = "Tapez une plaque pour la chercher ou l'enregistrer.";
+  else if (dejaLa) i.innerHTML = dejaLa.chambre
+      ? `Déjà sur le parking — <b>chambre ${dejaLa.chambre}</b>, depuis ${duree(dejaLa.entree)}.`
+      : `Déjà sur le parking — <b>sans chambre</b>, depuis ${duree(dejaLa.entree)}.`;
+  else if (p.length < 4) i.textContent = 'Continuez la saisie…';
+  else if (manqueChambre) i.innerHTML = 'Le numéro de chambre est <b>obligatoire</b> dans cet établissement.';
+  else if (!ch) i.innerHTML = 'Sans numéro de chambre, ce véhicule sera marqué <b>sans chambre</b>.';
+  else i.textContent = 'Prêt à enregistrer.';
+  dessiner();
+}
+
+function ajouter(){
+  if ($('ajouter').disabled) return;
+  const p = normaliser($('plaque').value);
+  vehicules.push({ id: prochainId++, plaque: p, chambre: $('chambre').value.trim() || null, entree: Date.now() });
+  $('plaque').value = ''; $('chambre').value = ''; $('plaque').focus();
+  majSaisie();
+}
+
+function sortir(id){
+  const i = vehicules.findIndex(v => v.id === id);
+  if (i === -1) return;
+  dernierRetrait = { vehicule: vehicules[i], index: i };
+  vehicules.splice(i,1);
+  $('annuler-texte').textContent = `Sortie de ${afficher(dernierRetrait.vehicule.plaque)}`;
+  $('annuler').classList.add('visible');
+  clearTimeout(minuteur);
+  minuteur = setTimeout(() => $('annuler').classList.remove('visible'), 6000);
+  majSaisie();
+}
+
+/* ---------- Réglages ---------- */
+function segments(id, valeur){
+  document.querySelectorAll(`#${id} button`).forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.val === String(valeur))));
+}
+function litSegment(id){
+  return document.querySelector(`#${id} button[aria-pressed="true"]`).dataset.val;
+}
+function texteRgpd(){
+  const j = litSegment('r-conservation');
+  $('texte-rgpd').innerHTML =
+    `Une plaque d'immatriculation est une donnée personnelle. Les véhicules sortis depuis plus de <b>${j} jours</b> sont supprimés automatiquement. Pensez à informer vos clients de cet enregistrement à l'accueil.`;
+}
+function chargerReglages(){
+  $('r-nom').value = config.nom;
+  $('r-places').value = config.places;
+  segments('r-obligatoire', config.chambreObligatoire ? 'oui' : 'non');
+  segments('r-conservation', config.conservationJours);
+  $('r-code').value = config.code;
+  texteRgpd();
+  $('r-confirme').textContent = '';
+}
+
+$('ouvrir-reglages').addEventListener('click', () => {
+  chargerReglages();
+  $('vue-registre').hidden = true;
+  $('vue-reglages').hidden = false;
+  window.scrollTo(0,0);
+});
+$('fermer-reglages').addEventListener('click', () => {
+  $('vue-reglages').hidden = true;
+  $('vue-registre').hidden = false;
+  majSaisie();
+});
+document.querySelectorAll('#r-obligatoire button, #r-conservation button').forEach(b => {
+  b.addEventListener('click', () => { segments(b.parentElement.id, b.dataset.val); texteRgpd(); });
+});
+$('r-enregistrer').addEventListener('click', () => {
+  const places = parseInt($('r-places').value, 10);
+  if (!places || places < 1){
+    $('r-confirme').textContent = 'Indiquez un nombre de places valide.';
+    return;
+  }
+  config = {
+    nom: $('r-nom').value.trim() || 'Parking',
+    places,
+    chambreObligatoire: litSegment('r-obligatoire') === 'oui',
+    conservationJours: Number(litSegment('r-conservation')),
+    code: $('r-code').value.trim()
+  };
+  $('r-confirme').textContent = 'Réglages enregistrés.';
+  majSaisie();
+});
+
+$('annuler-btn').addEventListener('click', () => {
+  if (!dernierRetrait) return;
+  vehicules.splice(dernierRetrait.index, 0, dernierRetrait.vehicule);
+  dernierRetrait = null;
+  $('annuler').classList.remove('visible');
+  majSaisie();
+});
+$('plaque').addEventListener('input', majSaisie);
+$('chambre').addEventListener('input', majSaisie);
+$('ajouter').addEventListener('click', ajouter);
+[$('plaque'), $('chambre')].forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter') ajouter(); }));
+
+setInterval(dessiner, 30000);
+majSaisie();
+</script>
+</body>
+</html>
