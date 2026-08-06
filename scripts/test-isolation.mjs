@@ -24,8 +24,6 @@
  *   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/isolation.sql
  */
 
-import EmbeddedPostgres from 'embedded-postgres'
-import pg from 'pg'
 import { readFile, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -33,6 +31,28 @@ import { dirname, join } from 'node:path'
 const racine = join(dirname(fileURLToPath(import.meta.url)), '..')
 const donnees = join(racine, '.pg-test')
 const PORT = 54329
+
+/**
+ * PostgreSQL embarqué pèse ~110 Mo de binaires. Il est délibérément
+ * ABSENT des dépendances : Vercel installe les devDependencies pour
+ * construire le front, et téléchargerait donc un PostgreSQL Linux
+ * complet à chaque déploiement, pour un harnais qui n'y tourne jamais.
+ * On le charge à la demande, en le disant clairement s'il manque.
+ */
+let EmbeddedPostgres, pg
+try {
+  ;[{ default: EmbeddedPostgres }, { default: pg }] = await Promise.all([
+    import('embedded-postgres'),
+    import('pg'),
+  ])
+} catch {
+  console.error(
+    'Le harnais local a besoin de PostgreSQL embarqué (~110 Mo), tenu hors des\n' +
+      'dépendances pour ne pas alourdir les builds Vercel. Une fois :\n\n' +
+      '    npm run test:isolation:install\n'
+  )
+  process.exit(1)
+}
 
 const lire = (chemin) => readFile(join(racine, chemin), 'utf8')
 

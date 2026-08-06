@@ -168,8 +168,35 @@ recette :
 
 ### 7. Déploiement
 
-Vercel, fonctions en `cdg1` (proximité de la base européenne). Reporter les deux variables
-d'environnement dans le projet Vercel.
+**Répartition** : Supabase ne porte que le back — base, RLS, auth, purge planifiée. Le front
+est un projet Vercel branché sur ce dépôt GitHub : chaque `push` sur `main` déclenche un
+déploiement. Il n'y a pas d'écran d'administration dans l'application ; la gestion se fait
+depuis le tableau de bord Supabase (CLAUDE.md § 8).
+
+1. Vercel → **Add New → Project** → importer `kevdubinks/parking`. Le framework est détecté,
+   `vercel.json` fixe la région des fonctions à `cdg1`.
+2. **Settings → Environment Variables**, sur les trois environnements :
+
+   | Variable | Valeur |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | l'URL du projet Supabase |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | la clé **publiable** (`sb_publishable_…`) |
+
+   Ces deux valeurs sont figées dans le bundle **au build** : les modifier impose un
+   redéploiement, un simple redémarrage ne suffit pas.
+
+   La clé secrète n'est pas dans ce tableau, et ce n'est pas un oubli.
+
+3. Vérifier que la région Vercel correspond à celle du projet Supabase. Chaque navigation
+   déclenche une vérification de session côté serveur ; des fonctions à Washington devant une
+   base à Francfort ajoutent un aller-retour transatlantique à un outil jugé sur dix
+   secondes au comptoir. Si le projet Supabase n'est pas en Europe, corriger `regions` dans
+   [`vercel.json`](vercel.json).
+
+**Ce que Vercel n'installe pas** : le harnais PostgreSQL du test d'isolation pèse ~110 Mo de
+binaires. Il est délibérément tenu hors des dépendances — Vercel installe les
+`devDependencies` pour construire le front, et le téléchargerait à chaque déploiement pour
+rien. `npm run test:isolation` le récupère à la demande, sans toucher à `package.json`.
 
 ---
 
