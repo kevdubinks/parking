@@ -4,19 +4,24 @@
 --  Tant que ce script n'est pas passé au vert, considérer que
 --  l'isolation ne marche pas.
 --
---  Usage :  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f isolation.sql
+--  Sur la base réelle :
+--      psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f isolation.sql
+--
+--  Sur un PostgreSQL local jetable, sans Docker ni Supabase :
+--      npm run test:isolation
 --
 --  Le script crée deux établissements et deux comptes jetables, se fait
 --  passer pour chacun en injectant les claims JWT comme le fait
 --  PostgREST, vérifie l'étanchéité, puis annule tout (rollback).
 --  Rien n'est laissé derrière lui.
+--
+--  Les identifiants transitent par des variables de session et non par
+--  une table temporaire : une fois passé en rôle `authenticated`, une
+--  table appartenant à `postgres` n'est plus lisible, et le script
+--  échouerait sur un refus de droits avant d'avoir rien testé.
 -- =====================================================================
 
 begin;
-
--- On se met dans la peau d'un client PostgREST : rôle authenticated,
--- claims lus depuis request.jwt.claims.
-create temporary table _t (cle text primary key, val uuid);
 
 do $$
 declare
@@ -29,9 +34,8 @@ begin
   insert into etablissement (nom, places) values ('Test B', 10) returning id into etab_b;
 
   -- Comptes minimaux : le FK de `membre` pointe sur auth.users.
-  insert into auth.users (id, instance_id, aud, role, email)
-  values (user_a, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'a@test.invalid'),
-         (user_b, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'b@test.invalid');
+  insert into auth.users (id, email)
+  values (user_a, 'a@test.invalid'), (user_b, 'b@test.invalid');
 
   insert into membre (user_id, etablissement_id, role)
   values (user_a, etab_a, 'direction'), (user_b, etab_b, 'direction');
@@ -40,7 +44,10 @@ begin
   values (gen_random_uuid(), etab_a, 'ENTREE', 'AA111AA', 'AA-111-AA', '12', now(), user_a),
          (gen_random_uuid(), etab_b, 'ENTREE', 'BB222BB', 'BB-222-BB', '34', now(), user_b);
 
-  insert into _t values ('etab_a', etab_a), ('etab_b', etab_b), ('user_a', user_a), ('user_b', user_b);
+  perform set_config('test.etab_a', etab_a::text, true);
+  perform set_config('test.etab_b', etab_b::text, true);
+  perform set_config('test.user_a', user_a::text, true);
+  perform set_config('test.user_b', user_b::text, true);
 end $$;
 
 
@@ -53,10 +60,10 @@ declare
   n int;
 begin
   claims := json_build_object(
-    'sub', (select val from _t where cle='user_a'),
+    'sub', current_setting('test.user_a'),
     'role', 'authenticated',
     'app_metadata', json_build_object(
-      'etablissement_id', (select val from _t where cle='etab_a'),
+      'etablissement_id', current_setting('test.etab_a'),
       'role', 'direction')
   )::text;
 
@@ -71,7 +78,7 @@ begin
 
   -- 2. A ne voit AUCUN événement de B
   select count(*) into n from evenement
-   where etablissement_id = (select val from _t where cle='etab_b');
+   where etablissement_id = current_setting('test.etab_b')::uuid;
   if n <> 0 then
     raise exception 'ÉCHEC 2 — A voit % événement(s) de B. FUITE.', n;
   end if;
@@ -105,8 +112,8 @@ declare
 begin
   begin
     insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
-    values (gen_random_uuid(), (select val from _t where cle='etab_b'),
-            'ENTREE', 'ZZ999ZZ', 'ZZ-999-ZZ', now(), (select val from _t where cle='user_a'));
+    values (gen_random_uuid(), current_setting('test.etab_b')::uuid,
+            'ENTREE', 'ZZ999ZZ', 'ZZ-999-ZZ', now(), current_setting('test.user_a')::uuid);
   exception when insufficient_privilege then
     ok := true;
   end;
@@ -125,8 +132,8 @@ declare
 begin
   begin
     insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
-    values (gen_random_uuid(), (select val from _t where cle='etab_a'),
-            'ENTREE', 'YY888YY', 'YY-888-YY', now(), (select val from _t where cle='user_b'));
+    values (gen_random_uuid(), current_setting('test.etab_a')::uuid,
+            'ENTREE', 'YY888YY', 'YY-888-YY', now(), current_setting('test.user_b')::uuid);
   exception when insufficient_privilege then
     ok := true;
   end;
@@ -191,11 +198,34 @@ begin
 end $$;
 
 
+-- ---------------------------------------------------------------------
+-- Le hook JWT construit bien le claim, même sans app_metadata préalable
+-- (c'est le piège de jsonb_set : il ne crée que le dernier niveau)
+-- ---------------------------------------------------------------------
 reset role;
+
+do $$
+declare
+  sortie jsonb;
+begin
+  sortie := auth_hook_claims(
+    json_build_object('user_id', current_setting('test.user_a'), 'claims', '{}'::json)::jsonb
+  );
+
+  if sortie -> 'claims' -> 'app_metadata' ->> 'etablissement_id'
+     is distinct from current_setting('test.etab_a') then
+    raise exception 'ÉCHEC 12 — le hook n''a pas injecté etablissement_id (sortie : %)', sortie;
+  end if;
+
+  if sortie -> 'claims' -> 'app_metadata' ->> 'role' is distinct from 'direction' then
+    raise exception 'ÉCHEC 13 — le hook n''a pas injecté le rôle (sortie : %)', sortie;
+  end if;
+end $$;
+
 
 do $$ begin
   raise notice '';
-  raise notice '  ISOLATION : 11/11 — étanche.';
+  raise notice '  ISOLATION : 13/13 — étanche.';
   raise notice '';
 end $$;
 

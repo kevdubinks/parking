@@ -19,6 +19,9 @@ supabase/.branches
 supabase/.temp
 supabase/.env
 
+# postgres jetable du test d'isolation (supprimé en fin de test)
+.pg-test/
+
 # vercel
 .vercel
 

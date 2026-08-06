@@ -9,9 +9,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types \"src/**/*.test.mjs\"",
+    "test:isolation": "node scripts/test-isolation.mjs",
     "charte": "node scripts/charte.mjs",
-    "db:reset": "supabase db reset",
-    "db:test": "supabase db reset && psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/isolation.sql"
+    "db:reset": "supabase db reset"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
@@ -24,6 +24,11 @@
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "pg": "^8.22.0",
     "typescript": "^5.7.3"
+  },
+  "allowScripts": {
+    "@embedded-postgres/windows-x64@18.4.0-beta.17": true
   }
 }

@@ -62,22 +62,44 @@ l'écran reste vide. C'est le comportement voulu : le système échoue **fermé*
 ### 3. Test d'isolation — obligatoire
 
 Aucune écriture de front ne doit être considérée comme fiable tant que ce script n'est pas
-passé au vert :
+passé au vert.
+
+**Sans rien installer** — ni Docker, ni PostgreSQL, ni projet Supabase :
+
+```bash
+npm run test:isolation
+```
+
+Un PostgreSQL est téléchargé, démarré sur un port privé, chargé avec les migrations, testé,
+puis supprimé. Le harnais fait deux choses :
+
+1. il joue les **13 assertions** d'étanchéité (lecture cloisonnée, écriture impossible chez
+   le voisin, auteur infalsifiable, journal ni modifiable ni effaçable, purge inaccessible à
+   un compte connecté, aucune lecture sans claim, et le hook JWT qui injecte réellement
+   `etablissement_id`) ;
+2. il **recasse le schéma six fois**, une protection à la fois, et vérifie que le test s'en
+   aperçoit à chaque fois. Un test d'étanchéité qu'on n'a jamais vu virer au rouge ne prouve
+   rien.
+
+État actuel : **13/13 assertions, 6/6 sabotages détectés**, sur PostgreSQL 18.4.
+
+**Sur la base réelle** — l'étape que rien ne remplace :
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/isolation.sql
 ```
 
-Il crée deux établissements et deux comptes jetables, se fait passer pour chacun, et
-vérifie onze propriétés : lecture cloisonnée, écriture impossible chez le voisin,
-impossibilité de falsifier l'auteur, journal ni modifiable ni effaçable, purge inaccessible
-à un compte connecté, et absence totale de lecture sans claim. Tout est annulé en fin de
-script (`rollback`), rien n'est laissé dans la base.
+> Le harnais local valide les **politiques**. Il ne valide pas le **déploiement** :
+> l'émission des jetons par GoTrue et le branchement du Custom Access Token Hook dans le
+> tableau de bord Supabase n'existent que sur le projet réel. `supabase/tests/prelude-local.sql`
+> est l'échafaudage qui remplace Supabase en local ; il n'est jamais appliqué à la base
+> réelle, et il documente exactement ce qu'il ne simule pas.
 
 Un `ÉCHEC n` signifie que l'isolation ne tient pas. Ne rien déployer avant de l'avoir
 corrigé.
 
-La logique qui ne dépend ni de la base ni du navigateur se vérifie sans rien installer :
+La logique de synchronisation, qui ne dépend ni de la base ni du navigateur, se vérifie de
+la même façon :
 
 ```bash
 npm test
