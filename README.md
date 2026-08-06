@@ -83,7 +83,26 @@ puis supprimé. Le harnais fait deux choses :
 
 État actuel : **13/13 assertions, 6/6 sabotages détectés**, sur PostgreSQL 18.4.
 
-**Sur la base réelle** — l'étape que rien ne remplace :
+**Sur le projet réel** — l'étape que rien ne remplace. Elle vérifie ce que le harnais local
+ne peut pas voir : que GoTrue émet bien des jetons, que le Custom Access Token Hook est
+réellement activé, que le claim arrive jusqu'à PostgREST, et que le RLS tient de bout en
+bout.
+
+```bash
+SUPABASE_URL=… SUPABASE_SECRET_KEY=… SUPABASE_PUBLISHABLE_KEY=… npm run test:isolation:live
+```
+
+Le script crée deux comptes et deux établissements jetables, **se connecte pour de vrai**,
+attaque l'API avec le jeton de chacun, puis supprime ce qu'il a créé — et uniquement ça, par
+identifiant. La clé secrète ne sert qu'à préparer et à nettoyer : les douze assertions
+passent toutes par la clé publiable et un vrai jeton utilisateur, c'est-à-dire par le chemin
+que suit l'application.
+
+Il détecte en particulier un hook non branché, qui est la panne d'installation la plus
+probable et la plus déroutante : le registre s'affiche vide sans qu'aucune erreur ne soit
+levée.
+
+Variante en SQL, si vous avez `psql` et l'accès direct à la base :
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/isolation.sql

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types \"src/**/*.test.mjs\"",
     "test:isolation": "node scripts/test-isolation.mjs",
+    "test:isolation:live": "node scripts/test-isolation-live.mjs",
     "charte": "node scripts/charte.mjs",
     "db:reset": "supabase db reset"
   },
