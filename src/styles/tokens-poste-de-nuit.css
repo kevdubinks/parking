@@ -1,0 +1,209 @@
+/* =============================================================
+   tokens.css — Registre de plaques (parkings d'hôtel)
+   DIRECTION B — « Poste de nuit »
+   -------------------------------------------------------------
+   Mêmes NOMS de tokens que la direction A : le front peut passer
+   d'une direction à l'autre en remplaçant ce seul fichier.
+   Sombre par défaut (panneau à message variable, poste de nuit),
+   thème clair automatique via prefers-color-scheme, bascule
+   manuelle avec [data-theme="light"|"dark"] sur <html>.
+
+   Fichier livré par la charte. SEULE MODIFICATION à l'intégration :
+   --font-ui et --font-plate reçoivent en tête les variables produites
+   par next/font, qui auto-héberge IBM Plex au build. Aucune requête
+   vers un CDN à l'exécution ; si les variables n'existent pas, les
+   noms littéraux puis les piles système prennent le relais.
+
+   Réserve de la charte, non tranchée (point 8) : le jaune sert ici à
+   la fois d'action et de signalement (« en attente », « sans
+   chambre »). Deux sens pour une couleur, c'est un de trop. Tant que
+   ce n'est pas arbitré, les composants gardent le signalement en
+   --color-warning et l'action en --color-action, qui ont ici la même
+   teinte : le jour où l'arbitrage tombe, seul ce fichier change.
+   ============================================================= */
+
+:root {
+  color-scheme: dark light;
+
+  /* — Fonds et surfaces ------------------------------------- */
+  --color-bg:                  #0E1013;
+  --color-surface:             #16181C;
+  --color-surface-sunken:      #08090B;
+  --color-surface-inverse:     #F2F4F6;
+
+  /* — Texte -------------------------------------------------- */
+  --color-text:                #F2F4F6;  /* 15.2:1 sur surface — AAA */
+  --color-text-secondary:      #A3AAB3;  /*  7.4:1 sur surface — AAA */
+  --color-text-inverse:        #14161A;
+
+  /* — Traits ------------------------------------------------- */
+  --color-border:              #23262B;
+  --color-border-strong:       #4C525A;
+
+  /* — Accent et action (jaune de signalisation) -------------- */
+  --color-accent:              #F5B720;  /*  9.9:1 sur surface — AAA */
+  --color-accent-on:           #14161A;  /* 10.4:1 sur accent  — AAA */
+  --color-action:              #F5B720;
+  --color-action-hover:        #FFC94A;
+  --color-action-text:         #14161A;
+  --color-action-disabled:     #22252A;
+  --color-action-disabled-text:#949BA3;  /*  4.9:1 — AA */
+
+  /* — Statuts (toujours doublés d'un mot : jamais la couleur seule) */
+  --color-success:             #4FD08A;
+  --color-success-surface:     #12251B;
+  --color-warning:             #FFC24D;
+  --color-warning-surface:     #2A2418;
+  --color-danger:              #FF7A63;
+  --color-danger-surface:      #2C1712;
+
+  /* — Focus -------------------------------------------------- */
+  --color-focus:               #F5B720;
+  --color-focus-contrast:      #08090B;
+
+  /* — Plaque : contraste maximal, exigence AAA --------------- */
+  --color-plate-bg:            #08090B;
+  --color-plate-text:          #FFFFFF;  /* 19.9:1 — AAA */
+  --color-plate-border:        #5A616A;
+
+  /* — Ligne de liste ---------------------------------------- */
+  --color-row-border:          #21242A;
+  --color-row-hover:           #1D2025;
+  --color-row-marked:          #2A2418;  /* doublon signalé */
+
+  /* — Typographie ------------------------------------------- */
+  --font-ui:    var(--police-plex-sans), "IBM Plex Sans", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-plate: var(--police-plex-mono), "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --text-caption:     11px;  /* sur-titres capitales espacées */
+  --text-label:       12px;
+  --text-body:        14px;
+  --text-data:        16px;  /* plaque dans la liste (mono) */
+  --text-action:      16px;
+  --text-title:       18px;
+  --text-counter:     28px;  /* compteur d'occupation */
+  --text-plate-field:       40px;  /* champ plaque — lisible à 1 m */
+  --text-plate-field-long:  34px;  /* 13 à 14 caractères */
+  --text-plate-field-xlong: 28px;  /* 15 caractères et plus */
+
+  --leading-tight: 1.05;
+  --leading-body:  1.45;
+  --tracking-plate: 0.02em;  /* le mono espace déjà */
+  --tracking-caps:  0.12em;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-strong:  600;
+
+  /* — Espacement (base 4) ----------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  /* — Rayons : aucun. Tout est rectangulaire. --------------- */
+  --radius-none: 0;
+  --radius-sm:   0;
+  --radius-md:   2px;
+  --radius-full: 999px;
+
+  /* — Ombres : aucune. La hiérarchie passe par les traits. -- */
+  --shadow-none:  none;
+  --shadow-row:   none;
+  --shadow-dock:  0 -1px 0 var(--color-border-strong);
+  --shadow-focus: 0 0 0 2px var(--color-focus-contrast), 0 0 0 4px var(--color-focus);
+
+  /* — Géométrie tactile et rythme --------------------------- */
+  --target-min:    44px;
+  --row-height:    48px;  /* registre dense : 12 lignes visibles */
+  --field-height:  60px;
+  --action-height: 52px;
+
+  /* — Durées ------------------------------------------------ */
+  --dur-instant: 0ms;
+  --dur-fast:    80ms;
+  --dur-base:   140ms;
+  --dur-undo:  6000ms;
+  --ease: cubic-bezier(.2,.6,.3,1);
+}
+
+/* — Thème clair : comptoir de jour, lumière violente -------- */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg:                  #F1F2F4;
+    --color-surface:             #FFFFFF;
+    --color-surface-sunken:      #E5E7EA;
+    --color-surface-inverse:     #101216;
+    --color-text:                #101216;  /* 17.6:1 — AAA */
+    --color-text-secondary:      #4E545C;  /*  8.0:1 — AAA */
+    --color-text-inverse:        #FFFFFF;
+    --color-border:              #D3D7DC;
+    --color-border-strong:       #101216;
+    --color-accent:              #7A4E00;  /*  7.1:1 — AAA (jaune illisible en texte sur blanc) */
+    --color-accent-on:           #FFFFFF;
+    --color-action:              #F5B720;  /* aplat conservé : geste identique jour et nuit */
+    --color-action-hover:        #DFA412;
+    --color-action-text:         #14161A;  /* 10.4:1 sur l'aplat — AAA */
+    --color-action-disabled:     #DFE1E5;
+    --color-action-disabled-text:#5C6167;
+    --color-success:             #17694A;
+    --color-success-surface:     #E2F0E9;
+    --color-warning:             #7A4E00;
+    --color-warning-surface:     #FBF0D8;
+    --color-danger:              #A32014;
+    --color-danger-surface:      #FBE7E4;
+    --color-focus:               #A86A00;
+    --color-focus-contrast:      #FFFFFF;
+    --color-plate-bg:            #FFFFFF;
+    --color-plate-text:          #0A0B0D;  /* 20.1:1 — AAA */
+    --color-plate-border:        #101216;
+    --color-row-border:          #E2E4E8;
+    --color-row-hover:           #EEF0F2;
+    --color-row-marked:          #FBF0D8;
+  }
+}
+
+/* Bascule manuelle : mêmes valeurs que le bloc ci-dessus. */
+[data-theme="light"] {
+  --color-bg:                  #F1F2F4;
+  --color-surface:             #FFFFFF;
+  --color-surface-sunken:      #E5E7EA;
+  --color-surface-inverse:     #101216;
+  --color-text:                #101216;
+  --color-text-secondary:      #4E545C;
+  --color-text-inverse:        #FFFFFF;
+  --color-border:              #D3D7DC;
+  --color-border-strong:       #101216;
+  --color-accent:              #7A4E00;
+  --color-accent-on:           #FFFFFF;
+  --color-action:              #F5B720;
+  --color-action-hover:        #DFA412;
+  --color-action-text:         #14161A;
+  --color-action-disabled:     #DFE1E5;
+  --color-action-disabled-text:#5C6167;
+  --color-success:             #17694A;
+  --color-success-surface:     #E2F0E9;
+  --color-warning:             #7A4E00;
+  --color-warning-surface:     #FBF0D8;
+  --color-danger:              #A32014;
+  --color-danger-surface:      #FBE7E4;
+  --color-focus:               #A86A00;
+  --color-focus-contrast:      #FFFFFF;
+  --color-plate-bg:            #FFFFFF;
+  --color-plate-text:          #0A0B0D;
+  --color-plate-border:        #101216;
+  --color-row-border:          #E2E4E8;
+  --color-row-hover:           #EEF0F2;
+  --color-row-marked:          #FBF0D8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --ease: linear;
+  }
+}

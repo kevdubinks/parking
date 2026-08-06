@@ -1,0 +1,204 @@
+/* =============================================================
+   tokens.css — Registre de plaques (parkings d'hôtel)
+   DIRECTION A — « Signalétique »
+   -------------------------------------------------------------
+   Tokens nommés par leur rôle, jamais par leur valeur.
+   Thème clair par défaut (le comptoir de jour, lumière violente),
+   thème sombre automatique via prefers-color-scheme, et bascule
+   manuelle possible avec [data-theme="light"|"dark"] sur <html>.
+   Aucune police, image ou icône chargée depuis un CDN n'est
+   nécessaire au fonctionnement : les piles système suffisent.
+
+   Fichier livré par la charte. SEULE MODIFICATION à l'intégration :
+   --font-ui et --font-plate reçoivent en tête `var(--police-archivo)`,
+   la variable produite par next/font, qui auto-héberge Archivo au
+   build. Aucune requête vers un CDN à l'exécution ; si la variable
+   n'existe pas, le nom littéral "Archivo" puis les piles système
+   prennent le relais, comme prévu par la charte.
+   ============================================================= */
+
+:root {
+  color-scheme: light dark;
+
+  /* — Fonds et surfaces ------------------------------------- */
+  --color-bg:                  #F6F5F2;
+  --color-surface:             #FFFFFF;
+  --color-surface-sunken:      #ECEAE5;
+  --color-surface-inverse:     #15171A;
+
+  /* — Texte -------------------------------------------------- */
+  --color-text:                #15171A;  /* 15.5:1 sur surface — AAA */
+  --color-text-secondary:      #54585E;  /*  7.3:1 sur surface — AAA */
+  --color-text-inverse:        #FFFFFF;
+
+  /* — Traits ------------------------------------------------- */
+  --color-border:              #D8D6D1;
+  --color-border-strong:       #15171A;
+
+  /* — Accent et action -------------------------------------- */
+  --color-accent:              #12459E;  /*  8.0:1 sur surface — AAA */
+  --color-accent-on:           #FFFFFF;  /*  8.6:1 sur accent  — AAA */
+  --color-action:              #12459E;
+  --color-action-hover:        #0D3376;
+  --color-action-text:         #FFFFFF;
+  --color-action-disabled:     #DCDAD5;
+  --color-action-disabled-text:#5F6369;  /*  4.9:1 — AA */
+
+  /* — Statuts (toujours doublés d'un mot : jamais la couleur seule) */
+  --color-success:             #1B6B45;
+  --color-success-surface:     #E4F0E9;
+  --color-warning:             #8A5300;
+  --color-warning-surface:     #FBF1D9;
+  --color-danger:              #A32014;
+  --color-danger-surface:      #FBE7E4;
+
+  /* — Focus (jaune de signalisation + liseré sombre) --------- */
+  --color-focus:               #F2B600;
+  --color-focus-contrast:      #15171A;
+
+  /* — Plaque : contraste maximal, exigence AAA --------------- */
+  --color-plate-bg:            #FFFFFF;
+  --color-plate-text:          #0C0D0F;  /* 19.8:1 — AAA */
+  --color-plate-border:        #15171A;
+
+  /* — Ligne de liste ---------------------------------------- */
+  --color-row-border:          #E7E5E0;
+  --color-row-hover:           #F0EFEB;
+  --color-row-marked:          #FBF1D9;  /* doublon signalé */
+
+  /* — Typographie ------------------------------------------- */
+  --font-ui:    var(--police-archivo), "Archivo", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-plate: var(--police-archivo), "Archivo", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --text-caption:     12px;  /* sur-titres, mentions */
+  --text-label:       13px;  /* étiquettes de champ */
+  --text-body:        15px;  /* texte courant, durées */
+  --text-data:        19px;  /* plaque dans la liste */
+  --text-action:      19px;  /* libellé du bouton principal */
+  --text-title:       22px;
+  --text-counter:     34px;  /* compteur d'occupation */
+  --text-plate-field:       38px;  /* champ plaque — lisible à 1 m */
+  --text-plate-field-long:  32px;  /* 11 à 12 caractères */
+  --text-plate-field-xlong: 26px;  /* 13 caractères et plus */
+
+  --leading-tight: 1.05;
+  --leading-body:  1.4;
+  --tracking-plate: 0.05em;
+  --tracking-caps:  0.08em;
+  --weight-regular: 400;
+  --weight-medium:  600;
+  --weight-strong:  700;
+
+  /* — Espacement (base 4) ----------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  /* — Rayons (quasi nuls : l'objet de référence est un panneau) */
+  --radius-none: 0;
+  --radius-sm:   3px;
+  --radius-md:   5px;
+  --radius-full: 999px;
+
+  /* — Ombres (volontairement rares : aucune sur les lignes) -- */
+  --shadow-none:  none;
+  --shadow-row:   none;
+  --shadow-dock:  0 -1px 0 var(--color-border-strong);
+  --shadow-focus: 0 0 0 3px var(--color-focus), 0 0 0 5px var(--color-focus-contrast);
+
+  /* — Géométrie tactile et rythme --------------------------- */
+  --target-min:    44px;  /* plancher absolu */
+  --row-height:    56px;
+  --field-height:  72px;  /* champ plaque */
+  --action-height: 60px;  /* bouton d'enregistrement */
+
+  /* — Durées ------------------------------------------------ */
+  --dur-instant: 0ms;
+  --dur-fast:    90ms;   /* survol, focus */
+  --dur-base:   160ms;   /* apparition d'une ligne, d'une barre */
+  --dur-undo:  6000ms;   /* fenêtre d'annulation après une sortie */
+  --ease: cubic-bezier(.2,.6,.3,1);
+}
+
+/* — Thème sombre : réceptions de nuit ------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg:                  #14161A;
+    --color-surface:             #1C1F24;
+    --color-surface-sunken:      #0E1013;
+    --color-surface-inverse:     #F2F4F6;
+    --color-text:                #F2F4F6;  /* 14.6:1 — AAA */
+    --color-text-secondary:      #A7AEB7;  /*  7.1:1 — AAA */
+    --color-text-inverse:        #14161A;
+    --color-border:              #2C3037;
+    --color-border-strong:       #F2F4F6;
+    --color-accent:              #8AB4FF;  /*  8.1:1 — AAA */
+    --color-accent-on:           #101319;
+    --color-action:              #2C63C9;
+    --color-action-hover:        #3E78E0;
+    --color-action-text:         #FFFFFF;
+    --color-action-disabled:     #262A30;
+    --color-action-disabled-text:#8F969F;
+    --color-success:             #5FD196;
+    --color-success-surface:     #16281F;
+    --color-warning:             #FFC24D;
+    --color-warning-surface:     #2A2214;
+    --color-danger:              #FF8A73;
+    --color-danger-surface:      #2E1A16;
+    --color-focus:               #F2B600;
+    --color-focus-contrast:      #14161A;
+    --color-plate-bg:            #0A0B0D;
+    --color-plate-text:          #FFFFFF;  /* 19.6:1 — AAA */
+    --color-plate-border:        #F2F4F6;
+    --color-row-border:          #272B31;
+    --color-row-hover:           #23272D;
+    --color-row-marked:          #2A2214;
+  }
+}
+
+/* Bascule manuelle (bouton dans les réglages) : mêmes valeurs. */
+[data-theme="dark"] {
+  --color-bg:                  #14161A;
+  --color-surface:             #1C1F24;
+  --color-surface-sunken:      #0E1013;
+  --color-surface-inverse:     #F2F4F6;
+  --color-text:                #F2F4F6;
+  --color-text-secondary:      #A7AEB7;
+  --color-text-inverse:        #14161A;
+  --color-border:              #2C3037;
+  --color-border-strong:       #F2F4F6;
+  --color-accent:              #8AB4FF;
+  --color-accent-on:           #101319;
+  --color-action:              #2C63C9;
+  --color-action-hover:        #3E78E0;
+  --color-action-text:         #FFFFFF;
+  --color-action-disabled:     #262A30;
+  --color-action-disabled-text:#8F969F;
+  --color-success:             #5FD196;
+  --color-success-surface:     #16281F;
+  --color-warning:             #FFC24D;
+  --color-warning-surface:     #2A2214;
+  --color-danger:              #FF8A73;
+  --color-danger-surface:      #2E1A16;
+  --color-plate-bg:            #0A0B0D;
+  --color-plate-text:          #FFFFFF;
+  --color-plate-border:        #F2F4F6;
+  --color-row-border:          #272B31;
+  --color-row-hover:           #23272D;
+  --color-row-marked:          #2A2214;
+}
+
+/* — Mouvement réduit : on garde les changements d'état,
+     on supprime le temps qu'ils prennent. ------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --ease: linear;
+  }
+}

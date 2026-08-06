@@ -27,6 +27,12 @@ export type VehiculePresent = {
   plaque_saisie: string
   chambre: string | null
   entree_le: string
+  /**
+   * L'événement qui met ce véhicule sur le parking n'a pas encore été
+   * accepté par le serveur. La voiture est bien au registre — c'est le
+   * serveur qui ne le sait pas encore.
+   */
+  enAttente: boolean
 }
 
 export type EtatReseau = 'en-ligne' | 'hors-ligne' | 'synchronisation'

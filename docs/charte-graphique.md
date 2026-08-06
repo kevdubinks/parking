@@ -1,11 +1,36 @@
-# Charte graphique — brief de cadrage
+# Charte graphique
 
-État : **en attente de validation**. Le fichier `src/styles/tokens.css` contient une
-direction provisoire reprise du prototype, pour que l'application soit utilisable en
-attendant.
+État : **livrée, deux directions, mise en page A implémentée**.
 
-Ce document est le brief remis à la conception. Il est reproduit ici pour que la charte
-livrée puisse être jugée sur les contraintes qui l'ont commandée, et non sur le goût.
+La charte a été rendue sous forme de deux directions complètes partageant les mêmes noms de
+tokens :
+
+| | Direction A — « Signalétique » | Direction B — « Poste de nuit » |
+|---|---|---|
+| Fichier | `src/styles/tokens-signaletique.css` | `src/styles/tokens-poste-de-nuit.css` |
+| Défaut | clair | sombre |
+| Typographie | Archivo (une seule famille) | IBM Plex Sans + Mono |
+| Action | bleu `#12459E` | jaune de signalisation `#F5B720` |
+| Ligne | 56 px | 48 px |
+| Champ plaque | 38 px | 40 px, chasse fixe |
+
+**La mise en page implémentée est celle de A.** Basculer de direction change la palette, la
+typographie, les densités, les rayons et la police auto-hébergée ; cela ne déplace pas le
+bandeau de commande comme le fait la maquette B, qui demanderait un second jeu de
+composants.
+
+```bash
+npm run charte -- poste-de-nuit
+```
+
+La commande réécrit l'`@import` de `src/styles/tokens.css` et la constante de
+`src/lib/charte.ts` — les deux doivent rester d'accord, d'où le script.
+
+La première moitié de ce document est le brief remis à la conception, conservé pour que la
+charte puisse être jugée sur les contraintes qui l'ont commandée et non sur le goût. Les
+écarts d'intégration sont consignés à la fin.
+
+---
 
 ---
 
@@ -79,16 +104,57 @@ nom, deux phrases de parti pris, et la justification de ce parti pris par le cri
   et la signalétique routière : haut contraste, lisible en une fraction de seconde, sans
   personnalité inutile.
 
-## Intégration
+---
 
-La charte validée remplace le contenu de `src/styles/tokens.css`, et rien d'autre. Aucun
-composant ne porte de valeur en dur. Si une direction retenue impose un token qui n'existe
-pas encore, l'ajouter à ce fichier et l'utiliser — ne jamais écrire la valeur dans un
-composant.
+## Écarts d'intégration
+
+Quatre endroits où le code ne suit pas la charte à la lettre. Chacun est un arbitrage, pas
+un oubli.
+
+**1. Un parking complet ne bloque pas l'enregistrement.** La charte spécifie un champ plaque
+désactivé quand le parking est plein, avec le message « enregistrez une sortie avant une
+entrée ». Le bandeau et la jauge noire sont bien là, mais la saisie reste possible.
+
+Refuser l'entrée d'une voiture qui est physiquement garée rendrait le registre faux, ce qui
+est le seul mode de défaillance que `CLAUDE.md` § 2 cherche à empêcher : « le journal devient
+incomplet, et les cinq usages s'effondrent en même temps ». Un compteur à 19/18 est une
+information exacte et gênante ; un compteur à 18/18 avec une voiture non enregistrée est une
+information fausse et rassurante.
+
+**2. Le champ chambre passe sous le champ plaque en dessous de 420 px.** La maquette 1a du
+canvas ne montre pas où loge le champ chambre. Placé sur la même ligne à 375 px, il ampute
+le champ plaque de trois caractères — la charte exige exactement l'inverse (« une plaque
+étrangère longue reste entière, jamais rognée »). Il passe donc dessous sur téléphone, et
+revient à côté sur écran de comptoir. Le champ chambre est au plancher tactile (44 px) et
+non à la hauteur du champ plaque (72 px) : la différence de taille dit laquelle des deux
+saisies compte.
+
+Coût mesuré : bandeau de saisie à 290 px sur téléphone (375 px), 217 px sur comptoir
+(560 px) — sept lignes visibles au lieu des huit annoncées par la charte pour 1a.
+
+**3. Les paliers de taille du champ plaque tiennent jusqu'à quatorze caractères affichés.**
+Au-delà (seize caractères identiques et larges, ce qui n'est pas une plaque), le texte
+défile dans le champ. La saisie est plafonnée à seize caractères.
+
+**4. Les deux fichiers de tokens ont une ligne modifiée chacun.** `--font-ui` et
+`--font-plate` reçoivent en tête la variable produite par `next/font`, qui auto-héberge la
+police au build. Aucune requête vers un CDN à l'exécution — c'est la contrainte du brief, et
+la charte demandait explicitement l'auto-hébergement. Les noms littéraux et les piles
+système restent en repli.
+
+## Ce que la charte laisse ouvert
+
+Le document se termine sur huit arbitrages non tranchés, qui demandent du terrain :
+transformer le bouton en « Sortie de … » quand la plaque est déjà là, garder ou non le champ
+chambre, afficher la durée ou l'heure d'arrivée, fusionner 0/O et 1/I à la recherche, la
+capacité réelle du parking, le soleil sur le comptoir, l'abrégé « sans ch. » de 1b, et le
+double sens du jaune dans 1b.
+
+Aucun n'est implémenté dans un sens ou dans l'autre au-delà de ce que fait déjà le code.
 
 ## Réserve de méthode
 
-`CLAUDE.md` § 9 place le design en étape 4, **après** les premiers retours d'usage réel. Ce
-brief est donc lancé en avance sur l'ordre de travail prévu. L'isolation de la charte dans
-un fichier unique est ce qui rend cette avance peu coûteuse : si l'usage réel contredit la
-direction retenue, la reprise reste un remplacement de fichier.
+`CLAUDE.md` § 9 place le design en étape 4, **après** les premiers retours d'usage réel. La
+charte a donc été lancée en avance sur l'ordre de travail prévu. L'isolation dans un fichier
+unique est ce qui rend cette avance peu coûteuse : si l'usage réel contredit la direction
+retenue, la reprise reste un remplacement de fichier.

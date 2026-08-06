@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "charte": "node scripts/charte.mjs",
     "db:reset": "supabase db reset",
     "db:test": "supabase db reset && psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/isolation.sql"
   },

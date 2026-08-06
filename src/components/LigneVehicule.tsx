@@ -1,12 +1,13 @@
 'use client'
 
-import { afficher, dureeDepuis, estFrancaise, heureCourte } from '@/lib/plaque'
+import { afficher, dureeDepuis } from '@/lib/plaque'
 import type { VehiculePresent } from '@/lib/types'
 import styles from './registre.module.css'
 
 /**
- * Une voiture garée. Dense à dessein : on doit en voir dix sans faire
- * défiler. Le bouton Sortie est le seul geste possible ici.
+ * Une voiture garée. 56 px, un filet, aucun fond, aucune ombre : huit à
+ * dix lignes tiennent dans un écran de téléphone. La cible « Sortie »
+ * fait 88 × 44 px et reste à droite, loin du pouce qui frappe Entrée.
  *
  * Note : tout le texte passe par JSX, jamais par innerHTML. Une plaque
  * et un numéro de chambre sont du texte libre saisi par un humain, donc
@@ -14,36 +15,52 @@ import styles from './registre.module.css'
  */
 export function LigneVehicule({
   vehicule,
+  marquee,
   onSortie,
 }: {
   vehicule: VehiculePresent
+  /** La plaque en cours de saisie est déjà celle-ci : ligne signalée. */
+  marquee: boolean
   onSortie: (plaque: string) => void
 }) {
   const libelle = afficher(vehicule.plaque, vehicule.plaque_saisie)
 
   return (
-    <div className={styles.ligne}>
-      <div className={styles.plaque}>
-        <div className={styles.bande} aria-hidden="true">
-          {estFrancaise(vehicule.plaque) ? 'F' : ''}
-        </div>
-        <div className={styles.numero}>{libelle}</div>
+    <div
+      className={`${styles.ligne} ${marquee ? styles.ligneMarquee : ''}`}
+      aria-current={marquee ? 'true' : undefined}
+    >
+      <div>
+        <div className={styles.plaque}>{libelle}</div>
+
+        {vehicule.chambre && !vehicule.enAttente ? (
+          <div className={styles.chambre}>Chambre {vehicule.chambre}</div>
+        ) : (
+          <div className={styles.marqueurs}>
+            {vehicule.chambre ? (
+              <span className={styles.chambre}>Chambre {vehicule.chambre}</span>
+            ) : (
+              /* Le mot est écrit : la couleur ne porte rien seule. */
+              <span className={styles.sansChambre} title="aucune chambre attribuée">
+                sans chambre
+              </span>
+            )}
+            {vehicule.enAttente && (
+              <span
+                className={styles.enAttente}
+                title="enregistré sur l'appareil, pas encore envoyé au serveur"
+              >
+                en attente
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
-      <div className={styles.meta}>
-        <div className={styles.chambre}>
-          {vehicule.chambre ? (
-            `Chambre ${vehicule.chambre}`
-          ) : (
-            /* Signalé, jamais bloqué ni traité comme une faute. */
-            <span className={styles.sansChambre}>Sans chambre</span>
-          )}
-        </div>
-        <div className={styles.duree}>
-          Entrée {heureCourte(vehicule.entree_le)} · {dureeDepuis(vehicule.entree_le)}
-        </div>
-      </div>
+      <div className={styles.duree}>{dureeDepuis(vehicule.entree_le)}</div>
 
+      {/* Reste actif même en attente d'envoi : hors ligne, on travaille
+          comme en ligne. */}
       <button
         type="button"
         className={styles.sortie}

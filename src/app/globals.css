@@ -19,10 +19,11 @@ body {
 }
 
 body {
-  font-family: var(--police-texte);
-  font-size: var(--taille-base);
-  background: var(--fond);
-  color: var(--texte);
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  background: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   justify-content: center;
   -webkit-font-smoothing: antialiased;
@@ -38,11 +39,12 @@ button {
   cursor: pointer;
 }
 
-/* Le focus doit rester visible : l'outil se pilote au clavier depuis un
-   PC de comptoir, tabulation comprise. */
+/* Focus : jaune de signalisation doublé d'un liseré sombre, pour tenir
+   sur fond clair comme sur fond sombre. L'outil se pilote au clavier
+   depuis un PC de comptoir, tabulation comprise. */
 :focus-visible {
-  outline: 3px solid var(--action);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 [hidden] {
@@ -62,12 +64,13 @@ button {
   border: 0;
 }
 
+/* Les durées sont déjà neutralisées dans les tokens sous
+   prefers-reduced-motion ; ceci couvre les animations nommées. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }

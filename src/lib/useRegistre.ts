@@ -38,7 +38,7 @@ export function useRegistre(): Registre {
   const [pret, setPret] = useState(false)
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [evenements, setEvenements] = useState<Evenement[]>([])
-  const [enAttente, setEnAttente] = useState(0)
+  const [idsEnAttente, setIdsEnAttente] = useState<ReadonlySet<string>>(new Set())
   const [reseau, setReseau] = useState<EtatReseau>('en-ligne')
   const [erreur, setErreur] = useState<string | null>(null)
   const syncEnCours = useRef(false)
@@ -47,7 +47,7 @@ export function useRegistre(): Registre {
   const rafraichirDepuisLocal = useCallback(async () => {
     const [journal, attente] = await Promise.all([lireJournal(), lireAttente()])
     setEvenements([...journal, ...attente])
-    setEnAttente(attente.length)
+    setIdsEnAttente(new Set(attente.map((e) => e.id)))
   }, [])
 
   /** Pousse la file, puis relit le serveur. Silencieux si hors-ligne. */
@@ -179,6 +179,11 @@ export function useRegistre(): Registre {
     [ecrire, evenements]
   )
 
+  const presents = useMemo(
+    () => projeter(evenements, idsEnAttente),
+    [evenements, idsEnAttente]
+  )
+
   /**
    * Annulation dans la fenêtre de 6 secondes : l'événement n'a pas
    * encore quitté la file, on le retire. S'il est déjà parti, on
@@ -193,13 +198,11 @@ export function useRegistre(): Registre {
     [rafraichirDepuisLocal]
   )
 
-  const presents = useMemo(() => projeter(evenements), [evenements])
-
   return {
     pret,
     identite,
     presents,
-    enAttente,
+    enAttente: idsEnAttente.size,
     reseau,
     erreur,
     entrer,

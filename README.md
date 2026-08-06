@@ -110,12 +110,17 @@ src/
   app/                  routes ; page.tsx est l'écran unique
   components/           Registre, ligne véhicule, barre d'annulation
   lib/
+    charte.ts           direction graphique active (police auto-hébergée)
     config.ts           réglages de l'établissement (en dur en v1)
     plaque.ts           normalisation, validation permissive, affichage
     journal.ts          IndexedDB : journal local, file d'attente, projection
     useRegistre.ts      orchestration lecture / écriture / synchronisation
     supabase/           clients navigateur et serveur
-  styles/tokens.css     LA CHARTE GRAPHIQUE, en un seul fichier
+  styles/
+    tokens.css              l'interrupteur — désigne la direction active
+    tokens-signaletique.css direction A, clair, Archivo, bleu
+    tokens-poste-de-nuit.css direction B, sombre, IBM Plex, jaune
+scripts/charte.mjs      bascule de direction
 supabase/
   migrations/           schéma, RLS + hook JWT, purge RGPD
   tests/isolation.sql   test d'étanchéité entre établissements
@@ -125,12 +130,25 @@ docs/prototype-v1.html  prototype de référence, autonome
 ### La charte tient dans un fichier
 
 Aucun composant ne contient de couleur, de taille ni d'espacement en dur : tout lit les
-variables de [`src/styles/tokens.css`](src/styles/tokens.css). Changer de charte, c'est
-remplacer ce fichier — pas refondre les écrans.
+variables de [`src/styles/tokens.css`](src/styles/tokens.css), qui ne fait que désigner la
+direction active.
 
-Le contenu actuel est **provisoire** : il reprend la direction du prototype pour que
-l'application soit utilisable pendant la validation de la charte définitive. Le brief de
-cadrage est dans [`docs/charte-graphique.md`](docs/charte-graphique.md).
+Deux directions sont livrées et partagent exactement les mêmes noms de tokens :
+
+```bash
+npm run charte                     # direction active
+npm run charte -- poste-de-nuit    # bascule
+```
+
+La commande réécrit l'`@import` de `tokens.css` **et** la constante de `src/lib/charte.ts`,
+qui décide quelle police est auto-hébergée au build — les deux doivent rester d'accord.
+
+La **mise en page** implémentée est celle de la direction A (« Signalétique »). La bascule
+change la palette, la typographie, les densités et les rayons ; elle ne déplace pas le
+bandeau de commande comme le fait la maquette B.
+
+Détail des directions et des quatre écarts d'intégration :
+[`docs/charte-graphique.md`](docs/charte-graphique.md).
 
 ---
 

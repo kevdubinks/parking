@@ -150,7 +150,10 @@ export async function incrementerTentatives(ids: string[]): Promise<void> {
  * événement de chaque plaque, gardé s'il s'agit d'une ENTREE. Les deux
  * implémentations doivent rester d'accord ; c'est le prix du hors-ligne.
  */
-export function projeter(evenements: Evenement[]): VehiculePresent[] {
+export function projeter(
+  evenements: Evenement[],
+  idsEnAttente: ReadonlySet<string> = new Set()
+): VehiculePresent[] {
   const dernier = new Map<string, Evenement>()
 
   for (const e of evenements) {
@@ -167,6 +170,7 @@ export function projeter(evenements: Evenement[]): VehiculePresent[] {
       plaque_saisie: e.plaque_saisie,
       chambre: e.chambre,
       entree_le: e.survenu_le,
+      enAttente: idsEnAttente.has(e.id),
     }))
     .sort((a, b) => +new Date(b.entree_le) - +new Date(a.entree_le))
 }

@@ -1,116 +1,31 @@
 /* =====================================================================
-   CHARTE GRAPHIQUE — fichier unique, remplaçable d'un bloc.
+   CHARTE GRAPHIQUE — l'interrupteur.
    =====================================================================
 
-   Ce qui est ici est PROVISOIRE : c'est la direction du prototype
-   `parking-hotel-v1.html`, reprise telle quelle pour que l'application
-   soit utilisable pendant la validation de la charte.
+   Ce fichier ne contient AUCUNE valeur. Il ne fait que désigner la
+   direction active parmi celles livrées par la charte :
 
-   Quand la charte définitive est validée, on remplace le contenu de ce
-   fichier — et rien d'autre. Aucun composant ne contient de couleur, de
-   taille ni d'espacement en dur ; tous lisent ces variables. Le
-   changement de charte est un copier-coller, pas une refonte.
+     tokens-signaletique.css    direction A — clair, Archivo, bleu
+     tokens-poste-de-nuit.css   direction B — sombre, IBM Plex, jaune
 
-   Les tokens sont nommés par leur RÔLE, jamais par leur valeur :
-   `--action` et pas `--bleu`. Le jour où l'action devient verte, le nom
-   reste juste.
+   Les deux fichiers déclarent exactement les mêmes noms de tokens.
+   Aucun composant ne porte de couleur, de taille ni d'espacement en
+   dur : basculer de direction, c'est changer la ligne ci-dessous.
+
+   Ne pas l'éditer à la main :
+
+       npm run charte -- poste-de-nuit
+
+   La commande réécrit cet import ET la constante de src/lib/charte.ts,
+   qui décide quelle police est auto-hébergée au build. Les deux doivent
+   rester d'accord — d'où le script plutôt que deux modifications
+   manuelles qu'on oublie de faire ensemble.
+
+   La mise en page implémentée est celle de la direction A. La bascule
+   fait changer la palette, la typographie, les densités et les rayons ;
+   elle ne déplace pas le bandeau de saisie en bas de l'écran comme le
+   fait la maquette B. Ce second jeu de composants reste à faire si la
+   direction B est retenue après essai réel.
    ===================================================================== */
 
-:root {
-  color-scheme: light dark;
-
-  /* --- Couleurs sémantiques --------------------------------------- */
-  --fond: #f4f4f0;
-  --surface: #ffffff;
-  --surface-inverse: #16181a;
-
-  --texte: #16181a;
-  --texte-faible: #7e8388;
-  --texte-inverse: #f4f4f0;
-
-  --bordure: #d3d5d2;
-  --bordure-forte: #16181a;
-
-  --action: #0b4f91;
-  --action-appui: #07386a;
-  --action-voile: rgba(11, 79, 145, 0.16);
-
-  --signal: #e39a12; /* attention, pas erreur : « sans chambre », « complet » */
-  --danger: #a8321f;
-  --succes: #1d6b4a;
-
-  /* --- Typographie ------------------------------------------------- */
-  /* Les polices distantes sont un point de défaillance quand le réseau
-     de l'hôtel tombe. Piles système d'abord ; une police de marque
-     viendra en surcouche si la charte l'impose. */
-  --police-texte: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --police-plaque: 'Segoe UI Semibold', system-ui, 'Helvetica Neue', Arial, sans-serif;
-  --police-chiffre: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
-
-  --taille-etiquette: 0.66rem;
-  --taille-petit: 0.78rem;
-  --taille-base: 1rem;
-  --taille-moyen: 1.125rem;
-  --taille-grand: 1.5rem;
-  --taille-plaque: 1.35rem;
-  --taille-compteur: 2.25rem;
-
-  --graisse-normale: 400;
-  --graisse-moyenne: 600;
-  --graisse-forte: 700;
-
-  --interlettre-etiquette: 0.13em;
-  --interlettre-plaque: 0.05em;
-
-  /* --- Espacement -------------------------------------------------- */
-  --pas-1: 0.25rem;
-  --pas-2: 0.5rem;
-  --pas-3: 0.75rem;
-  --pas-4: 1rem;
-  --pas-5: 1.5rem;
-  --pas-6: 2rem;
-
-  /* --- Formes ------------------------------------------------------ */
-  --rayon: 6px;
-  --rayon-plein: 999px;
-  --trait: 1px;
-  --trait-fort: 2px;
-
-  /* Cible tactile minimale. Utilisé partout, jamais recalculé. */
-  --cible: 44px;
-
-  /* --- Mouvement --------------------------------------------------- */
-  --duree-courte: 0.15s;
-  --duree-moyenne: 0.28s;
-  --courbe: cubic-bezier(0.2, 0, 0.2, 1);
-
-  /* --- Élévation --------------------------------------------------- */
-  --ombre-flottant: 0 6px 24px rgba(0, 0, 0, 0.18);
-}
-
-/* Réception de nuit. Le thème sombre n'est pas un confort : c'est le
-   comptoir à 2 h du matin. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fond: #101214;
-    --surface: #1a1d20;
-    --surface-inverse: #f4f4f0;
-
-    --texte: #eceeea;
-    --texte-faible: #9aa0a6;
-    --texte-inverse: #16181a;
-
-    --bordure: #2e3338;
-    --bordure-forte: #eceeea;
-
-    --action: #4d9fe8;
-    --action-appui: #7fbdf2;
-    --action-voile: rgba(77, 159, 232, 0.22);
-
-    --signal: #f0b445;
-    --danger: #e2705c;
-    --succes: #5fbe92;
-
-    --ombre-flottant: 0 6px 24px rgba(0, 0, 0, 0.55);
-  }
-}
+@import './tokens-signaletique.css';
