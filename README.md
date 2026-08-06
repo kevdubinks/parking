@@ -187,11 +187,15 @@ depuis le tableau de bord Supabase (CLAUDE.md § 8).
 
    La clé secrète n'est pas dans ce tableau, et ce n'est pas un oubli.
 
-3. Vérifier que la région Vercel correspond à celle du projet Supabase. Chaque navigation
-   déclenche une vérification de session côté serveur ; des fonctions à Washington devant une
-   base à Francfort ajoutent un aller-retour transatlantique à un outil jugé sur dix
-   secondes au comptoir. Si le projet Supabase n'est pas en Europe, corriger `regions` dans
-   [`vercel.json`](vercel.json).
+3. **Régions.** Le projet Supabase est en `eu-west-1` (Irlande), les fonctions Vercel en
+   `cdg1` (Paris). Ce n'est pas un alignement raté : chaque navigation coûte
+   *utilisateur → fonction → base*, et Paris est plus proche de la Corse et du Sénégal que
+   Dublin ne l'est. Co-localiser à Dublin économiserait ~15 ms sur le second trajet pour en
+   ajouter ~20 sur le premier. À revoir seulement si le parc d'hôtels se déplace.
+
+   Le gros du trafic ne passe d'ailleurs pas par Vercel : le navigateur parle directement à
+   Supabase pour lire et écrire le journal. Vercel ne sert que le rendu et la vérification
+   de session.
 
 **Ce que Vercel n'installe pas** : le harnais PostgreSQL du test d'isolation pèse ~110 Mo de
 binaires. Il est délibérément tenu hors des dépendances — Vercel installe les
