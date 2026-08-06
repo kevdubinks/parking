@@ -14,6 +14,7 @@ import {
 } from './journal'
 import type { Evenement, EtatReseau, TypeEvenement, VehiculePresent } from './types'
 import { normaliser } from './plaque'
+import { estRefusServeur, messageRefus, plusAncien } from './refus'
 
 const COLONNES = 'id,etablissement_id,type,plaque,plaque_saisie,chambre,survenu_le,auteur'
 
@@ -25,7 +26,11 @@ export type Registre = {
   identite: Identite | null
   presents: VehiculePresent[]
   enAttente: number
+  /** Horodatage du plus vieux enregistrement non parti, ou null. */
+  attenteDepuis: string | null
   reseau: EtatReseau
+  /** Raison du refus serveur, à lire par qui a installé l'outil. */
+  refus: string | null
   erreur: string | null
   entrer: (plaqueSaisie: string, chambre: string | null) => Promise<void>
   sortir: (plaque: string) => Promise<string | null>
@@ -40,6 +45,8 @@ export function useRegistre(): Registre {
   const [evenements, setEvenements] = useState<Evenement[]>([])
   const [idsEnAttente, setIdsEnAttente] = useState<ReadonlySet<string>>(new Set())
   const [reseau, setReseau] = useState<EtatReseau>('en-ligne')
+  const [refus, setRefus] = useState<string | null>(null)
+  const [attenteDepuis, setAttenteDepuis] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const syncEnCours = useRef(false)
 
@@ -48,9 +55,24 @@ export function useRegistre(): Registre {
     const [journal, attente] = await Promise.all([lireJournal(), lireAttente()])
     setEvenements([...journal, ...attente])
     setIdsEnAttente(new Set(attente.map((e) => e.id)))
+    // Âge du plus vieux enregistrement resté sur l'appareil. C'est LA
+    // mesure qui compte : trois minutes est une coupure, six heures est
+    // une panne que personne n'a vue.
+    setAttenteDepuis(plusAncien(attente.map((e) => e.survenu_le)))
   }, [])
 
-  /** Pousse la file, puis relit le serveur. Silencieux si hors-ligne. */
+  /**
+   * Pousse la file, puis relit le serveur.
+   *
+   * Deux échecs très différents se cachent derrière un `catch` :
+   *
+   *   le serveur est injoignable  -> normal, la file rejouera seule ;
+   *   le serveur a répondu « non » -> ne se répare pas tout seul.
+   *
+   * Le second cas est le dangereux : réseau debout, écran serein, et
+   * des enregistrements qui s'accumulent sur un seul appareil sans
+   * jamais partir. Il doit remonter jusqu'à l'écran.
+   */
   const synchroniser = useCallback(async () => {
     if (syncEnCours.current) return
     syncEnCours.current = true
@@ -81,12 +103,22 @@ export function useRegistre(): Registre {
       await remplacerJournal((data ?? []) as Evenement[])
       await rafraichirDepuisLocal()
       setReseau('en-ligne')
+      setRefus(null)
       setErreur(null)
-    } catch {
-      // Pas de message d'erreur à l'écran : hors-ligne est un état
-      // normal, pas une panne. Le bandeau suffit.
-      setReseau(navigator.onLine ? 'en-ligne' : 'hors-ligne')
+    } catch (e) {
       await rafraichirDepuisLocal()
+
+      if (estRefusServeur(e, navigator.onLine)) {
+        // PostgREST a répondu avec un code : 42501 = politique RLS,
+        // PGRST301 = jeton invalide ou expiré. Réessayer à l'infini ne
+        // corrigera rien.
+        setReseau('refuse')
+        setRefus(messageRefus(e))
+      } else {
+        // Injoignable. État normal dans un hôtel : on ne dramatise pas.
+        setReseau('hors-ligne')
+        setRefus(null)
+      }
     } finally {
       syncEnCours.current = false
     }
@@ -123,10 +155,10 @@ export function useRegistre(): Registre {
 
   // Reprise dès que le réseau revient, et rattrapage périodique.
   useEffect(() => {
-    const revenu = () => {
-      setReseau('en-ligne')
-      void synchroniser()
-    }
+    // On ne déclare pas « en ligne » d'autorité : c'est la
+    // synchronisation qui tranche. Sinon le retour du réseau efface
+    // l'affichage d'un refus serveur qui, lui, n'a pas disparu.
+    const revenu = () => void synchroniser()
     const perdu = () => setReseau('hors-ligne')
     window.addEventListener('online', revenu)
     window.addEventListener('offline', perdu)
@@ -203,7 +235,9 @@ export function useRegistre(): Registre {
     identite,
     presents,
     enAttente: idsEnAttente.size,
+    attenteDepuis,
     reseau,
+    refus,
     erreur,
     entrer,
     sortir,

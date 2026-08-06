@@ -175,6 +175,23 @@ export function Registre() {
         </div>
       )}
 
+      {registre.reseau === 'refuse' && (
+        /* alert et non status : ça ne se répare pas tout seul et
+           personne ne doit pouvoir ne pas le voir. */
+        <div className={styles.bandeauRefus} role="alert">
+          <span className={styles.carre} aria-hidden="true" />
+          <span>
+            <strong>Enregistrements bloqués</strong> — {registre.enAttente} en attente
+            {registre.attenteDepuis && ` depuis ${dureeDepuis(registre.attenteDepuis)}`}, sur
+            cet appareil uniquement. Continuez à saisir, mais prévenez la personne qui a
+            installé l’outil et ne videz pas les données du navigateur.
+            {registre.refus && (
+              <span className={styles.refusDetail}>{registre.refus}</span>
+            )}
+          </span>
+        </div>
+      )}
+
       {registre.reseau === 'hors-ligne' && (
         <div className={styles.bandeauReseau} role="status">
           <span className={styles.carre} aria-hidden="true" />
@@ -182,6 +199,11 @@ export function Registre() {
             <strong>Hors ligne</strong>
             {registre.enAttente > 0 &&
               ` — ${registre.enAttente} enregistrement${registre.enAttente > 1 ? 's' : ''} en attente d’envoi`}
+            {/* Au-delà d'une heure, ce n'est plus une coupure passagère :
+                on donne l'âge sans changer de ton. */}
+            {registre.attenteDepuis &&
+              Date.now() - new Date(registre.attenteDepuis).getTime() > 3600_000 &&
+              `, le plus ancien depuis ${dureeDepuis(registre.attenteDepuis)}`}
             . Continuez normalement, l’envoi se fait au retour du réseau.
           </span>
         </div>

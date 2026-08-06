@@ -125,6 +125,32 @@
   line-height: 1.35;
 }
 
+/* Refus serveur : ne se répare pas tout seul, et les seuls exemplaires
+   des enregistrements sont sur cet appareil. Le seul endroit de l'écran
+   où l'on se permet la couleur de danger. */
+.bandeauRefus {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  background: var(--color-danger-surface);
+  border-bottom: 2px solid var(--color-danger);
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-danger);
+  font-size: var(--text-label);
+  line-height: 1.4;
+}
+
+.bandeauRefus strong {
+  font-weight: var(--weight-strong);
+}
+
+.refusDetail {
+  display: block;
+  margin-top: var(--space-1);
+  opacity: 0.9;
+}
+
 /* Le carré doublé du mot : la couleur ne porte jamais l'information. */
 .carre {
   width: 11px;

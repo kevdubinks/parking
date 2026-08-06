@@ -77,6 +77,12 @@ script (`rollback`), rien n'est laissé dans la base.
 Un `ÉCHEC n` signifie que l'isolation ne tient pas. Ne rien déployer avant de l'avoir
 corrigé.
 
+La logique qui ne dépend ni de la base ni du navigateur se vérifie sans rien installer :
+
+```bash
+npm test
+```
+
 ### 4. Amorçage
 
 Créer le compte de la gérante dans **Authentication → Users**, puis adapter l'adresse
@@ -96,7 +102,30 @@ npm install
 npm run dev
 ```
 
-### 6. Déploiement
+### 6. Avant de laisser quelqu'un s'en servir
+
+L'outil est destiné à un comptoir d'hôtel, avec des données de clients réels. Trois choses
+ne sont pas facultatives :
+
+- **`pg_cron` doit être activé** (Database → Extensions). Sans lui, la planification de la
+  purge échoue et `conservation_jours` ne correspond plus à aucune suppression réelle.
+- **Les sauvegardes retiennent les plaques purgées.** Une purge RGPD supprime les lignes de
+  la base, pas les sauvegardes automatiques ni le PITR. La durée de rétention des
+  sauvegardes fixe donc le vrai plancher de conservation. À aligner sur
+  `conservation_jours`, ou à mentionner dans le registre de traitement.
+- **L'affichette d'information client** à l'accueil, avant la première saisie.
+
+Deux limites à connaître, écrites ici parce qu'elles se voient en exploitation et pas en
+recette :
+
+- **La file hors-ligne vit dans le navigateur d'un seul appareil.** Vider les données du
+  site ou changer d'appareil perd les enregistrements pas encore partis. L'écran le dit
+  quand la file est bloquée, mais rien ne peut le rattraper après coup.
+- **Il n'y a pas de supervision.** Si le hook JWT est mal configuré ou la session expirée,
+  l'écran affiche un bandeau rouge au comptoir — c'est tout. Personne n'est alerté à
+  distance.
+
+### 7. Déploiement
 
 Vercel, fonctions en `cdg1` (proximité de la base européenne). Reporter les deux variables
 d'environnement dans le projet Vercel.

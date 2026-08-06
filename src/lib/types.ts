@@ -35,4 +35,14 @@ export type VehiculePresent = {
   enAttente: boolean
 }
 
-export type EtatReseau = 'en-ligne' | 'hors-ligne' | 'synchronisation'
+/**
+ * `hors-ligne` : le serveur est injoignable. État NORMAL dans un hôtel,
+ *   la file rejouera toute seule. On le dit sans inquiéter.
+ *
+ * `refuse` : le serveur a répondu, et il a dit non. Ce n'est pas une
+ *   coupure réseau, ça ne se répare pas tout seul, et la file ne
+ *   partira jamais tant que la cause n'est pas corrigée. Les seuls
+ *   exemplaires des enregistrements sont alors sur CET appareil.
+ *   Doit être bruyant.
+ */
+export type EtatReseau = 'en-ligne' | 'hors-ligne' | 'synchronisation' | 'refuse'
