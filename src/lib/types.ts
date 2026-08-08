@@ -1,3 +1,22 @@
+/**
+ * Réglages de l'établissement, tels qu'ils vivent en base.
+ *
+ * L'application les LIT, elle ne les écrit jamais : il n'y a pas
+ * d'écran d'administration (CLAUDE.md § 8 et § 10). L'endroit où on les
+ * change est le Table Editor de Supabase, et un changement est visible
+ * au prochain chargement — sans redéploiement.
+ */
+export type Etablissement = {
+  id: string
+  nom: string
+  places: number
+  chambre_obligatoire: boolean
+  conservation_jours: number
+  fuseau: string
+  /** false quand la réception n'est pas tenue en permanence. */
+  afficher_occupation: boolean
+}
+
 export type TypeEvenement = 'ENTREE' | 'SORTIE'
 
 /** Une ligne du journal. `id` est généré côté client : le rejeu est idempotent. */

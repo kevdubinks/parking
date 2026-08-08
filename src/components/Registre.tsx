@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { DELAI_ANNULATION, config } from '@/lib/config'
+import { DELAI_ANNULATION } from '@/lib/config'
 import { afficher, dureeDepuis, estValide, normaliser } from '@/lib/plaque'
 import { useRegistre } from '@/lib/useRegistre'
 import { BarreAnnulation } from './BarreAnnulation'
@@ -60,18 +60,28 @@ export function Registre() {
   const plaque = normaliser(plaqueSaisie)
   const presents = registre.presents
 
+  /* Réglages de l'établissement, lus en base et mis en cache. On les
+     change dans le Table Editor de Supabase, pas ici. */
+  const etab = registre.etablissement
+
+  /* Deux conditions, pas une : l'hôtel doit avoir demandé le compteur,
+     ET la capacité doit être connue. Tant qu'aucune lecture n'a abouti,
+     `places` vaut 0 — afficher « 0 / 0 » et une jauge vide donnerait un
+     chiffre faux, exactement ce que ce réglage sert à éviter. */
+  const afficherOccupation = etab.afficher_occupation && etab.places > 0
+
   const resultats = useMemo(
     () => (plaque ? presents.filter((v) => v.plaque.includes(plaque)) : presents),
     [plaque, presents]
   )
 
   const dejaLa = useMemo(() => presents.find((v) => v.plaque === plaque), [plaque, presents])
-  const manqueChambre = config.chambreObligatoire && !chambre.trim()
+  const manqueChambre = etab.chambre_obligatoire && !chambre.trim()
   const peutEnregistrer = estValide(plaque) && !dejaLa && !manqueChambre && !!registre.identite
 
   const occupees = presents.length
-  const libres = Math.max(0, config.places - occupees)
-  const complet = occupees >= config.places
+  const libres = Math.max(0, etab.places - occupees)
+  const complet = afficherOccupation && occupees >= etab.places
 
   /* Le message dit toujours la raison. Le bouton grisé n'est jamais la
      seule explication. */
@@ -147,17 +157,17 @@ export function Registre() {
   return (
     <div className={styles.app}>
       <header className={styles.entete}>
-        <div className={styles.surTitre}>{config.nom}</div>
+        <div className={styles.surTitre}>{etab.nom}</div>
         <div className={styles.mesure}>
           <div className={styles.compteur}>
             {occupees}
-            {config.afficherOccupation && (
-              <span className={styles.capacite}> / {config.places}</span>
+            {afficherOccupation && (
+              <span className={styles.capacite}> / {etab.places}</span>
             )}
           </div>
-          {config.afficherOccupation && (
+          {afficherOccupation && (
             <div className={styles.mesureDroite}>
-              <Jauge occupees={occupees} places={config.places} />
+              <Jauge occupees={occupees} places={etab.places} />
               <div className={styles.restantes}>
                 {complet
                   ? 'aucune place libre'
@@ -168,7 +178,7 @@ export function Registre() {
         </div>
       </header>
 
-      {config.afficherOccupation && complet && (
+      {afficherOccupation && complet && (
         <div className={styles.bandeauComplet} role="status">
           <strong>Parking complet</strong> — enregistrez une sortie avant une nouvelle
           entrée.
@@ -287,7 +297,7 @@ export function Registre() {
           <div className={styles.champChambre}>
             <label className={styles.etiquette} htmlFor="chambre">
               Chambre{' '}
-              {config.chambreObligatoire && (
+              {etab.chambre_obligatoire && (
                 <span className={styles.champObligatoire} aria-hidden="true">
                   •
                 </span>
@@ -305,7 +315,7 @@ export function Registre() {
               autoComplete="off"
               inputMode="numeric"
               maxLength={8}
-              required={config.chambreObligatoire}
+              required={etab.chambre_obligatoire}
             />
           </div>
         </div>

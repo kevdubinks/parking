@@ -4,15 +4,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabaseNavigateur } from './supabase/client'
 import {
   confirmer,
+  ecrireReglages,
   enfiler,
   incrementerTentatives,
   lireAttente,
   lireJournal,
+  lireReglages,
   projeter,
   remplacerJournal,
   retirerDeLaFile,
 } from './journal'
-import type { Evenement, EtatReseau, TypeEvenement, VehiculePresent } from './types'
+import { REPLI } from './config'
+import type {
+  Etablissement,
+  Evenement,
+  EtatReseau,
+  TypeEvenement,
+  VehiculePresent,
+} from './types'
 import { normaliser } from './plaque'
 import { estRefusServeur, messageRefus, plusAncien } from './refus'
 
@@ -24,6 +33,14 @@ type Identite = { etablissementId: string; userId: string }
 export type Registre = {
   pret: boolean
   identite: Identite | null
+  /**
+   * Réglages lus en base, ou dernière valeur connue hors ligne, ou
+   * repli neutre au tout premier chargement. Jamais des valeurs
+   * inventées qui pourraient passer pour réelles.
+   */
+  etablissement: Etablissement
+  /** false tant qu'aucune lecture réussie n'a jamais eu lieu. */
+  reglagesConnus: boolean
   presents: VehiculePresent[]
   enAttente: number
   /** Horodatage du plus vieux enregistrement non parti, ou null. */
@@ -45,6 +62,7 @@ export function useRegistre(): Registre {
   const [evenements, setEvenements] = useState<Evenement[]>([])
   const [idsEnAttente, setIdsEnAttente] = useState<ReadonlySet<string>>(new Set())
   const [reseau, setReseau] = useState<EtatReseau>('en-ligne')
+  const [etablissement, setEtablissement] = useState<Etablissement | null>(null)
   const [refus, setRefus] = useState<string | null>(null)
   const [attenteDepuis, setAttenteDepuis] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -91,6 +109,19 @@ export function useRegistre(): Registre {
           throw error
         }
         await confirmer(lignes)
+      }
+
+      // Les réglages viennent de la base, comme le reste. Le RLS ne
+      // renvoie que l'établissement du jeton : pas de filtre à écrire
+      // ici, et rien à choisir côté client.
+      const { data: etab, error: erreurEtab } = await supabase
+        .from('etablissement')
+        .select('id,nom,places,chambre_obligatoire,conservation_jours,fuseau,afficher_occupation')
+        .maybeSingle()
+      if (erreurEtab) throw erreurEtab
+      if (etab) {
+        await ecrireReglages(etab as Etablissement)
+        setEtablissement(etab as Etablissement)
       }
 
       const { data, error } = await supabase
@@ -143,6 +174,11 @@ export function useRegistre(): Registre {
           "Ce compte n'est rattaché à aucun établissement. Vérifiez la table membre et le hook JWT."
         )
       }
+
+      // Réglages du dernier passage : l'écran s'ouvre avec les bonnes
+      // valeurs avant même que le réseau ait répondu.
+      const enCache = await lireReglages()
+      if (enCache && vivant) setEtablissement(enCache)
 
       await rafraichirDepuisLocal()
       setPret(true)
@@ -233,6 +269,8 @@ export function useRegistre(): Registre {
   return {
     pret,
     identite,
+    etablissement: etablissement ?? REPLI,
+    reglagesConnus: etablissement !== null,
     presents,
     enAttente: idsEnAttente.size,
     attenteDepuis,

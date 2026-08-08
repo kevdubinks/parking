@@ -38,20 +38,34 @@ Conséquences directes, visibles partout dans le code :
 
 ### 1. Base de données
 
-Créer un projet Supabase en région Europe, puis appliquer les migrations dans l'ordre :
+Créer un projet Supabase en région Europe, puis, avec un jeton d'accès personnel
+(`sbp_…`, depuis [account/tokens](https://supabase.com/dashboard/account/tokens)) :
 
 ```bash
-supabase link --project-ref <ref-du-projet>
-supabase db push
+SUPABASE_ACCESS_TOKEN=sbp_… SUPABASE_URL=https://<ref>.supabase.co npm run deploy:supabase
 ```
 
-Ou, sans le CLI, coller les trois fichiers de `supabase/migrations/` dans le SQL Editor,
-dans l'ordre de leur horodatage.
+Le script active `pg_cron`, applique les migrations **encore en attente** dans l'ordre des
+horodatages, les note dans `schema_migrations`, et branche le hook JWT. Il est rejouable :
+un second passage ne fait rien. Ajouter `--dry-run` pour voir ce qui serait fait — le mode à
+blanc lit le registre, donc il n'annonce que le travail réel.
+
+Les migrations ne sont **pas** idempotentes (`create table` sans `if not exists`) : c'est
+voulu, une migration qui se rejoue en silence masque les divergences. C'est le registre qui
+rend le script rejouable, pas le SQL.
+
+Sur une base déployée avant l'existence du registre, l'amorcer une fois :
+
+```bash
+… npm run deploy:supabase -- --baseline <version de la dernière migration déjà passée>
+```
+
+Le jeton n'a plus aucune utilité ensuite — le révoquer.
 
 ### 2. Hook JWT
 
-Dans **Authentication → Hooks → Custom Access Token**, sélectionner
-`public.auth_hook_claims`.
+Le script de déploiement le branche. À vérifier dans **Authentication → Hooks → Custom
+Access Token** : `public.auth_hook_claims`.
 
 Sans ce hook, le jeton ne porte pas `etablissement_id`, le RLS ne laisse rien passer et
 l'écran reste vide. C'est le comportement voulu : le système échoue **fermé**.
@@ -129,7 +143,36 @@ npm test
 Créer le compte de la gérante dans **Authentication → Users**, puis adapter l'adresse
 e-mail dans `supabase/seed.sql` et l'exécuter une fois.
 
-### 5. Application
+### 5. Réglages de l'établissement
+
+**Il n'y a pas d'écran d'administration dans l'application, et c'est délibéré** — c'est là
+que les produits gonflent et meurent (CLAUDE.md § 10). L'administration, c'est le
+**Table Editor de Supabase**, sur la table `etablissement` :
+
+| Colonne | Effet immédiat |
+|---|---|
+| `nom` | titre affiché en haut du registre |
+| `places` | capacité, compteur et jauge |
+| `chambre_obligatoire` | une entrée sans chambre est refusée |
+| `afficher_occupation` | masque compteur et jauge quand le registre n'est pas fiable |
+| `conservation_jours` | fenêtre de la purge RGPD (`pg_cron`) |
+| `fuseau` | heures affichées sur les lignes |
+
+L'application **lit** ces valeurs au chargement et les met en cache pour l'usage hors ligne.
+Un changement dans le Table Editor est visible au rechargement suivant : pas de
+redéploiement, pas de modification de code.
+
+Deux garde-fous à connaître :
+
+- Tant qu'aucune lecture n'a jamais abouti sur un poste, l'application se rabat sur des
+  valeurs **neutres**, pas plausibles : `places` à 0 et compteur masqué. Un « 5 / 18 »
+  inventé serait cru ; une absence de compteur, non.
+- `afficher_occupation` répond à la question ouverte n° 4 du CLAUDE.md. Si la réception
+  n'est pas tenue en permanence, des voitures entrent sans être saisies et le compteur ment.
+  Le mettre à `false` est alors la bonne réponse : un chiffre faux est pire que pas de
+  chiffre.
+
+### 6. Application
 
 ```bash
 cp .env.example .env.local
@@ -143,7 +186,7 @@ npm install
 npm run dev
 ```
 
-### 6. Avant de laisser quelqu'un s'en servir
+### 7. Avant de laisser quelqu'un s'en servir
 
 L'outil est destiné à un comptoir d'hôtel, avec des données de clients réels. Trois choses
 ne sont pas facultatives :
@@ -166,7 +209,7 @@ recette :
   l'écran affiche un bandeau rouge au comptoir — c'est tout. Personne n'est alerté à
   distance.
 
-### 7. Déploiement
+### 8. Déploiement
 
 **Répartition** : Supabase ne porte que le back — base, RLS, auth, purge planifiée. Le front
 est un projet Vercel branché sur ce dépôt GitHub : chaque `push` sur `main` déclenche un

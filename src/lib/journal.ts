@@ -1,6 +1,6 @@
 'use client'
 
-import type { Evenement, EvenementEnAttente, VehiculePresent } from './types'
+import type { Etablissement, Evenement, EvenementEnAttente, VehiculePresent } from './types'
 
 /**
  * Journal local (IndexedDB) et file d'attente hors-ligne.
@@ -21,9 +21,11 @@ import type { Evenement, EvenementEnAttente, VehiculePresent } from './types'
  */
 
 const BASE = 'parking-hotel'
-const VERSION = 1
+const VERSION = 2
 const JOURNAL = 'journal'
 const ATTENTE = 'attente'
+/** Réglages de l'établissement, mis en cache pour l'usage hors ligne. */
+const REGLAGES = 'reglages'
 
 let ouverture: Promise<IDBDatabase> | null = null
 
@@ -35,6 +37,7 @@ function ouvrir(): Promise<IDBDatabase> {
       const db = requete.result
       if (!db.objectStoreNames.contains(JOURNAL)) db.createObjectStore(JOURNAL, { keyPath: 'id' })
       if (!db.objectStoreNames.contains(ATTENTE)) db.createObjectStore(ATTENTE, { keyPath: 'id' })
+      if (!db.objectStoreNames.contains(REGLAGES)) db.createObjectStore(REGLAGES, { keyPath: 'id' })
     }
     requete.onsuccess = () => resoudre(requete.result)
     requete.onerror = () => rejeter(requete.error)
@@ -82,6 +85,29 @@ export async function lireAttente(): Promise<EvenementEnAttente[]> {
   return transaction([ATTENTE], 'readonly', (tx) =>
     attendre(tx.objectStore(ATTENTE).getAll() as IDBRequest<EvenementEnAttente[]>)
   )
+}
+
+/**
+ * Réglages en cache.
+ *
+ * Ils viennent de la base, mais l'écran doit s'ouvrir même sans réseau
+ * — et surtout ne jamais afficher un nombre de places différent de
+ * celui d'hier parce que le wifi est tombé. On garde donc la dernière
+ * valeur connue, et on ne l'écrase que sur une lecture réussie.
+ */
+export async function lireReglages(): Promise<Etablissement | null> {
+  const tous = await transaction([REGLAGES], 'readonly', (tx) =>
+    attendre(tx.objectStore(REGLAGES).getAll() as IDBRequest<Etablissement[]>)
+  )
+  return tous[0] ?? null
+}
+
+export async function ecrireReglages(etablissement: Etablissement): Promise<void> {
+  await transaction([REGLAGES], 'readwrite', async (tx) => {
+    const magasin = tx.objectStore(REGLAGES)
+    await attendre(magasin.clear())
+    magasin.put(etablissement)
+  })
 }
 
 /** Remplace le journal confirmé par ce que le serveur vient de renvoyer. */
