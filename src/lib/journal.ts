@@ -119,11 +119,39 @@ export async function remplacerJournal(evenements: Evenement[]): Promise<void> {
   })
 }
 
-/** Empile un fait. Retourne immédiatement : l'écran ne doit pas attendre le réseau. */
-export async function enfiler(evenement: Evenement): Promise<void> {
+/**
+ * Empile un fait. Retourne immédiatement : l'écran ne doit pas attendre
+ * le réseau.
+ *
+ * `retenirMs` diffère l'envoi sans différer l'affichage : le véhicule
+ * quitte la liste tout de suite, mais l'événement reste retirable tant
+ * que la retenue court. C'est la mécanique de la fenêtre d'annulation.
+ */
+export async function enfiler(evenement: Evenement, retenirMs = 0): Promise<void> {
+  const ligne: EvenementEnAttente = { ...evenement, tentatives: 0 }
+  if (retenirMs > 0) ligne.retenu_jusqu = new Date(Date.now() + retenirMs).toISOString()
   await transaction([ATTENTE], 'readwrite', (tx) => {
-    tx.objectStore(ATTENTE).put({ ...evenement, tentatives: 0 })
+    tx.objectStore(ATTENTE).put(ligne)
   })
+}
+
+/**
+ * Ce qui peut réellement partir maintenant : la retenue d'annulation
+ * est expirée, ou il n'y en avait pas.
+ */
+export function envoyables(attente: EvenementEnAttente[], maintenant = Date.now()) {
+  return attente.filter((e) => !e.retenu_jusqu || new Date(e.retenu_jusqu).getTime() <= maintenant)
+}
+
+/** Prochaine échéance de retenue, pour programmer une synchronisation. */
+export function prochaineRetenue(
+  attente: EvenementEnAttente[],
+  maintenant = Date.now()
+): number | null {
+  const echeances = attente
+    .map((e) => (e.retenu_jusqu ? new Date(e.retenu_jusqu).getTime() : 0))
+    .filter((t) => t > maintenant)
+  return echeances.length ? Math.min(...echeances) - maintenant : null
 }
 
 /**
@@ -151,7 +179,9 @@ export async function confirmer(evenements: Evenement[]): Promise<void> {
     const journal = tx.objectStore(JOURNAL)
     const attente = tx.objectStore(ATTENTE)
     evenements.forEach(({ ...e }) => {
+      // Les champs locaux ne doivent pas polluer le journal confirmé.
       delete (e as Partial<EvenementEnAttente>).tentatives
+      delete (e as Partial<EvenementEnAttente>).retenu_jusqu
       journal.put(e)
       attente.delete(e.id)
     })

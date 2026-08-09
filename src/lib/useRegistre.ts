@@ -5,6 +5,8 @@ import { supabaseNavigateur } from './supabase/client'
 import {
   confirmer,
   ecrireReglages,
+  envoyables,
+  prochaineRetenue,
   enfiler,
   incrementerTentatives,
   lireAttente,
@@ -14,7 +16,7 @@ import {
   remplacerJournal,
   retirerDeLaFile,
 } from './journal'
-import { REPLI } from './config'
+import { DELAI_ANNULATION, REPLI } from './config'
 import type {
   Etablissement,
   Evenement,
@@ -24,6 +26,9 @@ import type {
 } from './types'
 import { normaliser } from './plaque'
 import { estRefusServeur, messageRefus, plusAncien } from './refus'
+
+/** Garde-fou mémoire sur le journal local rapatrié. */
+const PLAFOND_JOURNAL = 5000
 
 const COLONNES = 'id,etablissement_id,type,plaque,plaque_saisie,chambre,survenu_le,auteur'
 
@@ -66,6 +71,8 @@ export function useRegistre(): Registre {
   const [refus, setRefus] = useState<string | null>(null)
   const [attenteDepuis, setAttenteDepuis] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
+  // Délai avant expiration de la plus proche retenue d'annulation.
+  const [retenueMs, setRetenueMs] = useState<number | null>(null)
   const syncEnCours = useRef(false)
 
   /** Recalcule l'état affiché depuis le local. Aucune requête réseau. */
@@ -77,6 +84,7 @@ export function useRegistre(): Registre {
     // mesure qui compte : trois minutes est une coupure, six heures est
     // une panne que personne n'a vue.
     setAttenteDepuis(plusAncien(attente.map((e) => e.survenu_le)))
+    setRetenueMs(prochaineRetenue(attente))
   }, [])
 
   /**
@@ -97,15 +105,20 @@ export function useRegistre(): Registre {
     setReseau('synchronisation')
     try {
       const attente = await lireAttente()
+      // Une sortie retenue pour la fenêtre d'annulation ne part pas
+      // encore : c'est ce qui rend le bouton « Annuler » réel.
+      const aEnvoyer = envoyables(attente)
 
-      if (attente.length) {
-        const lignes = attente.map(({ tentatives: _tentatives, ...e }) => e)
+      if (aEnvoyer.length) {
+        const lignes = aEnvoyer.map(
+          ({ tentatives: _t, retenu_jusqu: _r, ...e }) => e
+        )
         // on conflict (id) do nothing — un rejeu ne duplique rien.
         const { error } = await supabase
           .from('evenement')
           .upsert(lignes, { onConflict: 'id', ignoreDuplicates: true })
         if (error) {
-          await incrementerTentatives(attente.map((e) => e.id))
+          await incrementerTentatives(aEnvoyer.map((e) => e.id))
           throw error
         }
         await confirmer(lignes)
@@ -128,14 +141,28 @@ export function useRegistre(): Registre {
         .from('evenement')
         .select(COLONNES)
         .order('survenu_le', { ascending: false })
-        .limit(5000)
+        .limit(PLAFOND_JOURNAL)
       if (error) throw error
 
-      await remplacerJournal((data ?? []) as Evenement[])
+      // `limit` protège la mémoire de l'appareil, mais tronque le
+      // journal local : une voiture entrée avant la fenêtre
+      // disparaîtrait de la liste alors qu'elle est toujours garée.
+      // Tant que ça n'arrive pas, autant le savoir plutôt que de le
+      // découvrir sur un compteur qui a maigri tout seul.
+      const lignesServeur = (data ?? []) as Evenement[]
+      const tronque = lignesServeur.length >= PLAFOND_JOURNAL
+
+      await remplacerJournal(lignesServeur)
       await rafraichirDepuisLocal()
       setReseau('en-ligne')
       setRefus(null)
-      setErreur(null)
+      // Posé APRÈS la remise à zéro, sinon il serait effacé dans la
+      // foulée par le setErreur(null) qui suivait.
+      setErreur(
+        tronque
+          ? `Le journal dépasse ${PLAFOND_JOURNAL} événements : la liste affichée peut être incomplète. Signalez-le.`
+          : null
+      )
     } catch (e) {
       await rafraichirDepuisLocal()
 
@@ -220,8 +247,26 @@ export function useRegistre(): Registre {
     }
   }, [synchroniser])
 
+  /**
+   * Dès que la fenêtre d'annulation d'une sortie expire, on synchronise.
+   * Sans ça la sortie attendrait le rattrapage périodique, et resterait
+   * jusqu'à une minute en « en attente » alors que le réseau est là.
+   */
+  useEffect(() => {
+    if (retenueMs === null) return
+    const t = setTimeout(() => {
+      if (navigator.onLine) void synchroniser()
+    }, retenueMs + 250)
+    return () => clearTimeout(t)
+  }, [retenueMs, synchroniser])
+
   const ecrire = useCallback(
-    async (type: TypeEvenement, plaqueSaisie: string, chambre: string | null) => {
+    async (
+      type: TypeEvenement,
+      plaqueSaisie: string,
+      chambre: string | null,
+      retenirMs = 0
+    ) => {
       if (!identite) return null
       const evenement: Evenement = {
         id: crypto.randomUUID(),
@@ -233,9 +278,11 @@ export function useRegistre(): Registre {
         survenu_le: new Date().toISOString(),
         auteur: identite.userId,
       }
-      await enfiler(evenement)
+      await enfiler(evenement, retenirMs)
       await rafraichirDepuisLocal()
-      void synchroniser()
+      // Un événement retenu ne partirait pas de toute façon ; on évite
+      // l'aller-retour inutile et on repassera à l'expiration.
+      if (!retenirMs) void synchroniser()
       return evenement.id
     },
     [identite, rafraichirDepuisLocal, synchroniser]
@@ -248,10 +295,16 @@ export function useRegistre(): Registre {
     [ecrire]
   )
 
+  /**
+   * Une sortie est retenue le temps de la fenêtre d'annulation. Le
+   * véhicule disparaît de la liste immédiatement — c'est le geste au
+   * comptoir —, mais l'événement reste retirable tant qu'il n'est pas
+   * parti. Sans cette retenue, l'annulation était décorative.
+   */
   const sortir = useCallback(
     async (plaque: string) => {
       const present = projeter(evenements).find((v) => v.plaque === plaque)
-      return ecrire('SORTIE', present?.plaque_saisie ?? plaque, null)
+      return ecrire('SORTIE', present?.plaque_saisie ?? plaque, null, DELAI_ANNULATION)
     },
     [ecrire, evenements]
   )

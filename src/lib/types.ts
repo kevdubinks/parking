@@ -34,10 +34,23 @@ export type Evenement = {
   auteur: string | null
 }
 
-/** Événement pas encore accepté par le serveur. */
+/**
+ * Événement pas encore accepté par le serveur.
+ *
+ * Ces deux champs sont LOCAUX : ils ne correspondent à aucune colonne
+ * et sont retirés avant l'envoi.
+ */
 export type EvenementEnAttente = Evenement & {
-  /** Nombre de tentatives d'envoi. Sert à espacer les rejeux. */
+  /** Nombre de tentatives d'envoi. */
   tentatives: number
+  /**
+   * Ne pas envoyer avant cette heure (ISO). C'est ce qui rend
+   * l'annulation possible : tant que la sortie n'est pas partie, on
+   * peut la retirer de la file. Sans cette retenue, la synchronisation
+   * l'expédie en quelques centaines de millisecondes et le bouton
+   * « Annuler » n'annule plus rien, alors qu'il s'affiche six secondes.
+   */
+  retenu_jusqu?: string
 }
 
 /** Projection du journal : ce qui est garé maintenant. */
