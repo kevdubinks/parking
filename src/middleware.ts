@@ -50,6 +50,18 @@ export async function middleware(requete: NextRequest) {
   return reponse
 }
 
+/**
+ * Le filtre doit laisser passer les fichiers statiques SANS session.
+ *
+ * `manifest.webmanifest` en particulier : il est demandé par le
+ * navigateur depuis l'écran de connexion, donc sans session. Redirigé
+ * vers /connexion, il renvoyait du HTML au lieu du manifeste, et
+ * « Ajouter à l'écran d'accueil » produisait un marque-page sans nom,
+ * sans icône et sans mode plein écran — en silence, puisque rien
+ * n'échoue visiblement.
+ */
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|manifest.webmanifest|robots.txt|sitemap.xml|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|webmanifest)$).*)',
+  ],
 }

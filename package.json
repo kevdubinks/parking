@@ -14,7 +14,8 @@
     "test:isolation:live": "node scripts/test-isolation-live.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",
     "charte": "node scripts/charte.mjs",
-    "deploy:vercel": "node scripts/deploy-vercel.mjs"
+    "deploy:vercel": "node scripts/deploy-vercel.mjs",
+    "icones": "node scripts/icones.mjs"
   },
   "engines": {
     "node": ">=20"

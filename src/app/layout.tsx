@@ -48,6 +48,21 @@ export const metadata: Metadata = {
   // Pas d'indexation : un registre de plaques n'a rien à faire dans un
   // moteur de recherche.
   robots: { index: false, follow: false },
+  icons: {
+    icon: [
+      { url: '/icone.svg', type: 'image/svg+xml' },
+      { url: '/icone-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  // iOS ignore le manifeste : sans ces deux-là, « Sur l'écran d'accueil »
+  // crée un simple marque-page qui rouvre Safari, barre d'adresse
+  // comprise.
+  appleWebApp: {
+    capable: true,
+    title: 'Parking',
+    statusBarStyle: 'default',
+  },
 }
 
 export const viewport: Viewport = {
@@ -57,6 +72,13 @@ export const viewport: Viewport = {
   // et le zoom automatique d'iOS au focus décale l'écran en pleine
   // saisie.
   maximumScale: 1,
+  // Sous l'encoche et derrière la barre de gestes, une fois lancé
+  // depuis l'écran d'accueil.
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#12459E' },
+    { media: '(prefers-color-scheme: dark)', color: '#14161A' },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

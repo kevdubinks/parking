@@ -1,0 +1,12 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#15171A"/>
+  <g>
+    <rect x="41" y="157" width="430" height="198" rx="22" fill="#FFFFFF"/>
+    <path d="M41 179 a22 22 0 0 1 22 -22 h51 v198 h-51 a22 22 0 0 1 -22 -22 z" fill="#12459E"/>
+    <text x="292.5" y="256"
+          font-family="Archivo, Helvetica, Arial, sans-serif" font-weight="700"
+          font-size="143" fill="#15171A"
+          text-anchor="middle" dominant-baseline="central">P</text>
+  </g>
+</svg>

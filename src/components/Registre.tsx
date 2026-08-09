@@ -219,7 +219,9 @@ export function Registre() {
         </div>
       )}
 
-      <div className={styles.liste}>
+      <div
+        className={`${styles.liste} ${resultats.length === 0 ? styles.listeVide : ''}`}
+      >
         {!registre.pret ? (
           <div className={styles.vide}>
             <div className={styles.videTexte}>Chargement du registre…</div>

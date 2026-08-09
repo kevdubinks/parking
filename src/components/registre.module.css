@@ -13,15 +13,38 @@
      saisie     champ + bouton, collés en bas — le pouce y est déjà
    ===================================================================== */
 
+/* =====================================================================
+   Trois formats, une seule colonne.
+
+   Téléphone tenu à une main, tablette posée au comptoir, écran de PC :
+   la colonne ne change pas de nature, elle change de largeur et de
+   respiration. On n'ajoute JAMAIS une deuxième colonne sur grand écran —
+   le regard ferait un aller-retour supplémentaire à chaque voiture, et
+   c'est précisément ce qu'on cherche à supprimer.
+   ===================================================================== */
+
 .app {
   width: 100%;
   max-width: 760px;
+  /* dvh suit la barre d'adresse mobile qui se rétracte ; le fallback
+     couvre les navigateurs qui l'ignorent. */
   height: 100%;
+  height: 100dvh;
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
+}
+
+/* Lancé depuis l'écran d'accueil, l'application occupe toute la dalle,
+   encoche et barre de gestes comprises. Sans ces marges, le bandeau de
+   saisie passe dessous et le bouton devient inatteignable. */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .app {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 /* ---------- En-tête ---------- */
@@ -30,6 +53,7 @@
   background: var(--color-surface);
   border-bottom: 2px solid var(--color-border-strong);
   padding: var(--space-3) var(--space-4);
+  padding-top: max(var(--space-3), env(safe-area-inset-top));
 }
 
 .surTitre {
@@ -166,6 +190,15 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Un message seul collé en haut d'un grand vide donne l'impression
+   d'une page à moitié chargée. Quand il n'y a rien à lister, on le
+   centre dans la place disponible. */
+.listeVide {
+  justify-content: center;
 }
 
 .ligne {
@@ -374,6 +407,8 @@
   border-top: 2px solid var(--color-border-strong);
   box-shadow: var(--shadow-dock);
   padding: var(--space-3) var(--space-4) var(--space-4);
+  /* Au-dessus de la barre de gestes en mode écran d'accueil. */
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
 }
 
 .champs {
@@ -526,6 +561,112 @@
   background: var(--color-action-disabled);
   color: var(--color-action-disabled-text);
   cursor: default;
+}
+
+/* =====================================================================
+   Les trois formats
+   ===================================================================== */
+
+/* ---------- Tablette posée au comptoir ---------- */
+/* La colonne reste unique ; elle respire. Les cibles s'élargissent
+   parce qu'on vise du bout du doigt, pas au pouce. */
+@media (min-width: 768px) {
+  .entete,
+  .saisie,
+  .titreListe,
+  .ligne,
+  .bandeauComplet,
+  .bandeauReseau,
+  .bandeauRefus {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
+
+  .ligne {
+    grid-template-columns: minmax(0, 1fr) auto 104px;
+  }
+
+  .sortie {
+    width: 104px;
+  }
+
+  .champChambre {
+    width: 128px;
+  }
+}
+
+/* ---------- Écran de comptoir ---------- */
+/* La colonne ne s'élargit pas : une ligne de registre de 900 px de long
+   oblige l'œil à traverser l'écran entre la plaque et le bouton Sortie.
+   On la pose sur le fond, encadrée, pour qu'elle se lise comme un choix
+   et non comme une page qui n'a pas fini de charger. */
+@media (min-width: 1024px) {
+  .app {
+    border-left-color: var(--color-border-strong);
+    border-right-color: var(--color-border-strong);
+  }
+}
+
+/* ---------- Téléphone en paysage, et petits écrans bas ---------- */
+/* Cas le plus contraint et le plus facile à oublier : à 375 px de haut,
+   l'en-tête et le bandeau de saisie mangeaient toute la hauteur et il
+   ne restait pas une seule ligne de registre. Tout se compresse, sauf
+   les cibles tactiles, qui restent au plancher des 44 px. */
+@media (max-height: 560px) {
+  .entete {
+    padding-top: max(var(--space-2), env(safe-area-inset-top));
+    padding-bottom: var(--space-2);
+  }
+
+  .mesure {
+    margin-top: var(--space-1);
+    align-items: center;
+  }
+
+  .compteur {
+    font-size: var(--text-title);
+  }
+
+  .capacite {
+    font-size: var(--text-body);
+  }
+
+  .jauge {
+    height: 8px;
+  }
+
+  .restantes {
+    margin-top: 2px;
+  }
+
+  .saisie {
+    padding-top: var(--space-2);
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  }
+
+  /* Le champ reste le plus gros élément de l'écran, mais on lui retire
+     la hauteur qu'on ne peut plus lui offrir. */
+  .entreePlaque {
+    height: 52px;
+    font-size: var(--text-counter);
+  }
+
+  .entreeChambre {
+    height: 52px;
+  }
+
+  .valider {
+    height: var(--target-min);
+  }
+
+  .message {
+    margin: var(--space-1) 0;
+  }
+
+  .vide {
+    margin: var(--space-2) var(--space-4);
+    padding: var(--space-4);
+  }
 }
 
 /* ---------- Connexion ---------- */
