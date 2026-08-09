@@ -63,6 +63,14 @@ export const metadata: Metadata = {
     title: 'Parking',
     statusBarStyle: 'default',
   },
+  other: {
+    // Next n'émet que `mobile-web-app-capable`, le nom standard récent.
+    // Les iOS antérieurs à 17 ne connaissent que celui d'Apple : sans
+    // lui, le raccourci rouvre Safari avec sa barre d'adresse au lieu
+    // de s'ouvrir en plein écran. Le téléphone d'une réception n'est
+    // pas forcément neuf ; la balise ne coûte rien.
+    'apple-mobile-web-app-capable': 'yes',
+  },
 }
 
 export const viewport: Viewport = {
