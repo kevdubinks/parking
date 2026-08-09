@@ -294,10 +294,18 @@ try {
         headers: { apikey: SECRET, Authorization: `Bearer ${SECRET}` },
       })
     }
-    const reste = await service(`etablissement?select=id&nom=like=*${marque}*`)
-    const n = Array.isArray(reste.corps) ? reste.corps.length : 0
-    if (n === 0) ok(`${nes.etablissements.length} établissement(s) et ${nes.users.length} compte(s) supprimés`)
-    else ko(`${n} établissement(s) jetable(s) subsistent — à supprimer à la main`)
+    // `nom=like.*marque*`, avec un POINT : écrit `like=` la requête
+    // partait en erreur, `corps` n'était pas un tableau, et le contrôle
+    // concluait « rien ne subsiste » sans avoir rien vérifié. Une
+    // vérification de ménage qui ne peut pas échouer ne sert à rien.
+    const reste = await service(`etablissement?select=id&nom=like.*${marque}*`)
+    if (!Array.isArray(reste.corps)) {
+      ko(`contrôle du ménage impossible (${reste.statut}) — vérifiez « isolation-${marque} » à la main`)
+    } else if (reste.corps.length === 0) {
+      ok(`${nes.etablissements.length} établissement(s) et ${nes.users.length} compte(s) supprimés`)
+    } else {
+      ko(`${reste.corps.length} établissement(s) jetable(s) subsistent — à supprimer à la main`)
+    }
   } catch (e) {
     ko(`nettoyage incomplet : ${e?.message ?? e}. Cherchez « isolation-${marque} ».`)
   }

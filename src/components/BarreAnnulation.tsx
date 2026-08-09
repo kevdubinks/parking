@@ -44,12 +44,15 @@ export function BarreAnnulation({
   const secondes = Math.ceil(restant / 1000)
 
   return (
-    <div className={styles.annulation} role="status" aria-live="polite">
+    <div className={styles.annulation}>
       <div className={styles.annulationHaut}>
-        <div className={styles.annulationTexte}>
+        {/* aria-live porté par le message seul. Sur le conteneur, le
+            décompte qui change quatre fois par seconde faisait relire
+            toute la barre à un lecteur d'écran, en boucle. */}
+        <div className={styles.annulationTexte} role="status" aria-live="polite">
           Sortie enregistrée — <span className={styles.annulationPlaque}>{plaque}</span>
         </div>
-        <div className={styles.annulationCompte}>
+        <div className={styles.annulationCompte} aria-hidden="true">
           {secondes}&nbsp;s
         </div>
         <button type="button" className={styles.annulationBouton} onClick={onAnnuler}>

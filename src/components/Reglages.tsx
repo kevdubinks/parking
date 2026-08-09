@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ecrireReglages } from '@/lib/journal'
+import { estRefusServeur, messageRefus } from '@/lib/refus'
 import { supabaseNavigateur } from '@/lib/supabase/client'
 import type { Etablissement } from '@/lib/types'
 import styles from './registre.module.css'
@@ -68,6 +69,29 @@ export function Reglages() {
   async function enregistrer(e: React.FormEvent) {
     e.preventDefault()
     if (!etab) return
+
+    /**
+     * Les bornes sont d'abord des contraintes CHECK en base. Sans ce
+     * contrôle ici, une valeur hors bornes remontait le message brut de
+     * Postgres — « violates check constraint
+     * etablissement_places_check » — au comptoir d'un hôtel.
+     */
+    if (!Number.isInteger(etab.places) || etab.places < 1) {
+      setMessage({ texte: 'Le nombre de places doit être un entier d’au moins 1.', ton: 'erreur' })
+      return
+    }
+    if (
+      !Number.isInteger(etab.conservation_jours) ||
+      etab.conservation_jours < 1 ||
+      etab.conservation_jours > 1095
+    ) {
+      setMessage({
+        texte: 'La conservation doit être comprise entre 1 et 1095 jours.',
+        ton: 'erreur',
+      })
+      return
+    }
+
     setEnvoi(true)
     setMessage(null)
 
@@ -86,7 +110,18 @@ export function Reglages() {
     setEnvoi(false)
 
     if (error) {
-      setMessage({ texte: `Enregistrement refusé : ${error.message}`, ton: 'erreur' })
+      // Même distinction qu'à la synchronisation : « refusé » et
+      // « injoignable » n'appellent pas la même réaction. Afficher
+      // « Enregistrement refusé : Failed to fetch » quand le wifi tombe
+      // envoie chercher un problème de droits qui n'existe pas.
+      setMessage(
+        estRefusServeur(error, typeof navigator === 'undefined' || navigator.onLine)
+          ? { texte: messageRefus(error), ton: 'erreur' }
+          : {
+              texte: 'Serveur injoignable. Les réglages n’ont pas été modifiés.',
+              ton: 'erreur',
+            }
+      )
       return
     }
 

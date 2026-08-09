@@ -188,6 +188,15 @@ export async function confirmer(evenements: Evenement[]): Promise<void> {
   })
 }
 
+/**
+ * Compteur de tentatives d'envoi.
+ *
+ * Rien ne le LIT aujourd'hui : il n'y a ni espacement des rejeux ni
+ * abandon après N échecs, et ce serait malvenu — un enregistrement
+ * qu'on renonce à envoyer est un enregistrement perdu. Il reste comme
+ * donnée de diagnostic, lisible dans IndexedDB quand une file bloque.
+ * Ne pas le prendre pour un mécanisme de reprise qui existerait.
+ */
 export async function incrementerTentatives(ids: string[]): Promise<void> {
   if (!ids.length) return
   await transaction([ATTENTE], 'readwrite', async (tx) => {

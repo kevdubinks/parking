@@ -26,12 +26,29 @@ export default function Connexion() {
     setEnCours(true)
     setErreur(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password: motDePasse })
+    const { error } = await supabase.auth.signInWithPassword({
+      // Un clavier de téléphone ajoute volontiers une espace en fin de
+      // saisie ; elle suffit à faire échouer la connexion.
+      email: email.trim(),
+      password: motDePasse,
+    })
 
     if (error) {
-      // Message volontairement peu bavard : ne pas révéler si l'adresse
-      // existe.
-      setErreur('Identifiants incorrects.')
+      /**
+       * Ne pas confondre « refusé » et « injoignable ».
+       *
+       * GoTrue répond avec un statut HTTP quand il a examiné les
+       * identifiants. Une coupure réseau, elle, échoue sans statut. Les
+       * traiter pareil poussait à retaper le mot de passe encore et
+       * encore alors que le problème était le wifi — au comptoir,
+       * devant un client qui attend.
+       */
+      const injoignable = !(error as { status?: number }).status
+      setErreur(
+        injoignable
+          ? 'Serveur injoignable. Vérifiez la connexion, puis réessayez.'
+          : 'Identifiants incorrects.'
+      )
       setEnCours(false)
       return
     }
@@ -55,6 +72,9 @@ export default function Connexion() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           required
         />
 
@@ -76,7 +96,12 @@ export default function Connexion() {
         </button>
       </form>
 
-      {erreur && <p className={styles.messageErreur}>{erreur}</p>}
+      {/* aria-live : sans ça, l'échec de connexion est muet pour un
+          lecteur d'écran, et la personne reste devant un formulaire qui
+          n'a visiblement rien fait. */}
+      <p className={styles.messageErreur} role="status" aria-live="polite">
+        {erreur}
+      </p>
     </main>
   )
 }

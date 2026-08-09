@@ -33,19 +33,26 @@ export async function middleware(requete: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const versConnexion = requete.nextUrl.pathname.startsWith('/connexion')
+  const versConnexion = requete.nextUrl.pathname === '/connexion'
 
-  if (!user && !versConnexion) {
+  /**
+   * Une redirection crée une réponse NEUVE : les cookies de session
+   * rafraîchis par `setAll` ci-dessus vivent sur `reponse` et seraient
+   * perdus. Le navigateur renverrait alors l'ancien jeton, qui sera
+   * rafraîchi à nouveau, et ainsi de suite — jusqu'à ce qu'il expire
+   * pour de bon et que le registre se vide sans explication.
+   */
+  const rediriger = (chemin: string) => {
     const url = requete.nextUrl.clone()
-    url.pathname = '/connexion'
-    return NextResponse.redirect(url)
+    url.pathname = chemin
+    url.search = ''
+    const redirection = NextResponse.redirect(url)
+    reponse.cookies.getAll().forEach((c) => redirection.cookies.set(c))
+    return redirection
   }
 
-  if (user && versConnexion) {
-    const url = requete.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
-  }
+  if (!user && !versConnexion) return rediriger('/connexion')
+  if (user && versConnexion) return rediriger('/')
 
   return reponse
 }

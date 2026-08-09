@@ -16,8 +16,26 @@
 export const LONGUEUR_MIN = 4
 export const LONGUEUR_MAX = 12
 
+/**
+ * Les accents sont RAMENÉS à leur lettre de base, pas supprimés.
+ *
+ * Sans cette étape, `replace(/[^A-Z0-9]/g, '')` avalait purement et
+ * simplement les caractères accentués. Une plaque allemande de Lörrach
+ * — « LÖ-AB 123 », et il y en a beaucoup en Corse au mois d'août —
+ * devenait « LAB123 », c'est-à-dire la même voiture que « L-AB 123 ».
+ * Deux véhicules distincts fusionnaient en un, la sortie de l'un
+ * faisait disparaître l'autre du registre, et rien ne le signalait.
+ *
+ * Ö devient O, Ü devient U, É devient E : deux plaques différentes
+ * restent différentes.
+ */
 export function normaliser(saisie: string): string {
-  return saisie.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  return saisie
+    .normalize('NFD')
+    // Marques diacritiques combinantes, isolées par la décomposition.
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
 }
 
 export function estValide(plaqueNormalisee: string): boolean {
@@ -30,10 +48,6 @@ export function estValide(plaqueNormalisee: string): boolean {
 
 /** Format français AB-123-CD, le seul qu'on se permette d'embellir. */
 const FR = /^([A-Z]{2})(\d{3})([A-Z]{2})$/
-
-export function estFrancaise(plaqueNormalisee: string): boolean {
-  return FR.test(plaqueNormalisee)
-}
 
 /**
  * Affichage. On préfère la saisie d'origine quand elle existe : c'est
@@ -63,10 +77,3 @@ export function dureeDepuis(iso: string, maintenant = Date.now()): string {
   return `${jours} j ${heures % 24} h`
 }
 
-export function heureCourte(iso: string, fuseau = 'Europe/Paris'): string {
-  return new Date(iso).toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: fuseau,
-  })
-}

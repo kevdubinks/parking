@@ -171,7 +171,12 @@ seule, et une écriture forgée serait refusée par la base — c'est vérifié 
 | `chambre_obligatoire` | une entrée sans chambre est refusée |
 | `afficher_occupation` | masque compteur et jauge quand le registre n'est pas fiable |
 | `conservation_jours` | fenêtre de la purge RGPD (`pg_cron`) |
-| `fuseau` | heures affichées sur les lignes |
+| `fuseau` | **aucun effet aujourd'hui** — voir ci-dessous |
+
+`fuseau` est stocké mais inutilisé : les lignes du registre affichent une durée
+(« 3 h 12 »), pas une heure d'arrivée. C'est un arbitrage que la charte laisse ouvert
+(point 3). Le jour où l'heure d'arrivée est affichée, cette colonne servira ; d'ici là elle
+ne règle rien, et l'écran des réglages ne l'expose pas.
 
 L'application **lit** ces valeurs au chargement et les met en cache pour l'usage hors ligne.
 Un changement dans le Table Editor est visible au rechargement suivant : pas de
