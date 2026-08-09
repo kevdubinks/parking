@@ -13,7 +13,8 @@
     "test:isolation:install": "npm install --no-save --no-audit --no-fund embedded-postgres pg",
     "test:isolation:live": "node scripts/test-isolation-live.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",
-    "charte": "node scripts/charte.mjs"
+    "charte": "node scripts/charte.mjs",
+    "deploy:vercel": "node scripts/deploy-vercel.mjs"
   },
   "engines": {
     "node": ">=20"
