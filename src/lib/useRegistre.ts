@@ -28,7 +28,7 @@ import { estRefusServeur, messageRefus, plusAncien } from './refus'
 const COLONNES = 'id,etablissement_id,type,plaque,plaque_saisie,chambre,survenu_le,auteur'
 
 /** Identité tirée du jeton — jamais du corps d'une requête. */
-type Identite = { etablissementId: string; userId: string }
+type Identite = { etablissementId: string; userId: string; role: string }
 
 export type Registre = {
   pret: boolean
@@ -161,14 +161,23 @@ export function useRegistre(): Registre {
     ;(async () => {
       const { data } = await supabase.auth.getSession()
       const session = data.session
-      const etablissementId =
-        (session?.user?.app_metadata as { etablissement_id?: string } | undefined)
-          ?.etablissement_id ?? null
+      const meta = session?.user?.app_metadata as
+        | { etablissement_id?: string; role?: string }
+        | undefined
+      const etablissementId = meta?.etablissement_id ?? null
 
       if (!vivant) return
 
       if (session?.user && etablissementId) {
-        setIdentite({ etablissementId, userId: session.user.id })
+        setIdentite({
+          etablissementId,
+          userId: session.user.id,
+          // Le rôle vient du jeton, jamais d'un état local : c'est le
+          // même claim que celui sur lequel le RLS s'appuie côté base.
+          // L'écran des réglages ne fait que refléter cette décision,
+          // il ne la prend pas.
+          role: meta?.role ?? 'reception',
+        })
       } else if (session?.user) {
         setErreur(
           "Ce compte n'est rattaché à aucun établissement. Vérifiez la table membre et le hook JWT."

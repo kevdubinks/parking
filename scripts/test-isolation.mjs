@@ -95,8 +95,17 @@ const SABOTAGES = [
     sql: `grant execute on function purger_evenements() to authenticated;`,
   },
   {
+    nom: 'les réglages deviennent modifiables par la réception',
+    attendu: 'ÉCHEC 14',
+    sql: `drop policy etablissement_modification on etablissement;
+          create policy etablissement_modification on etablissement
+            for update to authenticated
+            using (id = etab_courant())
+            with check (id = etab_courant());`,
+  },
+  {
     nom: 'le hook JWT revient au jsonb_set naïf (sans coalesce)',
-    attendu: 'ÉCHEC 12',
+    attendu: 'ÉCHEC 15',
     sql: `create or replace function auth_hook_claims(event jsonb)
           returns jsonb language plpgsql stable security definer
           set search_path = public as $f$

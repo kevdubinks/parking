@@ -29,16 +29,20 @@ declare
   etab_b uuid;
   user_a uuid := gen_random_uuid();
   user_b uuid := gen_random_uuid();
+  -- Un troisième compte, réception chez A : c'est lui qui prouve que
+  -- l'écran des réglages ne peut pas être détourné par le personnel.
+  user_c uuid := gen_random_uuid();
 begin
   insert into etablissement (nom, places) values ('Test A', 10) returning id into etab_a;
   insert into etablissement (nom, places) values ('Test B', 10) returning id into etab_b;
 
   -- Comptes minimaux : le FK de `membre` pointe sur auth.users.
   insert into auth.users (id, email)
-  values (user_a, 'a@test.invalid'), (user_b, 'b@test.invalid');
+  values (user_a, 'a@test.invalid'), (user_b, 'b@test.invalid'), (user_c, 'c@test.invalid');
 
   insert into membre (user_id, etablissement_id, role)
-  values (user_a, etab_a, 'direction'), (user_b, etab_b, 'direction');
+  values (user_a, etab_a, 'direction'), (user_b, etab_b, 'direction'),
+         (user_c, etab_a, 'reception');
 
   insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, chambre, survenu_le, auteur)
   values (gen_random_uuid(), etab_a, 'ENTREE', 'AA111AA', 'AA-111-AA', '12', now(), user_a),
@@ -48,6 +52,7 @@ begin
   perform set_config('test.etab_b', etab_b::text, true);
   perform set_config('test.user_a', user_a::text, true);
   perform set_config('test.user_b', user_b::text, true);
+  perform set_config('test.user_c', user_c::text, true);
 end $$;
 
 
@@ -199,6 +204,53 @@ end $$;
 
 
 -- ---------------------------------------------------------------------
+-- Écran des réglages : qui peut modifier l'établissement
+--
+-- Ce chemin d'écriture n'existait pas tant que les réglages se
+-- faisaient dans le Table Editor. Depuis qu'un écran de l'application
+-- les expose, il doit être tenu par le RLS et non par l'affichage.
+-- ---------------------------------------------------------------------
+do $$
+declare
+  n int;
+begin
+  -- La direction modifie son propre établissement
+  perform set_config('request.jwt.claims', json_build_object(
+    'sub', current_setting('test.user_a'), 'role', 'authenticated',
+    'app_metadata', json_build_object(
+      'etablissement_id', current_setting('test.etab_a'), 'role', 'direction')
+  )::text, true);
+
+  update etablissement set nom = 'Test A renommé';
+  get diagnostics n = row_count;
+  if n <> 1 then
+    raise exception 'ÉCHEC 12 — la direction ne peut pas modifier son établissement (% ligne(s))', n;
+  end if;
+
+  -- ... et seulement le sien
+  update etablissement set nom = 'Piraté'
+   where id = current_setting('test.etab_b')::uuid;
+  get diagnostics n = row_count;
+  if n <> 0 then
+    raise exception 'ÉCHEC 13 — la direction de A a modifié l''établissement de B. FUITE.';
+  end if;
+
+  -- La réception ne modifie rien, même chez elle
+  perform set_config('request.jwt.claims', json_build_object(
+    'sub', current_setting('test.user_c'), 'role', 'authenticated',
+    'app_metadata', json_build_object(
+      'etablissement_id', current_setting('test.etab_a'), 'role', 'reception')
+  )::text, true);
+
+  update etablissement set places = 9999;
+  get diagnostics n = row_count;
+  if n <> 0 then
+    raise exception 'ÉCHEC 14 — un compte réception a modifié les réglages (% ligne(s))', n;
+  end if;
+end $$;
+
+
+-- ---------------------------------------------------------------------
 -- Le hook JWT construit bien le claim, même sans app_metadata préalable
 -- (c'est le piège de jsonb_set : il ne crée que le dernier niveau)
 -- ---------------------------------------------------------------------
@@ -214,18 +266,18 @@ begin
 
   if sortie -> 'claims' -> 'app_metadata' ->> 'etablissement_id'
      is distinct from current_setting('test.etab_a') then
-    raise exception 'ÉCHEC 12 — le hook n''a pas injecté etablissement_id (sortie : %)', sortie;
+    raise exception 'ÉCHEC 15 — le hook n''a pas injecté etablissement_id (sortie : %)', sortie;
   end if;
 
   if sortie -> 'claims' -> 'app_metadata' ->> 'role' is distinct from 'direction' then
-    raise exception 'ÉCHEC 13 — le hook n''a pas injecté le rôle (sortie : %)', sortie;
+    raise exception 'ÉCHEC 16 — le hook n''a pas injecté le rôle (sortie : %)', sortie;
   end if;
 end $$;
 
 
 do $$ begin
   raise notice '';
-  raise notice '  ISOLATION : 13/13 — étanche.';
+  raise notice '  ISOLATION : 16/16 — étanche.';
   raise notice '';
 end $$;
 

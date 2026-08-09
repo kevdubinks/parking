@@ -87,15 +87,15 @@ npm run test:isolation
 Un PostgreSQL est téléchargé, démarré sur un port privé, chargé avec les migrations, testé,
 puis supprimé. Le harnais fait deux choses :
 
-1. il joue les **13 assertions** d'étanchéité (lecture cloisonnée, écriture impossible chez
+1. il joue les **16 assertions** d'étanchéité (lecture cloisonnée, écriture impossible chez
    le voisin, auteur infalsifiable, journal ni modifiable ni effaçable, purge inaccessible à
    un compte connecté, aucune lecture sans claim, et le hook JWT qui injecte réellement
    `etablissement_id`) ;
-2. il **recasse le schéma six fois**, une protection à la fois, et vérifie que le test s'en
+2. il **recasse le schéma sept fois**, une protection à la fois, et vérifie que le test s'en
    aperçoit à chaque fois. Un test d'étanchéité qu'on n'a jamais vu virer au rouge ne prouve
    rien.
 
-État actuel : **13/13 assertions, 6/6 sabotages détectés**, sur PostgreSQL 18.4.
+État actuel : **16/16 assertions, 7/7 sabotages détectés**, sur PostgreSQL 18.4.
 
 **Sur le projet réel** — l'étape que rien ne remplace. Elle vérifie ce que le harnais local
 ne peut pas voir : que GoTrue émet bien des jetons, que le Custom Access Token Hook est
@@ -145,9 +145,24 @@ e-mail dans `supabase/seed.sql` et l'exécuter une fois.
 
 ### 5. Réglages de l'établissement
 
-**Il n'y a pas d'écran d'administration dans l'application, et c'est délibéré** — c'est là
-que les produits gonflent et meurent (CLAUDE.md § 10). L'administration, c'est le
-**Table Editor de Supabase**, sur la table `etablissement` :
+Deux endroits, au choix.
+
+**Dans l'application** : le lien *Réglages* en haut du registre, visible pour les comptes
+de rôle `direction` uniquement. Il expose exactement les colonnes ci-dessous, et pas un
+réglage de plus.
+
+> Cet écran contredit les § 8 et § 10 du CLAUDE.md, qui écartent tout écran
+> d'administration. Il existe sur décision explicite, après que l'objection a été posée.
+> La réserve reste valable : toute demande d'ajout devrait repasser par la question du
+> § 10 — *est-ce qu'au moins deux hôtels le régleraient différemment ?*
+
+L'autorisation n'est pas décidée par l'écran. Le RLS n'accorde l'`UPDATE` qu'au rôle
+`direction` de l'établissement du jeton ; masquer le formulaire est une politesse, pas une
+protection. Un compte `reception` qui atteindrait `/reglages` verrait les valeurs en lecture
+seule, et une écriture forgée serait refusée par la base — c'est vérifié par les assertions
+12 à 14 du test d'isolation.
+
+**Dans le Table Editor de Supabase**, sur la table `etablissement`, qui reste la source :
 
 | Colonne | Effet immédiat |
 |---|---|

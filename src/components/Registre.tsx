@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DELAI_ANNULATION } from '@/lib/config'
 import { afficher, dureeDepuis, estValide, normaliser } from '@/lib/plaque'
@@ -157,7 +158,17 @@ export function Registre() {
   return (
     <div className={styles.app}>
       <header className={styles.entete}>
-        <div className={styles.surTitre}>{etab.nom}</div>
+        <div className={styles.enteteReglages}>
+          <div className={styles.surTitre}>{etab.nom}</div>
+          {/* Réservé à la direction — le RLS refuse l'écriture aux
+              autres de toute façon, mais afficher un lien qui mène à un
+              formulaire inerte est une promesse qu'on ne tient pas. */}
+          {registre.identite?.role === 'direction' && (
+            <Link href="/reglages" className={styles.lienReglages}>
+              Réglages
+            </Link>
+          )}
+        </div>
         <div className={styles.mesure}>
           <div className={styles.compteur}>
             {occupees}
