@@ -213,10 +213,23 @@ ne sont pas facultatives :
 
 - **`pg_cron` doit être activé** (Database → Extensions). Sans lui, la planification de la
   purge échoue et `conservation_jours` ne correspond plus à aucune suppression réelle.
-- **Les sauvegardes retiennent les plaques purgées.** Une purge RGPD supprime les lignes de
-  la base, pas les sauvegardes automatiques ni le PITR. La durée de rétention des
-  sauvegardes fixe donc le vrai plancher de conservation. À aligner sur
-  `conservation_jours`, ou à mentionner dans le registre de traitement.
+- **Vérifier ce que retiennent les sauvegardes.** Une purge supprime les lignes de la base,
+  pas les sauvegardes ni le PITR : leur rétention peut fixer un plancher de conservation
+  supérieur à ce qu'on annonce aux clients.
+
+  Constaté le 2026-08-11 sur ce projet : offre **free**, `pitr_enabled: false`, aucune
+  sauvegarde retenue. La purge est donc bien le seul plancher, et les 30 jours de
+  l'affichette sont exacts. Rien à aligner tant que le projet reste sur cette offre.
+
+  Deux conséquences, dans les deux sens :
+
+  - **rien à restaurer.** Une suppression accidentelle, une corruption ou la perte du projet
+    emporte le registre entier — et avec lui l'usage n° 5 du `CLAUDE.md`, l'historique en
+    cas de litige ;
+  - **en passant à Pro**, sept jours de sauvegardes quotidiennes apparaissent. Une plaque
+    supprimée le trentième jour peut alors survivre jusqu'à sept jours de plus dans une
+    sauvegarde, soit environ 37 jours. À mentionner dans le registre des traitements le jour
+    où ça arrive.
 - **L'affichette d'information client** à l'accueil, avant la première saisie :
   [`docs/affichette-rgpd.html`](docs/affichette-rgpd.html) — à ouvrir dans un navigateur,
   compléter les champs surlignés, puis imprimer en A4. La durée annoncée doit correspondre
