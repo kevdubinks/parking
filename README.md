@@ -217,7 +217,10 @@ ne sont pas facultatives :
   la base, pas les sauvegardes automatiques ni le PITR. La durée de rétention des
   sauvegardes fixe donc le vrai plancher de conservation. À aligner sur
   `conservation_jours`, ou à mentionner dans le registre de traitement.
-- **L'affichette d'information client** à l'accueil, avant la première saisie.
+- **L'affichette d'information client** à l'accueil, avant la première saisie :
+  [`docs/affichette-rgpd.html`](docs/affichette-rgpd.html) — à ouvrir dans un navigateur,
+  compléter les champs surlignés, puis imprimer en A4. La durée annoncée doit correspondre
+  exactement au réglage `conservation_jours`.
 
 Deux limites à connaître, écrites ici parce qu'elles se voient en exploitation et pas en
 recette :

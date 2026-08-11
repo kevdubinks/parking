@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Affichette RGPD — parking</title>
+<style>
+  /* =====================================================================
+     Affichette d'information, à afficher à la réception AVANT la
+     première saisie d'une plaque.
+
+     A4 portrait, une seule page. La première version tenait sur 301 mm
+     de haut : elle débordait sur une deuxième feuille, ce qui ne sert à
+     rien sur un comptoir. Le texte a été resserré jusqu'à tenir avec de
+     la marge, sans rien retirer de ce qu'impose l'article 13 du RGPD.
+
+     Impression : ouvrir dans un navigateur, Ctrl+P, A4 portrait,
+     « graphiques d'arrière-plan » activés pour la bande bleue.
+     ===================================================================== */
+
+  @page { size: A4 portrait; margin: 15mm; }
+
+  :root {
+    --encre: #15171A;
+    --gris: #54585E;
+    --bleu: #12459E;
+    --trait: #D8D6D1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--encre);
+    background: #fff;
+    line-height: 1.38;
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .feuille { max-width: 180mm; margin: 0 auto; padding: 4mm 0; }
+
+  /* Le motif de plaque, repris de l'application, pour que le client
+     fasse le lien avec ce qu'il voit au comptoir. */
+  .bandeau {
+    display: flex;
+    align-items: stretch;
+    border: 2pt solid var(--encre);
+    border-radius: 2pt;
+    overflow: hidden;
+    margin-bottom: 5mm;
+  }
+  .bandeau .bande { width: 10mm; background: var(--bleu); }
+  .bandeau .titre { flex: 1; padding: 3mm 4mm; }
+
+  .surtitre {
+    font-size: 8.5pt;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gris);
+    font-weight: 600;
+  }
+  h1 { font-size: 17pt; line-height: 1.12; margin-top: 1mm; letter-spacing: -.01em; }
+
+  h2 {
+    font-size: 9.5pt;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin: 4mm 0 1mm;
+  }
+
+  p { margin-bottom: 1.5mm; }
+  ul { margin: 0 0 1.5mm 5mm; }
+  li { margin-bottom: .8mm; }
+  .fort { font-weight: 600; }
+
+  /* Ce qui reste à compléter. Volontairement voyant : on ne doit pas
+     pouvoir imprimer l'affichette en oubliant de remplir. */
+  .aremplir {
+    background: #FFE9A8;
+    border-bottom: 1.5pt solid #8A5300;
+    padding: 0 1mm;
+    font-weight: 600;
+  }
+
+  .pied {
+    margin-top: 5mm;
+    padding-top: 2.5mm;
+    border-top: 1pt solid var(--trait);
+    font-size: 9pt;
+    color: var(--gris);
+  }
+
+  /* Notice de préparation : à l'écran seulement, jamais imprimée. */
+  .notice {
+    max-width: 180mm;
+    margin: 8mm auto 0;
+    padding: 5mm;
+    border: 1pt solid var(--trait);
+    border-left: 3pt solid #8A5300;
+    font-size: 9.5pt;
+    color: var(--gris);
+    background: #FBF7EE;
+  }
+  .notice h3 { font-size: 10pt; color: var(--encre); margin-bottom: 2mm; }
+  .notice li { margin-bottom: 1.5mm; }
+  @media print { .notice { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="feuille">
+
+  <div class="bandeau">
+    <div class="bande"></div>
+    <div class="titre">
+      <div class="surtitre">Information client</div>
+      <h1>Nous enregistrons la plaque des véhicules du parking</h1>
+    </div>
+  </div>
+
+  <p>
+    Pour gérer le parking de l’établissement, nous notons la plaque d’immatriculation des
+    véhicules qui y stationnent. Voici ce que nous enregistrons, pourquoi, et ce que vous
+    pouvez demander.
+  </p>
+
+  <h2>Ce que nous notons</h2>
+  <ul>
+    <li>la plaque d’immatriculation ;</li>
+    <li>le numéro de chambre, s’il s’agit du véhicule d’un client ;</li>
+    <li>l’heure d’arrivée et l’heure de départ.</li>
+  </ul>
+  <p>Rien d’autre : aucune photographie, aucune caméra, aucun relevé automatique.</p>
+
+  <h2>Pourquoi</h2>
+  <ul>
+    <li>savoir quels véhicules sont présents et combien de places restent libres ;</li>
+    <li>vous joindre si nécessaire — véhicule gênant, phares allumés, votre propre
+      demande ;</li>
+    <li>disposer d’une trace en cas de litige ou de vol sur le parking.</li>
+  </ul>
+  <p>
+    Ces informations ne servent à rien d’autre. Elles ne sont ni revendues, ni utilisées à
+    des fins commerciales, ni transmises à des tiers, sauf réquisition des autorités.
+  </p>
+
+  <h2>Sur quelle base</h2>
+  <p>L’intérêt légitime de l’établissement à gérer et sécuriser son parking (article 6.1.f du RGPD).</p>
+
+  <h2>Combien de temps</h2>
+  <p>
+    <span class="fort"><span class="aremplir">[NOMBRE]</span> jours</span> après le départ du
+    véhicule, puis suppression automatique. Un véhicule encore stationné n’est jamais effacé.
+  </p>
+
+  <h2>Qui y a accès</h2>
+  <p>
+    Le personnel de la réception, uniquement. Les données sont hébergées chez un prestataire
+    technique au sein de l’Union européenne (Irlande) et ne quittent pas l’Espace économique
+    européen.
+  </p>
+
+  <h2>Vos droits</h2>
+  <p>
+    Vous pouvez consulter les informations vous concernant, les faire corriger, les faire
+    effacer, ou vous opposer à cet enregistrement. Adressez-vous à la réception ou écrivez à
+    <span class="aremplir">[ADRESSE E-MAIL DE CONTACT]</span>.
+  </p>
+  <p>
+    Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la CNIL —
+    <span class="fort">cnil.fr</span>.
+  </p>
+
+  <div class="pied">
+    Responsable du traitement : <span class="aremplir">[NOM DE L’ÉTABLISSEMENT]</span>,
+    <span class="aremplir">[ADRESSE POSTALE]</span>.
+    Affichette mise à jour le <span class="aremplir">[DATE]</span>.
+  </div>
+
+</div>
+
+<div class="notice">
+  <h3>À faire avant d’imprimer — ne s’imprime pas</h3>
+  <ul>
+    <li>Remplacer les <span class="aremplir">champs surlignés</span> : nombre de jours,
+      adresse e-mail de contact, nom et adresse de l’établissement, date.</li>
+    <li>Le <strong>nombre de jours doit correspondre exactement</strong> au réglage
+      « Conservation des données » dans l’application. Annoncer 30 jours et en conserver 90
+      est un manquement en soi.</li>
+    <li>Attention aux <strong>sauvegardes</strong> : la purge supprime les lignes de la base,
+      pas les sauvegardes automatiques de l’hébergeur. Si celles-ci durent plus longtemps que
+      la durée annoncée, il faut aligner leur rétention ou le mentionner.</li>
+    <li>Cette affichette est le <em>premier niveau</em> d’information. L’établissement doit
+      aussi tenir un <strong>registre des activités de traitement</strong> — un document
+      interne, non affiché, qui décrit ce traitement. Ce n’est pas ce document.</li>
+    <li>Rédigé d’après les recommandations de la CNIL sur l’information des personnes.
+      Ce n’est pas un avis juridique : faites-le relire si vous avez un doute.</li>
+  </ul>
+</div>
+
+</body>
+</html>
