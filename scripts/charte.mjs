@@ -41,19 +41,26 @@ if (!demandee) {
   process.exit(0)
 }
 
-if (!(demandee in DIRECTIONS)) {
+// `demandee in DIRECTIONS` acceptait les propriétés héritées d'Object :
+// `npm run charte -- toString` passait la validation, puis
+// DIRECTIONS['toString'] donnait une fonction, interpolée telle quelle
+// dans tokens.css et charte.ts. Deux fichiers corrompus, et un build
+// cassé pour une faute de frappe.
+if (!Object.hasOwn(DIRECTIONS, demandee)) {
   console.error(`Direction inconnue : ${demandee}`)
   console.error(`Attendu : ${Object.keys(DIRECTIONS).join(' | ')}`)
   process.exit(1)
 }
 
-const tokensMaj = tokens.replace(IMPORT, `@import './${DIRECTIONS[demandee]}';`)
-const charteMaj = charte.replace(CONST, `export const DIRECTION: Direction = '${demandee}'`)
-
+// Vérifié AVANT de calculer quoi que ce soit : on ne veut pas découvrir
+// après coup qu'on a écrit un fichier sans marqueur.
 if (!IMPORT.test(tokens) || !CONST.test(charte)) {
   console.error("Les marqueurs attendus sont introuvables : rien n'a été écrit.")
   process.exit(1)
 }
+
+const tokensMaj = tokens.replace(IMPORT, `@import './${DIRECTIONS[demandee]}';`)
+const charteMaj = charte.replace(CONST, `export const DIRECTION: Direction = '${demandee}'`)
 
 await writeFile(TOKENS, tokensMaj)
 await writeFile(CHARTE, charteMaj)

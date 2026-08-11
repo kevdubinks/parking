@@ -159,13 +159,24 @@ try {
   } else {
     const existantes = (await vercel(`/v10/projects/${projet.id}/env${qs('decrypt=false')}`)).envs ?? []
     for (const v of VARIABLES) {
-      const ancienne = existantes.find((e) => e.key === v.key)
-      if (ancienne) {
-        await vercel(`/v9/projects/${projet.id}/env/${ancienne.id}${q}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ value: v.value, target: ['production', 'preview', 'development'] }),
-        })
-        console.log(`   ✔ ${v.key} (mise à jour)`)
+      /**
+       * Une même clé peut exister en PLUSIEURS exemplaires, un par
+       * environnement — c'est ce que produit l'ajout manuel depuis le
+       * tableau de bord. Un `find` n'en voyait qu'un, et lui imposer
+       * les trois cibles faisait entrer Vercel en conflit avec les
+       * autres. On met donc à jour chaque exemplaire sans toucher à sa
+       * portée.
+       */
+      const anciennes = existantes.filter((e) => e.key === v.key)
+      if (anciennes.length) {
+        for (const ancienne of anciennes) {
+          await vercel(`/v9/projects/${projet.id}/env/${ancienne.id}${q}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ value: v.value }),
+          })
+        }
+        const portees = anciennes.flatMap((e) => e.target ?? []).join(', ')
+        console.log(`   ✔ ${v.key} (mise à jour — ${portees || 'portée inchangée'})`)
       } else {
         await vercel(`/v10/projects/${projet.id}/env${q}`, {
           method: 'POST',

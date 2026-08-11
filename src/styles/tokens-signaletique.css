@@ -121,6 +121,10 @@
   --dur-instant: 0ms;
   --dur-fast:    90ms;   /* survol, focus */
   --dur-base:   160ms;   /* apparition d'une ligne, d'une barre */
+  /* Informatif : la fenêtre d'annulation est appliquée en JavaScript,
+     qui retient l'envoi de la sortie. La valeur qui fait foi est
+     DELAI_ANNULATION dans src/lib/config.ts — changer ce token seul
+     n'a aucun effet. */
   --dur-undo:  6000ms;   /* fenêtre d'annulation après une sortie */
   --ease: cubic-bezier(.2,.6,.3,1);
 }

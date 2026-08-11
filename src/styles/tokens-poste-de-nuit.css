@@ -126,6 +126,8 @@
   --dur-instant: 0ms;
   --dur-fast:    80ms;
   --dur-base:   140ms;
+  /* Informatif : voir la note de tokens-signaletique.css. La valeur qui
+     fait foi est DELAI_ANNULATION dans src/lib/config.ts. */
   --dur-undo:  6000ms;
   --ease: cubic-bezier(.2,.6,.3,1);
 }

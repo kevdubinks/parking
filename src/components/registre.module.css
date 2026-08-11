@@ -309,14 +309,18 @@
   text-align: center;
 }
 
+/* Ces trois tailles étaient en dur (18, 14 et 24 px). Elles ne
+   suivaient donc pas un changement de direction, alors que tout le
+   contrat de la charte tient dans « remplacer un seul fichier ». Elles
+   passent sur l'échelle typographique déclarée. */
 .videTitre {
-  font-size: 18px;
+  font-size: var(--text-title);
   font-weight: var(--weight-strong);
-  margin-bottom: 7px;
+  margin-bottom: var(--space-2);
 }
 
 .videTexte {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.45;
   color: var(--color-text-secondary);
 }
@@ -332,7 +336,9 @@
 
 .videPlaque {
   font-family: var(--font-plate);
-  font-size: 24px;
+  /* --text-counter (34 px) déborderait sur une plaque étrangère longue
+     dans un encadré de 375 px. */
+  font-size: var(--text-title);
   font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-plate);
   overflow-wrap: anywhere;
