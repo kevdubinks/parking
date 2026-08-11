@@ -50,13 +50,53 @@ const nextConfig = {
   poweredByHeader: false,
 
   async headers() {
+    /**
+     * Politique de sécurité du contenu.
+     *
+     * `connect-src` est la ligne qui compte ici : même si un script
+     * étranger parvenait à s'exécuter, il ne pourrait envoyer les
+     * plaques nulle part ailleurs que vers Supabase. L'origine est lue
+     * dans l'environnement, jamais écrite en dur.
+     *
+     * `unsafe-inline` sur les scripts est une concession à Next, qui
+     * injecte ses données d'hydratation en ligne. La politique garde
+     * tout son intérêt : elle interdit de CHARGER un script d'une autre
+     * origine, et d'exfiltrer vers une autre destination.
+     *
+     * `unsafe-eval` uniquement en développement, pour le rechargement
+     * à chaud.
+     */
+    const supabase = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+    const dev = process.env.NODE_ENV === 'development'
+
+    const csp = [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data:",
+      "font-src 'self'",
+      `connect-src 'self' ${supabase} ${supabase.replace('https://', 'wss://')}`,
+      "form-action 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      'upgrade-insecure-requests',
+    ].join('; ')
+
     return [
       {
         source: '/:path*',
         headers: [
+          { key: 'Content-Security-Policy', value: csp },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'same-origin' },
           { key: 'X-Frame-Options', value: 'DENY' },
+          // Aucune de ces capacités n'est utilisée par un registre de
+          // plaques. Les refuser coûte une ligne.
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
+          },
         ],
       },
     ]
