@@ -21,15 +21,10 @@ export function supabaseNavigateur() {
   return instance
 }
 
-/** Lit l'établissement depuis le jeton, sans faire de requête. */
-export function etablissementDuJeton(accessToken: string | undefined): string | null {
-  if (!accessToken) return null
-  try {
-    const charge = JSON.parse(
-      atob(accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
-    )
-    return charge?.app_metadata?.etablissement_id ?? null
-  } catch {
-    return null
-  }
-}
+/*
+ * La lecture des claims a déménagé dans lib/jeton.ts : module pur,
+ * testable sans navigateur, et surtout UTILISÉ. La version qui vivait
+ * ici était correcte et n'a jamais été appelée — pendant ce temps le
+ * reste du code lisait `session.user.app_metadata`, qui ne contient
+ * pas les claims du hook.
+ */

@@ -26,6 +26,7 @@ import type {
 } from './types'
 import { normaliser } from './plaque'
 import { estRefusServeur, messageRefus, plusAncien } from './refus'
+import { claimsDuJeton } from './jeton'
 
 /** Garde-fou mémoire sur le journal local rapatrié. */
 const PLAFOND_JOURNAL = 5000
@@ -187,11 +188,26 @@ export function useRegistre(): Registre {
     let vivant = true
     ;(async () => {
       const { data } = await supabase.auth.getSession()
-      const session = data.session
-      const meta = session?.user?.app_metadata as
-        | { etablissement_id?: string; role?: string }
-        | undefined
-      const etablissementId = meta?.etablissement_id ?? null
+      let session = data.session
+      // Les claims sont dans le JETON, pas dans session.user — voir
+      // l'en-tête de lib/jeton.ts. Les lire au mauvais endroit rendait
+      // toute saisie impossible.
+      let { etablissementId, role } = claimsDuJeton(session?.access_token)
+
+      /**
+       * Un jeton émis AVANT le rattachement du compte ne porte pas le
+       * claim, et reste valable jusqu'à une heure. Sans cette relance,
+       * la personne verrait « compte non rattaché » sans rien pouvoir
+       * y faire, alors que la base est correcte — et le seul remède
+       * serait de se déconnecter, ce que rien à l'écran ne suggère.
+       */
+      if (session && !etablissementId) {
+        const { data: rafraichie } = await supabase.auth.refreshSession()
+        if (rafraichie.session) {
+          session = rafraichie.session
+          ;({ etablissementId, role } = claimsDuJeton(session.access_token))
+        }
+      }
 
       if (!vivant) return
 
@@ -199,11 +215,10 @@ export function useRegistre(): Registre {
         setIdentite({
           etablissementId,
           userId: session.user.id,
-          // Le rôle vient du jeton, jamais d'un état local : c'est le
-          // même claim que celui sur lequel le RLS s'appuie côté base.
-          // L'écran des réglages ne fait que refléter cette décision,
-          // il ne la prend pas.
-          role: meta?.role ?? 'reception',
+          // Le rôle vient du même claim que celui sur lequel le RLS
+          // s'appuie côté base. L'écran des réglages ne fait que
+          // refléter cette décision, il ne la prend pas.
+          role: role ?? 'reception',
         })
       } else if (session?.user) {
         setErreur(

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ecrireReglages } from '@/lib/journal'
 import { estRefusServeur, messageRefus } from '@/lib/refus'
+import { claimsDuJeton } from '@/lib/jeton'
 import { supabaseNavigateur } from '@/lib/supabase/client'
 import type { Etablissement } from '@/lib/types'
 import styles from './registre.module.css'
@@ -38,7 +39,9 @@ export function Reglages() {
     let vivant = true
     ;(async () => {
       const { data } = await supabase.auth.getSession()
-      const meta = data.session?.user?.app_metadata as { role?: string } | undefined
+      // Le rôle vit dans les claims du jeton, pas dans session.user :
+      // voir l'en-tête de lib/jeton.ts.
+      const { role: roleDuJeton } = claimsDuJeton(data.session?.access_token)
 
       const { data: ligne, error } = await supabase
         .from('etablissement')
@@ -46,7 +49,7 @@ export function Reglages() {
         .maybeSingle()
 
       if (!vivant) return
-      setRole(meta?.role ?? 'reception')
+      setRole(roleDuJeton ?? 'reception')
       if (error || !ligne) {
         setMessage({
           texte: error
