@@ -104,6 +104,18 @@ const SABOTAGES = [
             with check (id = etab_courant());`,
   },
   {
+    nom: 'la borne d’horloge disparaît du schéma',
+    attendu: 'ÉCHEC 17',
+    sql: `alter table evenement drop constraint evenement_horloge;`,
+  },
+  {
+    nom: 'la suppression d’un compte redevient bloquante',
+    attendu: 'ÉCHEC 19',
+    sql: `alter table evenement drop constraint evenement_auteur_fkey;
+          alter table evenement add constraint evenement_auteur_fkey
+            foreign key (auteur) references auth.users(id) on delete cascade;`,
+  },
+  {
     nom: 'le hook JWT revient au jsonb_set naïf (sans coalesce)',
     attendu: 'ÉCHEC 15',
     sql: `create or replace function auth_hook_claims(event jsonb)

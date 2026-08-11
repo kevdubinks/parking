@@ -22,6 +22,11 @@ const CONNUS: Record<string, string> = {
   // Colonne ou table absente : schéma pas à jour côté serveur.
   '42703': 'Le schéma de la base ne correspond pas à cette version de l’application.',
   '42P01': 'Le schéma de la base ne correspond pas à cette version de l’application.',
+  // Contrainte CHECK. La cause de loin la plus probable au comptoir est
+  // l'horloge de l'appareil : la base refuse un événement daté dans le
+  // futur, faute de quoi la voiture resterait au registre pour toujours.
+  '23514':
+    'Enregistrement refusé par la base. Vérifiez la date et l’heure de cet appareil : un événement daté dans le futur est rejeté.',
 }
 
 /**

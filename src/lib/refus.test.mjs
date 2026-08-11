@@ -42,10 +42,17 @@ test('les causes courantes sont nommées, pas laissées en code brut', () => {
   assert.match(messageRefus({ code: '42703' }), /schéma de la base/)
 })
 
+test('la violation de contrainte parle de l’horloge de l’appareil', () => {
+  // 23514, c'est presque toujours la borne `evenement_horloge` : une
+  // tablette dont la date est en avance. Le dire évite de chercher un
+  // problème de droits.
+  assert.match(messageRefus({ code: '23514' }), /date et l’heure de cet appareil/)
+})
+
 test('un code inconnu reste lisible et transmet le détail', () => {
-  const m = messageRefus({ code: '23514', message: 'plaque_check' })
-  assert.match(m, /23514/)
-  assert.match(m, /plaque_check/)
+  const m = messageRefus({ code: '23505', message: 'doublon de clé' })
+  assert.match(m, /23505/)
+  assert.match(m, /doublon de clé/)
 })
 
 test('une erreur sans code ne fabrique pas de fausse explication', () => {

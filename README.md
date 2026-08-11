@@ -87,15 +87,15 @@ npm run test:isolation
 Un PostgreSQL est téléchargé, démarré sur un port privé, chargé avec les migrations, testé,
 puis supprimé. Le harnais fait deux choses :
 
-1. il joue les **16 assertions** d'étanchéité (lecture cloisonnée, écriture impossible chez
+1. il joue les **19 assertions** d'étanchéité (lecture cloisonnée, écriture impossible chez
    le voisin, auteur infalsifiable, journal ni modifiable ni effaçable, purge inaccessible à
    un compte connecté, aucune lecture sans claim, et le hook JWT qui injecte réellement
    `etablissement_id`) ;
-2. il **recasse le schéma sept fois**, une protection à la fois, et vérifie que le test s'en
+2. il **recasse le schéma neuf fois**, une protection à la fois, et vérifie que le test s'en
    aperçoit à chaque fois. Un test d'étanchéité qu'on n'a jamais vu virer au rouge ne prouve
    rien.
 
-État actuel : **16/16 assertions, 7/7 sabotages détectés**, sur PostgreSQL 18.4.
+État actuel : **19/19 assertions, 9/9 sabotages détectés**, sur PostgreSQL 18.4.
 
 **Sur le projet réel** — l'étape que rien ne remplace. Elle vérifie ce que le harnais local
 ne peut pas voir : que GoTrue émet bien des jetons, que le Custom Access Token Hook est

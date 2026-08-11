@@ -251,10 +251,94 @@ end $$;
 
 
 -- ---------------------------------------------------------------------
+-- Intégrité des données écrites par le client
+--
+-- `survenu_le` et le texte libre viennent de l'appareil. Une entrée
+-- datée dans le futur ne serait jamais remplacée par sa sortie : la
+-- voiture resterait au registre indéfiniment.
+-- ---------------------------------------------------------------------
+do $$
+declare
+  ok boolean;
+begin
+  perform set_config('request.jwt.claims', json_build_object(
+    'sub', current_setting('test.user_a'), 'role', 'authenticated',
+    'app_metadata', json_build_object(
+      'etablissement_id', current_setting('test.etab_a'), 'role', 'direction')
+  )::text, true);
+
+  -- 17. Horloge en avance : refusé
+  ok := false;
+  begin
+    insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
+    values (gen_random_uuid(), current_setting('test.etab_a')::uuid, 'ENTREE',
+            'FU111UR', 'FU-111-UR', now() + interval '2 hours',
+            current_setting('test.user_a')::uuid);
+  exception when check_violation then ok := true;
+  end;
+  if not ok then
+    raise exception 'ÉCHEC 17 — un événement daté dans le futur a été accepté : la voiture serait ingérable.';
+  end if;
+
+  -- Une saisie hors ligne dans le passé reste légitime
+  insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
+  values (gen_random_uuid(), current_setting('test.etab_a')::uuid, 'ENTREE',
+          'PA222SE', 'PA-222-SE', now() - interval '6 hours',
+          current_setting('test.user_a')::uuid);
+
+  -- 18. Texte libre démesuré : refusé
+  ok := false;
+  begin
+    insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
+    values (gen_random_uuid(), current_setting('test.etab_a')::uuid, 'ENTREE',
+            'XX333XX', repeat('X', 500), now(), current_setting('test.user_a')::uuid);
+  exception when check_violation then ok := true;
+  end;
+  if not ok then
+    raise exception 'ÉCHEC 18 — une saisie de 500 caractères a été acceptée.';
+  end if;
+end $$;
+
+
+reset role;
+
+
+-- ---------------------------------------------------------------------
+-- 19. Un compte peut être supprimé sans emporter le journal
+--
+--     On supprime le compte RÉCEPTION, pas la direction : le test du
+--     hook qui suit a encore besoin de user_a et de sa ligne membre,
+--     laquelle part en cascade avec le compte.
+-- ---------------------------------------------------------------------
+do $$
+declare
+  id_evt uuid := gen_random_uuid();
+  existe int;
+  sans_auteur int;
+begin
+  -- Un événement signé par la réception, posé hors RLS.
+  insert into evenement (id, etablissement_id, type, plaque, plaque_saisie, survenu_le, auteur)
+  values (id_evt, current_setting('test.etab_a')::uuid, 'ENTREE',
+          'RC444PT', 'RC-444-PT', now(), current_setting('test.user_c')::uuid);
+
+  delete from auth.users where id = current_setting('test.user_c')::uuid;
+
+  select count(*) into existe from evenement where id = id_evt;
+  if existe <> 1 then
+    raise exception 'ÉCHEC 19 — supprimer un compte a emporté les événements qu''il avait saisis.';
+  end if;
+
+  select count(*) into sans_auteur from evenement where id = id_evt and auteur is null;
+  if sans_auteur <> 1 then
+    raise exception 'ÉCHEC 19 — l''auteur n''a pas été détaché après suppression du compte.';
+  end if;
+end $$;
+
+
+-- ---------------------------------------------------------------------
 -- Le hook JWT construit bien le claim, même sans app_metadata préalable
 -- (c'est le piège de jsonb_set : il ne crée que le dernier niveau)
 -- ---------------------------------------------------------------------
-reset role;
 
 do $$
 declare
@@ -277,7 +361,7 @@ end $$;
 
 do $$ begin
   raise notice '';
-  raise notice '  ISOLATION : 16/16 — étanche.';
+  raise notice '  ISOLATION : 19/19 — étanche.';
   raise notice '';
 end $$;
 
