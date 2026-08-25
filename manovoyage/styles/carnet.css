@@ -1,0 +1,506 @@
+/* manovoyage — le papier.
+   Rien de rond, rien de centré, rien de dégradé violet.
+   Un carnet a du grain, des marges inégales et de l'encre qui pèse. */
+
+:root {
+  --papier:        #e7dcc5;
+  --papier-creux:  #d8cbb0;   /* le papier dans l'ombre d'une pliure */
+  --papier-verso:  #ded6c6;
+  --encre:         #22262c;
+  --encre-pale:    #5d5a52;
+  --encre-marge:   #3c5a76;   /* stylo bille bleu, celui des annotations */
+  --rouge:         #9c3722;   /* tampons, corrections */
+  --quadrille:     #b9b09b;
+  --gouttiere: 112px;   /* la marge où s'écrivent les annotations */
+  --pli-l: 540px;
+  --pli-h: 760px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #2a2723;
+  color: var(--encre);
+  font-family: 'EB Garamond', Garamond, Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body.est-plie { overflow: hidden; }
+
+/* Le grain. Une seule couche fixe pour tout l'écran : moins cher que de
+   texturer neuf panneaux, et ça unifie l'objet. */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)' opacity='.34'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------ scène */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  perspective: 2100px;
+  perspective-origin: 50% 46%;
+  overflow: hidden;
+  cursor: grab;
+}
+.scene.tire { cursor: grabbing; }
+
+.bande {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--pli-h);
+  margin-top: calc(var(--pli-h) / -2);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.pli {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pli-l);
+  height: var(--pli-h);
+  transform-origin: 0 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.feuille {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform .62s cubic-bezier(.6,.02,.2,1);
+}
+.carnet--verso .feuille { transform: rotateY(180deg); }
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  background: var(--papier);
+  box-shadow:
+    inset 0 0 0 1px rgba(80,66,40,.14),
+    0 18px 40px -18px rgba(0,0,0,.55);
+}
+.face--verso { transform: rotateY(180deg); background: var(--papier-verso); }
+
+/* L'ombre de pliure. Opacité et sens pilotés par le script :
+   un pli tourné vers le fond s'assombrit, et le bord près de la pliure plus
+   que l'autre. C'est ce dégradé qui fait sentir le papier plutôt qu'un plan. */
+.ombre {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  background: linear-gradient(to right,
+    rgba(60,44,16,0) 6%, rgba(52,38,14,.34) 56%, rgba(30,21,7,.86) 100%);
+}
+.ombre--miroir { transform: scaleX(-1); }
+
+/* Le texte continue sous le bord : un filet et rien de plus. */
+.face.a-suivre::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 68px;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--papier) 8%, rgba(231,220,197,0));
+}
+.face--verso.a-suivre::after {
+  background: linear-gradient(to top, var(--papier-verso) 8%, rgba(222,214,198,0));
+}
+.face.a-suivre .pied { z-index: 7; }
+
+/* Le contenu défile verticalement DANS le pli qu'on lit.
+   Deux axes, deux sens : vertical = lire, horizontal = avancer. */
+.contenu {
+  position: absolute;
+  inset: 0;
+  padding: 46px 40px 54px 44px;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+.contenu::-webkit-scrollbar { display: none; }
+.pli--lu .contenu { overflow-y: auto; }
+
+/* ------------------------------------------------------- le trait continu */
+
+.trait {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .9;
+}
+.trait .cote      { fill: none; stroke: var(--encre);      stroke-width: 1.5; opacity: .78; }
+.trait .cote-bis  { fill: none; stroke: var(--encre);      stroke-width: .7;  opacity: .3; }
+.trait .route     { fill: none; stroke: var(--encre-marge); stroke-width: 1;
+                    stroke-dasharray: 7 5; opacity: .5; }
+
+/* ------------------------------------------------------------- typographie */
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  gap: .6em;
+  border-bottom: 1px solid rgba(60,50,30,.3);
+  padding-bottom: 9px;
+  margin-bottom: 22px;
+}
+.entete .lieu {
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -.005em;
+  font-weight: 500;
+}
+.entete .pays {
+  font-size: 12.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--encre-pale);
+  margin-left: auto;
+}
+.jalon {
+  display: flex;
+  gap: 1.1em;
+  font-size: 12.5px;
+  letter-spacing: .07em;
+  color: var(--encre-pale);
+  margin: -14px 0 26px;
+  font-variant-numeric: oldstyle-nums;
+}
+.jalon .km::after { content: ' km'; opacity: .6; }
+
+.chapeau {
+  margin-right: var(--gouttiere);
+  font-size: 21px;
+  line-height: 1.42;
+  font-style: italic;
+  margin: 0 0 22px;
+  text-indent: -.36em;   /* la guillemet pend dans la marge, comme à la main */
+}
+
+.texte { margin-right: var(--gouttiere); }
+.texte p {
+  margin: 0 0 1.05em;
+  line-height: 1.62;
+  text-align: justify;
+  hyphens: auto;
+  font-variant-numeric: oldstyle-nums;
+}
+.texte p:first-of-type::first-letter {
+  font-size: 2.05em;
+  line-height: .9;
+  float: left;
+  padding: .07em .1em 0 0;
+}
+.texte s { text-decoration: line-through; text-decoration-thickness: 1px; opacity: .55; }
+.texte .corr {
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  color: var(--rouge);
+  font-size: 1.15em;
+  vertical-align: .55em;
+  margin-left: .12em;
+  line-height: 0;
+}
+
+/* Les annotations de marge : autre stylo, autre jour, écrites de travers. */
+.marge {
+  position: absolute;
+  right: 12px;
+  width: calc(var(--gouttiere) - 22px);
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-size: 17.5px;
+  line-height: 1.24;
+  color: var(--encre-marge);
+  opacity: .92;
+  z-index: 4;
+  pointer-events: none;
+}
+.marge--droite { transform: rotate(2.1deg); }
+.marge--gauche { transform: rotate(-2.6deg); }
+.marge::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 0;
+  width: 24px;
+  border-top: 1px solid currentColor;
+  opacity: .45;
+}
+
+/* Pièces collées : billets, reçus. Papier plus fin, encre de caisse. */
+.piece {
+  position: relative;
+  margin: 26px var(--gouttiere) 8px 4px;
+  padding: 13px 15px 15px;
+  background: #f0ead9;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-size: 12.2px;
+  line-height: 1.52;
+  letter-spacing: .012em;
+  color: #3a3730;
+  white-space: pre;
+  overflow: hidden;
+  box-shadow: 0 6px 16px -10px rgba(0,0,0,.6), inset 0 0 0 1px rgba(120,100,60,.18);
+}
+.piece--recu { background: #f3f0e6; font-size: 11.4px; }
+/* le ruban adhésif */
+.piece::before, .piece::after {
+  content: '';
+  position: absolute;
+  width: 54px; height: 17px;
+  background: rgba(214,201,166,.62);
+  box-shadow: inset 0 0 0 1px rgba(150,132,90,.22);
+}
+.piece::before { top: -8px;   left: -14px;  transform: rotate(-24deg); }
+.piece::after  { bottom: -8px; right: -14px; transform: rotate(-24deg); }
+
+/* ------------------------------------------------------- couverture & fin */
+
+.couverture, .final { padding-top: 96px; }
+.couverture .titre {
+  font-size: 52px;
+  line-height: .96;
+  letter-spacing: -.018em;
+  margin: 0 0 6px;
+}
+.couverture .numero, .final .numero {
+  font-size: 12px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--encre-pale);
+}
+.exergue {
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.45;
+  margin: 34px 0 30px;
+  padding-left: 14px;
+  border-left: 2px solid var(--rouge);
+}
+.compte { list-style: none; margin: 0; padding: 0; font-variant-numeric: oldstyle-nums; }
+.compte li {
+  padding: 7px 0;
+  border-bottom: 1px dotted rgba(60,50,30,.32);
+  font-size: 16.5px;
+}
+.pied {
+  position: absolute;
+  left: 44px; right: 40px; bottom: 30px;
+  font-size: 12.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--encre-pale);
+}
+.tampon {
+  position: absolute;
+  top: 54px; right: 28px;
+  padding: 9px 13px;
+  border: 2px solid var(--rouge);
+  color: var(--rouge);
+  font-size: 11px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+  opacity: .68;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------- le verso */
+
+/* Le dos est du papier quadrillé : c'est là que sont les chiffres. */
+.face--verso .contenu {
+  background-image:
+    linear-gradient(to right,  rgba(150,140,115,.28) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(150,140,115,.28) 1px, transparent 1px);
+  background-size: 19px 19px;
+  background-position: -1px -1px;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 19px;      /* le texte s'assoit sur le quadrillage */
+}
+.face--verso h3 {
+  margin: 0 0 19px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--encre-pale);
+  font-weight: 500;
+}
+.depenses { width: 100%; border-collapse: collapse; margin-bottom: 19px; }
+.depenses td { padding: 0; vertical-align: baseline; }
+.depenses .objet { position: relative; }
+.depenses .objet span {
+  background: var(--papier-verso);
+  padding-right: 5px;
+  position: relative;
+  z-index: 1;
+}
+/* les pointillés de conduite, comme dans un carnet de comptes */
+.depenses .objet::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 5px;
+  border-bottom: 1px dotted rgba(60,50,30,.4);
+}
+.depenses .montant { text-align: right; white-space: nowrap; padding-left: 10px; }
+.depenses tr.total td { padding-top: 19px; font-weight: 700; }
+.depenses tr.total .objet::after { display: none; }
+
+.releve { margin: 0 0 19px; }
+.releve .titre-releve { color: var(--encre-pale); margin-bottom: 0; }
+.releve pre { margin: 0; font: inherit; white-space: pre-wrap; }
+
+.notes { margin: 0; padding: 0; list-style: none; }
+.notes li { margin-bottom: 19px; padding-left: 15px; text-indent: -15px; }
+.notes li::before { content: '— '; color: var(--encre-pale); }
+
+/* ------------------------------------------------------------- commandes */
+
+.commandes {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 13px 20px;
+  color: #cbc0a8;
+  font-size: 12px;
+  letter-spacing: .09em;
+  background: linear-gradient(to top, rgba(20,18,15,.82), transparent);
+}
+.commandes button {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgba(203,192,168,.35);
+  padding: 6px 11px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.commandes button:hover { border-color: rgba(203,192,168,.8); }
+.commandes button:focus-visible { outline: 2px solid #cbc0a8; outline-offset: 2px; }
+.commandes .ou { margin-left: auto; font-variant-numeric: tabular-nums; opacity: .8; }
+.commandes kbd {
+  font: inherit;
+  border: 1px solid rgba(203,192,168,.4);
+  padding: 1px 5px;
+  margin: 0 1px;
+}
+.indice { opacity: .72; }
+
+/* La règle du haut : l'épaisseur de ce qui est plié de chaque côté. */
+.regle {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 26px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 20px;
+  pointer-events: none;
+}
+.regle i {
+  display: block;
+  width: 3px;
+  height: 9px;
+  background: #cbc0a8;
+  opacity: .3;
+  transition: height .25s, opacity .25s;
+}
+.regle i.ici { height: 17px; opacity: .95; }
+
+/* ------------------------------------------------------------- à plat */
+
+.aplat { display: none; }
+body.mode-aplat { overflow: auto; background: #2a2723; }
+body.mode-aplat .scene, body.mode-aplat .regle { display: none; }
+body.mode-aplat .aplat { display: block; }
+
+.aplat .bande-plate {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 70px 26px 140px;
+  background: var(--papier);
+  box-shadow: 0 0 60px -20px #000;
+}
+.aplat section { margin-bottom: 68px; }
+.aplat .separation { border: 0; border-top: 1px dashed rgba(60,50,30,.4); margin: 0 0 68px; }
+.aplat .marge {
+  position: static;
+  width: auto;
+  transform: none;
+  margin: 0 0 18px;
+  padding-left: 15px;
+  border-left: 2px solid currentColor;
+}
+.aplat .marge::before { display: none; }
+.aplat .face--verso-plat {
+  margin-top: 26px;
+  padding: 20px 22px;
+  background: var(--papier-verso);
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 19px;
+}
+
+/* ------------------------------------------------------------- réglages */
+
+@media (max-width: 700px) {
+  :root { --gouttiere: 0px; }
+  body { font-size: 16.5px; }
+  /* Sur une colonne étroite, justifier creuse des rivières entre les mots. */
+  .texte p { text-align: left; }
+  .contenu { padding: 34px 26px 46px 28px; }
+  .entete .lieu { font-size: 25px; }
+  .chapeau { font-size: 18.5px; }
+  .marge {
+    position: static;
+    width: auto;
+    transform: none;
+    margin: 0 0 16px;
+    padding-left: 13px;
+    border-left: 2px solid currentColor;
+    font-size: 16px;
+  }
+  .marge::before { display: none; }
+  .couverture .titre { font-size: 38px; }
+  .commandes { font-size: 11px; gap: 11px; padding: 10px 12px; }
+  .commandes .indice { display: none; }
+}
+
+/* Mouvement réduit : le carnet garde ses plis, mais il ne glisse plus.
+   Supprimer le pliage rendrait le site illisible ; supprimer l'inertie non. */
+@media (prefers-reduced-motion: reduce) {
+  .feuille { transition: none; }
+}
+
+@media print {
+  body, body.mode-aplat { background: #fff; overflow: visible; }
+  .scene, .commandes, .regle, .grain { display: none !important; }
+  .aplat { display: block !important; }
+  .aplat .bande-plate { box-shadow: none; max-width: none; background: none; padding: 0; }
+  .aplat section { break-inside: avoid; }
+}

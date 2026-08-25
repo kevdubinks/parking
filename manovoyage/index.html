@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>manovoyage — carnet nº 3, Trieste → Thessalonique</title>
+<meta name="description" content="Un carnet de voyage qui se déplie : Trieste → Thessalonique par la côte, en vingt-trois jours et sans bateau.">
+<meta name="theme-color" content="#2a2723">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Caveat:wght@400;600&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="styles/carnet.css">
+</head>
+<body class="est-plie">
+
+<div class="regle" aria-hidden="true"></div>
+
+<!-- La bande. Un seul objet, plié en neuf, que le script incline pli par pli. -->
+<main class="scene" aria-label="Carnet de voyage dépliant">
+  <div class="bande"></div>
+</main>
+
+<!-- La même chose à plat : lisible d'une traite, imprimable, et c'est aussi
+     ce que lit un moteur de recherche ou une synthèse vocale. -->
+<div class="aplat">
+  <div class="bande-plate"></div>
+</div>
+
+<nav class="commandes">
+  <button id="bouton-face" type="button">voir le dos</button>
+  <button id="bouton-aplat" type="button">lire à plat</button>
+  <span class="indice">
+    <kbd>←</kbd><kbd>→</kbd> déplier · molette : lire, puis avancer · <kbd>V</kbd> retourner
+  </span>
+  <span class="ou" aria-live="polite"></span>
+</nav>
+
+<div class="grain" aria-hidden="true"></div>
+
+<noscript>
+  <style>.scene,.regle,.commandes{display:none}.aplat{display:block}body{overflow:auto}</style>
+</noscript>
+
+<script src="contenu/etapes.js"></script>
+<script src="scripts/trait.js"></script>
+<script src="scripts/pliage.js"></script>
+<script src="scripts/carnet.js"></script>
+</body>
+</html>
