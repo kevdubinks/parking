@@ -148,10 +148,9 @@ body.est-plie { overflow: hidden; }
   z-index: 1;
   opacity: .9;
 }
-.trait .cote      { fill: none; stroke: var(--encre);      stroke-width: 1.5; opacity: .78; }
-.trait .cote-bis  { fill: none; stroke: var(--encre);      stroke-width: .7;  opacity: .3; }
-.trait .route     { fill: none; stroke: var(--encre-marge); stroke-width: 1;
-                    stroke-dasharray: 7 5; opacity: .5; }
+.trait .trace     { fill: none; stroke: var(--encre); stroke-width: 1.5; opacity: .74; }
+.trait .trace-bis { fill: none; stroke: var(--encre); stroke-width: .7;  opacity: .28; }
+.trait .repere    { fill: none; stroke: var(--rouge); stroke-width: 1.3; opacity: .72; }
 
 /* ------------------------------------------------------------- typographie */
 
@@ -299,13 +298,17 @@ body.est-plie { overflow: hidden; }
   box-shadow: 0 11px 24px -13px rgba(0,0,0,.66), inset 0 0 0 1px rgba(120,100,60,.16);
   transition: box-shadow .38s;
 }
+/* 3:4 par défaut — les proportions d'un tirage, et celles de toutes les photos
+   du carnet : elles ne sont donc jamais recadrées. Les autres valeurs servent
+   si un jour des vues d'un autre format viennent s'ajouter. */
 .vue-boite {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: #b4ad9c;
 }
+.tirage--paysage  .vue-boite { aspect-ratio: 3 / 2; }
 .tirage--portrait .vue-boite { aspect-ratio: 2 / 3; }
 .tirage--carre    .vue-boite { aspect-ratio: 1 / 1; }
 .vue { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -362,24 +365,16 @@ body.est-plie { overflow: hidden; }
 .tirage.tenu .cadre { box-shadow: 0 30px 48px -18px rgba(0,0,0,.78), inset 0 0 0 1px rgba(120,100,60,.2); }
 
 /* Une planche : la page où les tirages d'une pellicule sont collés ensemble. */
-.planche { display: flex; flex-wrap: wrap; gap: 4px 14px; align-content: flex-start; }
-.planche .tirage { width: calc(50% - 7px); margin: 16px 0 18px; }
-.planche .tirage--large { width: 100%; }
-.planche figcaption { font-size: 15.5px; }
-
-/* Le dos des tirages : ce qu'on écrit au crayon derrière un tirage. */
-.dos-tirages { display: flex; flex-wrap: wrap; gap: 13px; margin-bottom: 19px; }
-.dos-tirage {
-  width: calc(50% - 7px);
-  aspect-ratio: 3 / 2;
-  padding: 13px 14px;
-  background: #ece6d7;
-  box-shadow: inset 0 0 0 1px rgba(120,100,60,.18);
-  font-family: 'Caveat', 'Segoe Script', cursive;
-  font-size: 16.5px;
-  line-height: 1.24;
-  color: var(--encre-marge);
+.planche {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 16px;
+  margin-top: 26px;
 }
+.planche--peu { grid-template-columns: minmax(0, 1fr); }
+.planche .tirage { width: 100%; margin: 10px 0 16px; }
+.planche .tirage--large { grid-column: 1 / -1; }
+.planche figcaption { font-size: 15.5px; }
 
 /* ------------------------------------------------------- couverture & fin */
 
@@ -476,6 +471,7 @@ body.est-plie { overflow: hidden; }
 .depenses tr.total .objet::after { display: none; }
 
 .releve { margin: 0 0 19px; }
+.releve + .releve { margin-top: -4px; }
 .releve .titre-releve { color: var(--encre-pale); margin-bottom: 0; }
 .releve pre { margin: 0; font: inherit; white-space: pre-wrap; }
 
@@ -567,7 +563,7 @@ body.mode-aplat .aplat { display: block; }
 }
 .aplat .marge::before { display: none; }
 .aplat .tirage { width: 100%; cursor: default; transform: none; }
-.aplat .planche .tirage { width: calc(50% - 7px); }
+.aplat .planche .tirage { width: 100%; }
 .aplat .face--verso-plat {
   margin-top: 26px;
   padding: 20px 22px;
@@ -587,7 +583,7 @@ body.mode-aplat .aplat { display: block; }
   .contenu { padding: 34px 26px 46px 28px; }
   .entete .lieu { font-size: 25px; }
   .chapeau { font-size: 18.5px; }
-  .tirage, .planche .tirage, .dos-tirage { width: 100%; }
+  .planche { grid-template-columns: minmax(0, 1fr); }
   .marge {
     position: static;
     width: auto;

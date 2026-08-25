@@ -61,8 +61,11 @@
 
   /* Un tirage collé dans la page. Tant que le fichier n'est pas là, on montre
      l'emplacement — du papier photo non exposé — plutôt qu'une image cassée. */
-  function montrerTirage(photo, large) {
-    var f = el('figure', 'tirage tirage--' + (photo.cadrage || 'paysage'));
+  function montrerTirage(photo, large, differe) {
+    /* Sans `cadrage`, le tirage garde les proportions d'un tirage (3:4), qui
+       sont celles de toutes les photos du carnet : elles ne sont donc jamais
+       recadrées. Un `cadrage` explicite recadre au centre. */
+    var f = el('figure', 'tirage' + (photo.cadrage ? ' tirage--' + photo.cadrage : ''));
     f.classList.add(photo.pose === 'ruban' ? 'tirage--ruban' : 'tirage--coins');
     if (large) f.classList.add('tirage--large');
     f.style.setProperty('--angle', (photo.angle || 0) + 'deg');
@@ -87,7 +90,11 @@
         img.remove();
         poserAttente(f, boite, photo);
       });
-      img.src = photo.fichier;
+      /* Dans le carnet, la source n'est posée qu'à l'approche du pli : soixante
+         tirages chargés d'un coup, ce sont vingt méga-octets pour une page
+         qu'on n'a pas encore dépliée. À plat, le navigateur s'en charge. */
+      if (differe) img.dataset.source = photo.fichier;
+      else img.src = photo.fichier;
       boite.appendChild(img);
     } else {
       poserAttente(f, boite, photo);
@@ -114,16 +121,16 @@
 
   /* Les tirages d'une étape se glissent après le paragraphe indiqué par
      `apres` ; sans indication, ils viennent à la fin du texte. */
-  function collerTirages(corps, photos) {
+  function collerTirages(corps, photos, differe) {
     photos.forEach(function (photo) {
-      var t = montrerTirage(photo, false);
+      var t = montrerTirage(photo, false, differe);
       var cible = photo.apres != null ? corps.children[photo.apres] : null;
       if (cible) corps.insertBefore(t, cible);
       else corps.appendChild(t);
     });
   }
 
-  function montrerRecto(volet, index) {
+  function montrerRecto(volet, index, differe) {
     var c = el('div', 'contenu');
 
     if (volet.type === 'couverture') {
@@ -142,24 +149,6 @@
       });
       c.appendChild(t);
       c.appendChild(el('div', 'pied', volet.recto.pied));
-      return c;
-    }
-
-    if (volet.type === 'planche') {
-      var ep = el('div', 'entete');
-      ep.appendChild(el('span', 'lieu', volet.titre));
-      ep.appendChild(el('span', 'pays', volet.pays || ''));
-      c.appendChild(ep);
-      if (volet.jalon) {
-        var jp = el('div', 'jalon');
-        volet.jalon.forEach(function (t) { jp.appendChild(el('span', null, t)); });
-        c.appendChild(jp);
-      }
-      var pl = el('div', 'planche');
-      volet.photos.forEach(function (photo) {
-        pl.appendChild(montrerTirage(photo, photo.large));
-      });
-      c.appendChild(pl);
       return c;
     }
 
@@ -184,14 +173,26 @@
     j.appendChild(el('span', 'km', String(volet.km)));
     c.appendChild(j);
 
-    ecrire(c, 'chapeau', '« ' + volet.recto.chapeau + ' »');
+    ecrire(c, 'chapeau', volet.recto.chapeau);
 
-    var corps = el('div', 'texte');
-    volet.recto.texte.forEach(function (p) {
-      var n = el('p'); n.innerHTML = p; corps.appendChild(n);
-    });
-    if (volet.recto.photos) collerTirages(corps, volet.recto.photos);
-    c.appendChild(corps);
+    if (volet.recto.texte) {
+      var corps = el('div', 'texte');
+      volet.recto.texte.forEach(function (p) {
+        var n = el('p'); n.innerHTML = p; corps.appendChild(n);
+      });
+      if (volet.recto.photos) collerTirages(corps, volet.recto.photos, differe);
+      c.appendChild(corps);
+    } else if (volet.recto.photos) {
+      /* Pas encore de récit : la page est une planche de tirages. Rien n'y
+         signale un manque — elle est finie ainsi, et le jour où un `texte`
+         arrive, les tirages viennent se glisser dedans. */
+      var photos = volet.recto.photos;
+      var pl = el('div', 'planche' + (photos.length <= 2 ? ' planche--peu' : ''));
+      photos.forEach(function (photo) {
+        pl.appendChild(montrerTirage(photo, photos.length === 1, differe));
+      });
+      c.appendChild(pl);
+    }
 
     if (volet.recto.piece) {
       var pc = el('div', 'piece piece--' + volet.recto.piece.type);
@@ -238,24 +239,12 @@
       c.appendChild(tab);
     }
 
-    if (v.releve) {
+    (v.releves || (v.releve ? [v.releve] : [])).forEach(function (releve) {
       var r = el('div', 'releve');
-      r.appendChild(el('div', 'titre-releve', v.releve.titre));
-      r.appendChild(el('pre', null, v.releve.lignes.join('\n')));
+      r.appendChild(el('div', 'titre-releve', releve.titre));
+      r.appendChild(el('pre', null, releve.lignes.join('\n')));
       c.appendChild(r);
-    }
-
-    /* Au dos d'un tirage on écrit la date et l'endroit. C'est le seul endroit
-       du carnet où l'écriture ne s'adresse à personne. */
-    if (v.dosTirages) {
-      var dt = el('div', 'dos-tirages');
-      v.dosTirages.forEach(function (t, k) {
-        var d = el('div', 'dos-tirage', t);
-        d.style.transform = 'rotate(' + (k % 2 ? 0.8 : -0.9) + 'deg)';
-        dt.appendChild(d);
-      });
-      c.appendChild(dt);
-    }
+    });
 
     if (v.notes) {
       var ul = el('ul', 'notes');
@@ -275,18 +264,27 @@
     svg.setAttribute('height', HAUTEUR_TRAIT);
     svg.setAttribute('viewBox', (index * L) + ' 0 ' + L + ' ' + HAUTEUR_TRAIT);
     svg.setAttribute('aria-hidden', 'true');
-    [['route', dessin.route], ['cote-bis', dessin.coteBis], ['cote', dessin.cote]]
-      .forEach(function (p) {
-        var path = document.createElementNS(ns, 'path');
-        path.setAttribute('class', p[0]);
-        path.setAttribute('d', p[1]);
-        svg.appendChild(path);
-      });
+    [['trace-bis', dessin.traceBis], ['trace', dessin.trace]].forEach(function (p) {
+      var path = document.createElementNS(ns, 'path');
+      path.setAttribute('class', p[0]);
+      path.setAttribute('d', p[1]);
+      svg.appendChild(path);
+    });
+    /* Une croix au droit de chaque étape : le trait touche la page ici. */
+    dessin.reperes.forEach(function (r) {
+      var croix = document.createElementNS(ns, 'path');
+      croix.setAttribute('class', 'repere');
+      croix.setAttribute('d', 'M ' + (r.x - 4) + ' ' + (r.y - 4) + ' l 8 8 M ' +
+                              (r.x + 4) + ' ' + (r.y - 4) + ' l -8 8');
+      svg.appendChild(croix);
+    });
     face.appendChild(svg);
   }
 
   function batir() {
-    var dessin = TRAIT.construireTrait(N, L, HAUTEUR_TRAIT);
+    /* Le trait est tracé depuis les latitudes relevées, pas inventé. */
+    var latitudes = CARNET.volets.map(function (v) { return v.lat != null ? v.lat : null; });
+    var dessin = TRAIT.construireTrait(latitudes, L, HAUTEUR_TRAIT);
     bande.textContent = '';
     elsPli = []; elsOmbre = []; elsContenu = [];
 
@@ -296,7 +294,7 @@
 
       var recto = el('article', 'face face--recto');
       poserTrait(recto, i, dessin);
-      var cr = montrerRecto(volet, i);
+      var cr = montrerRecto(volet, i, true);
       recto.appendChild(cr);
       var or = el('div', 'ombre'); recto.appendChild(or);
 
@@ -366,6 +364,7 @@
       dernierLu = lu;
       poussee = 0;
       reposerTirage();
+      chargerAutour(lu);
     }
 
     for (var k = 0; k < regle.children.length; k++) {
@@ -373,6 +372,18 @@
     }
     compteur.textContent = 'pli ' + (lu + 1) + ' / ' + N + ' — ' + nomDuPli(lu);
     marquerSuite();
+  }
+
+  /* On pose les sources des tirages du pli lu et de ses voisins immédiats.
+     Deux plis d'avance suffisent : le temps de déplier, l'image est là. */
+  function chargerAutour(lu) {
+    for (var i = Math.max(0, lu - 2); i <= Math.min(N - 1, lu + 2); i++) {
+      var attente = elsPli[i].querySelectorAll('img.vue[data-source]');
+      for (var k = 0; k < attente.length; k++) {
+        attente[k].src = attente[k].dataset.source;
+        delete attente[k].dataset.source;
+      }
+    }
   }
 
   /* Prévenir quand le texte du pli lu continue sous le bord. */
@@ -552,7 +563,7 @@
     CARNET.volets.forEach(function (volet, i) {
       if (i) hote.appendChild(el('hr', 'separation'));
       var s = el('section');
-      s.appendChild(montrerRecto(volet, i));
+      s.appendChild(montrerRecto(volet, i, false));
       var dos = el('div', 'face--verso-plat');
       dos.appendChild(montrerVerso(volet));
       s.appendChild(dos);
@@ -571,6 +582,7 @@
     mesurer();
     batir();
     batirAplat();
+    chargerAutour(0);
     debutOuverture = performance.now();
     relancer();
 

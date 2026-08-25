@@ -1,19 +1,22 @@
 # manovoyage
 
-Un carnet de voyage qui se **déplie**.
+Un carnet de voyage qui se **déplie**. Thaïlande : quinze étapes, 2 044 km,
+soixante tirages, de Bangkok aux karsts d'Andaman.
 
 Le site n'est pas une suite d'articles : c'est une seule bande de papier pliée en
 accordéon. On avance dedans latéralement, le pli qu'on lit est à plat, et le reste
 du voyage est replié de part et d'autre — visiblement, physiquement. L'épaisseur
 des plis à gauche et à droite dit combien de chemin il reste de chaque côté.
 
-Chaque pli a un **dos**. Le recto porte le récit ; le verso, sur papier quadrillé,
-porte ce que ça a coûté, les horaires de bus relevés au guichet, les notes qu'on
-se prend pour soi. Touche `V`, ou le bouton « voir le dos ».
+Chaque pli a un **dos**. Le recto porte les tirages ; le verso, sur papier
+quadrillé, porte la position relevée, les distances et l'inventaire des tirages
+de la page. Touche `V`, ou le bouton « voir le dos ».
 
-Un **trait unique** — le tracé de la côte, du golfe de Trieste au golfe Thermaïque —
-traverse les neuf plis sans jamais s'interrompre, y compris dans les pliures.
-C'est ce qui fait que le carnet est un objet et non neuf cartes posées côte à côte.
+Un **trait unique** traverse les dix-sept plis sans jamais s'interrompre, pliures
+comprises. Ce n'est pas une décoration : c'est le profil du voyage en latitude,
+tracé depuis les coordonnées relevées à chaque étape. Il monte jusqu'à Chiang Mai,
+au 19ᵉ parallèle, et redescend jusqu'à la mer d'Andaman. Chaque étape tombe au
+milieu de sa page, et une petite croix rouge marque l'endroit où le trait la touche.
 
 ## Se déplacer
 
@@ -34,77 +37,70 @@ suivant — on n'a donc jamais besoin de savoir qu'il y a deux axes.
 
 ## Écrire
 
-Tout le contenu est dans **`contenu/etapes.js`**, et rien que là. C'est le seul
-fichier à ouvrir pour écrire. Ajouter une étape = ajouter une entrée dans le
-tableau `volets` ; le pliage, le trait et la mise en page suivent tout seuls,
-quel que soit le nombre de plis.
+Tout le contenu est dans **`contenu/etapes.js`**, et rien que là. Les étapes,
+les coordonnées, les kilométrages et les photos viennent de l'export du voyage,
+conservé tel quel dans `medias/source-manovoyage.json`.
 
-Une étape ressemble à ça :
+**Les récits restent à écrire.** Une page sans récit est une page de tirages, et
+elle est finie comme ça — rien n'y signale un manque. Le jour où un `texte`
+arrive, les paragraphes apparaissent et les tirages viennent se glisser dedans :
 
 ```js
 {
   type: 'etape',
-  lieu: 'Rijeka', pays: 'Croatie', jour: 'J2 – J4', date: '3 – 5 septembre', km: 85,
+  lieu: 'Ayutthaya', jour: 'étape 6', km: 94,
+  lat: 14.357, lng: 100.5679,          // sert à tracer le trait
   recto: {
-    chapeau: 'La phrase qui ouvre le pli.',
-    texte: [ 'Un paragraphe.', 'Un autre.' ],
-    marges: [ { haut: '38%', cote: 'droite', texte: 'note ajoutée après coup' } ],
-    piece:  { type: 'billet', angle: -1.6, lignes: ['…', '…'] }   // ticket collé
+    chapeau: 'Wat Mahathat, Wat Ratchaburana…',   // la ligne sous le titre
+    texte: [ 'Un paragraphe.', 'Un autre.' ],     // absent pour l'instant
+    photos: [ … ]
   },
-  verso: {
-    entete: 'dos du pli 2 — Rijeka',
-    depenses: [ ['chambre, 3 nuits', '66,00'] ], total: '99,67 €',
-    releve:   { titre: 'relevé au guichet', lignes: ['06:00  4 h 30  direct'] },
-    notes:    [ 'ce qu on note pour soi' ]
-  }
+  verso: { entete: 'au dos — Ayutthaya', releves: [ … ] }
 }
 ```
 
-Dans les textes, trois balises seulement :
-`<em>` pour l'italique, `<s>mot</s>` pour un mot rayé, et
-`<s>mot</s><span class="corr">?</span>` pour une correction à la main au-dessus.
+Dans les textes, trois balises seulement : `<em>` pour l'italique, `<s>mot</s>`
+pour un mot rayé, et `<s>mot</s><span class="corr">?</span>` pour une correction
+à la main au-dessus.
 
-`piece.type` vaut `billet` ou `recu`. `marges[].cote` (`droite` / `gauche`) ne
-change que l'inclinaison de la note ; toutes s'écrivent dans la marge de droite.
+Le **dos** de chaque page porte des `releves` — des blocs de lignes en
+caractères de machine sur le papier quadrillé. Pour l'instant : la position
+relevée, les distances, et l'inventaire des tirages de la page. C'est aussi là
+que des notes personnelles auraient leur place, via `notes: [ … ]`.
 
 ## Les photos
 
 Les photos sont des **tirages collés dans la page** : marge blanche, coins photo
-ou ruban adhésif, légende à la main dessous, et quelques degrés de travers.
-Jamais une image à fond perdu — ce serait une galerie, pas un carnet.
+ou ruban adhésif, légende à la main dessous, quelques degrés de travers. Jamais
+une image à fond perdu — ce serait une galerie, pas un carnet.
 
-Déposer les fichiers dans `medias/` (voir `medias/LISEZMOI.md` pour les tailles),
-puis les citer dans `contenu/etapes.js` :
+Les soixante tirages sont dans `medias/`, rangés par étape. Une entrée ressemble
+à ça :
 
 ```js
-photos: [
-  { fichier: 'medias/03-kotor-marches.jpg',
-    legende: 'les marches, vers la neuf centième. je m’étais assis.',
-    apres: 3,               // se glisse après le 3ᵉ paragraphe ; sinon à la fin
-    cadrage: 'portrait',    // paysage (défaut) · portrait · carre
-    pose: 'coins',          // coins photo (défaut) · ruban adhésif
-    angle: -2.4,            // la gîte, en degrés
-    reference: 'pell. 2 · 07' }
-]
+{ fichier: 'medias/06-ayutthaya/06-01.jpg',
+  legende: 'la tête prise dans les racines',
+  angle: -1.7,              // la gîte, en degrés
+  pose: 'coins',            // coins photo (défaut) · ruban adhésif
+  reference: '06-01',
+  apres: 2 }                // si un récit existe : après le 2ᵉ paragraphe
 ```
 
-**Tant qu'un fichier n'est pas là, le carnet montre l'emplacement du tirage** —
-du papier photo non exposé avec sa référence au crayon — et jamais une image
+Sans `cadrage`, le tirage garde les proportions d'un tirage — 3:4, celles de
+toutes les photos du carnet, qui ne sont donc **jamais recadrées**. `cadrage`
+vaut `paysage`, `portrait` ou `carre` pour recadrer au centre si un jour des
+vues d'un autre format s'ajoutent.
+
+**Tant qu'un fichier manque, le carnet montre l'emplacement du tirage** — du
+papier photo non exposé avec sa référence au crayon — et jamais une image
 cassée. On peut donc écrire d'abord et coller les photos ensuite.
 
 Un clic sur un tirage le **prend en main** : il se redresse et se rapproche.
 Un second clic, `Échap`, ou changer de pli, le repose.
 
-### Une page de planche
-
-Un pli entier peut être une planche — les tirages d'une pellicule collés
-ensemble. `type: 'planche'`, avec `titre`, `jalon` et un tableau `photos`
-(ajouter `large: true` à celle qui ouvre la page). Au dos, `dosTirages` écrit ce
-qu'on note derrière un tirage :
-
-```js
-dosTirages: ['2 sept. — Trieste, Molo Audace', '3 sept. — Rijeka, le port']
-```
+Les sources ne sont posées qu'à l'approche du pli, deux plis d'avance. Soixante
+tirages chargés d'un coup, ce serait vingt méga-octets pour des pages qu'on n'a
+pas encore dépliées.
 
 ## Volontairement absent
 
@@ -128,7 +124,8 @@ côte, tracé par le code.
 ```
 index.html
 contenu/etapes.js     tout le texte — le seul fichier à modifier pour écrire
-medias/               les photos, déposées telles quelles
+medias/               les soixante tirages, rangés par étape
+medias/source-manovoyage.json   l'export du voyage, tel qu'il est arrivé
 scripts/pliage.js     la géométrie de l'accordéon
 scripts/trait.js      le tracé de côte, unique et continu
 scripts/carnet.js     montage des plis, molette, clavier, faces

@@ -1,518 +1,665 @@
-/* manovoyage — le contenu du carnet nº 3.
+/* manovoyage — le contenu du carnet.
  *
- * Un seul fichier à modifier pour écrire. La mise en page ne se touche pas.
- * Le HTML autorisé dans les textes : <em>, <s>, <br>, <span class="corr">.
- *   <s>mot</s><span class="corr">autre</span>  →  mot rayé, correction au-dessus.
+ * Étapes, coordonnées, kilométrages et photos viennent de l'export du voyage,
+ * conservé tel quel dans `medias/source-manovoyage.json`.
  *
- * Chaque entrée du tableau `volets` est un pli du carnet, de gauche à droite.
- * type : 'couverture' | 'etape' | 'fin'
+ * Les légendes décrivent ce qu'on voit sur le tirage. Le récit de chaque étape
+ * reste à écrire : ajouter un tableau `texte` à `recto` et les paragraphes
+ * apparaissent, les tirages venant alors se glisser dedans. Tant qu'il n'y en
+ * a pas, la page est une page de tirages — et elle est finie comme ça.
+ *
+ * HTML autorisé dans les textes : <em>, <s>, <br>, <span class="corr">.
  */
 
 window.CARNET = {
   titre: 'manovoyage',
-  numero: 'carnet nº 3',
-  trajet: 'Trieste → Thessalonique, par la côte',
-  periode: '2 – 24 septembre',
-  tampon: ['SEPTEMBRE', '2 → 24'],
+  numero: 'Thaïlande',
+  trajet: 'Bangkok \u2192 Ayutthaya \u2192 Chiang Mai \u2192 Krabi',
+  tampon: ['8\u00b0 N', '19\u00b0 N'],
   auteur: 'Mano',
 
   volets: [
 
-    /* ------------------------------------------------------------------ 0 */
     {
       type: 'couverture',
       recto: {
-        exergue: 'On descend la côte en bateau. C’était vrai jusqu’en 2014.',
-        lignes: [
-          '23 jours',
-          '1 665 km au compteur',
-          '7 bus de nuit ou d’aube',
-          '0 bateau',
-          '2 pellicules'
-        ],
-        pied: 'Se déplie vers la droite. →'
+        exergue: 'Quinze étapes, du Chao Phraya aux karsts d\u2019Andaman.',
+        lignes: ['15 étapes', '2\u202f044 km', '60 tirages', 'du 8\u1d49 au 19\u1d49 parallèle'],
+        pied: 'Se déplie vers la droite. \u2192'
       },
       verso: {
         entete: 'au dos de la couverture',
         notes: [
-          'Carnet acheté à Trieste le 2 au matin, papier trop fin, l’encre traverse.',
-          'Les pages de droite : ce qui s’est passé.',
-          'Les pages de dos : ce que ça a coûté et ce que j’avais noté pour moi.',
-          'Si quelque chose est rayé, c’est que je me suis trompé sur le moment. Je n’ai rien réécrit après coup.'
+          'Les pages de droite : les tirages, dans l\u2019ordre du voyage.',
+          'Les pages de dos : la position relevée, et l\u2019inventaire des tirages de la page.',
+          'Le trait qui traverse les plis est le profil du voyage en latitude. Il monte jusqu\u2019à Chiang Mai et redescend jusqu\u2019à la mer d\u2019Andaman. Il est tracé depuis les coordonnées relevées, et ne s\u2019interrompt jamais, même dans les pliures.'
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 1 */
+    /* ------------------------------------------------------------ étape 1 */
     {
       type: 'etape',
-      lieu: 'Trieste',
-      pays: 'Italie',
-      jour: 'J1',
-      date: '2 septembre',
+      lieu: 'Wat Pho',
+      pays: 'Thaïlande',
+      jour: 'étape 1',
       km: 0,
+      lat: 13.7465, lng: 100.4927,
       recto: {
-        chapeau: 'Le bus ne part pas de la gare routière. Il part du parking derrière.',
-        texte: [
-          'Il y a bien une gare routière à Trieste, mais les bus qui descendent vers l’est n’en partent pas. Ils partent d’un parking derrière, entre un distributeur de billets hors service et un mur. On m’avait dit d’arriver une heure avant. J’y étais à 8 h 15 pour un départ à 9 h 40. Le type qui vend les billets installe sa table pliante vers 9 h.',
-          'J’ai attendu debout, il n’y a nulle part où s’asseoir. Une femme est arrivée avec quatre sacs de courses et un carton fermé au ruban adhésif marron. Elle a demandé si le carton comptait comme un bagage. Le type a dit non. Elle a dit merci trois fois.',
-          'La veille j’avais passé la matinée sur le Molo Audace à ne rien faire. Un café à 1,10 au comptoir. Trieste est une ville où on peut rester assis longtemps sans que personne vienne demander si tout va bien.',
-          'Je n’avais rien réservé après Rijeka. Ça me paraissait raisonnable à Trieste.'
-        ],
+        chapeau: 'Bangkok, rive est du Chao Phraya.',
         photos: [
-          { fichier: 'medias/01-trieste-parking.jpg', apres: 1, angle: -1.7, pose: 'coins',
-            reference: 'pell. 1 · 03',
-            legende: 'le parking, 8 h 20. la table pliante n’est pas encore là.' }
-        ],
-        marges: [
-          { haut: '30%', cote: 'droite', texte: 'le carton est monté quand même' },
-          { haut: '74%', cote: 'gauche', texte: 'ça me paraîtra moins raisonnable jeudi' }
-        ],
-        piece: {
-          type: 'billet',
-          angle: -1.6,
-          lignes: [
-            'ARRIVA / AUTOTRANS',
-            'TRIESTE  P.zza Libertà',
-            '   →  RIJEKA (HR)',
-            '02.09    09:40    posto 14',
-            '14,50 EUR   bagaglio incl.'
-          ]
-        }
+          { fichier: 'medias/01-wat-pho/01-01.jpg', legende: 'le bouddha couché, et les offrandes à sa tête',
+            angle: -1.7, pose: 'coins', reference: '01-01' }
+        ]
       },
       verso: {
-        entete: 'au dos — Trieste',
-        depenses: [
-          ['café, Molo Audace', '1,10'],
-          ['billet Trieste → Rijeka', '14,50'],
-          ['sandwich, gare', '4,20'],
-          ['eau (1,5 L)', '1,00'],
-          ['carnet + stylo', '9,80']
-        ],
-        total: '30,60 €',
-        notes: [
-          'Le distributeur derrière la gare prend 6 € de frais. Celui de la poste, non.',
-          'Ana (chambre à Rijeka) — +385 91 4•• ••7. Sonner deux fois, l’interphone ne marche pas.',
-          'Ne plus acheter d’eau en 1,5 L. Trop lourd, et je la finis jamais.'
+        entete: 'au dos — Wat Pho',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        13,7465 N   100,4927 E',
+          'depuis l\u2019étape précédente   0 km',
+          'depuis le départ            0 km',
+          'tirages sur cette page      1'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '01-01   le bouddha couché, et les offrandes à sa tête'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 2 */
+    /* ------------------------------------------------------------ étape 2 */
     {
       type: 'etape',
-      lieu: 'Rijeka',
-      pays: 'Croatie',
-      jour: 'J2 – J4',
-      date: '3 – 5 septembre',
-      km: 85,
+      lieu: 'Wat Arun',
+      pays: 'Thaïlande',
+      jour: 'étape 2',
+      km: 1,
+      lat: 13.7437, lng: 100.4889,
       recto: {
-        chapeau: 'Il n’y a plus de ferry le long de la côte. Il n’y en a plus depuis 2014.',
-        texte: [
-          'Je m’étais mis dans la tête qu’on descendait la côte croate en bateau. C’était vrai jusqu’en 2014. La ligne Rijeka – Dubrovnik s’est arrêtée cette année-là et personne ne l’a remplacée. Il reste les ferrys vers les îles, qui vont d’ouest en est et non du nord au sud. Autrement dit ils traversent, ils ne descendent pas.',
-          'J’ai mis deux jours à l’accepter. J’ai passé une matinée entière à l’agence du port à poser la même question de trois façons différentes à la même femme, qui m’a donné trois fois la même réponse sans s’énerver.',
-          'Rijeka sous la pluie ressemble à une ville industrielle qui a arrêté d’être industrielle sans qu’on lui dise quoi faire ensuite. Les grues du terminal à conteneurs tournent quand même. J’ai dormi trois nuits au-dessus d’un bar, carrelage jusqu’au plafond, une fenêtre sur une cour où quelqu’un réparait un scooter tous les soirs entre 19 h et 21 h.',
-          'Le troisième soir j’ai compris qu’il ne le réparait pas. Il le démarrait, l’écoutait, l’arrêtait, et recommençait.'
-        ],
+        chapeau: 'Le prang, de jour puis à la tombée du soir.',
         photos: [
-          { fichier: 'medias/02-rijeka-cour.jpg', apres: 3, angle: 2.1, pose: 'ruban',
-            reference: 'pell. 1 · 14',
-            legende: 'la cour, depuis la fenêtre. le scooter est à gauche, hors champ.' }
-        ],
-        marges: [
-          { haut: '38%', cote: 'droite', texte: 'elle s’appelle Vesna. « no boat », avec le sourire de ceux qui l’ont dit mille fois' },
-          { haut: '86%', cote: 'gauche', texte: 'je n’ai jamais su ce qu’il écoutait' }
-        ],
-        piece: {
-          type: 'recu',
-          angle: 2.1,
-          lignes: [
-            'KONZUM  RIJEKA — KORZO',
-            '04.09.2024        21:14',
-            'KRUH POLUBIJELI     1,29',
-            'SIR GAUDA 200 G     2,79',
-            'PIVO OZUJSKO 0,5    1,19',
-            '--------------------------',
-            'UKUPNO EUR          5,27'
-          ]
-        }
+          { fichier: 'medias/02-wat-arun/02-01.jpg', legende: 'le prang éclairé, depuis l’autre rive',
+            angle: -1.7, pose: 'coins', reference: '02-01' },
+          { fichier: 'medias/02-wat-arun/02-02.jpg', legende: 'de face, depuis le pied',
+            angle: 2.1, pose: 'coins', reference: '02-02' },
+          { fichier: 'medias/02-wat-arun/02-03.jpg', legende: 'les marches, prises d’en bas',
+            angle: -1.2, pose: 'ruban', reference: '02-03' },
+          { fichier: 'medias/02-wat-arun/02-04.jpg', legende: 'le prang principal et ses satellites',
+            angle: 1.6, pose: 'coins', reference: '02-04' },
+          { fichier: 'medias/02-wat-arun/02-05.jpg', legende: 'l’allée d’entrée, côté jardin',
+            angle: -2.4, pose: 'coins', reference: '02-05' },
+          { fichier: 'medias/02-wat-arun/02-06.jpg', legende: 'l’ubosot, toits superposés',
+            angle: 1.3, pose: 'ruban', reference: '02-06' }
+        ]
       },
       verso: {
-        entete: 'au dos — Rijeka',
-        depenses: [
-          ['chambre, 3 nuits', '66,00'],
-          ['courses', '5,27'],
-          ['bus urbain ×4', '6,40'],
-          ['laverie (annulée, machine pleine)', '0,00'],
-          ['bus Rijeka → Zadar', '22,00']
-        ],
-        total: '99,67 €',
-        releve: {
-          titre: 'bus Rijeka → Zadar — relevé au guichet',
-          lignes: [
-            '06:00   4 h 30   direct        22,00',
-            '09:15   5 h 50   par Otočac    22,00',
-            '12:30   5 h 50   par Otočac    24,50',
-            '16:45   4 h 40   direct        24,50',
-            '23:59   6 h 10   nuit          19,00'
-          ]
-        },
-        notes: [
-          'Prendre le 06:00. C’est le seul du matin qui ne fait pas le détour par l’intérieur.',
-          'La Croatie est passée à l’euro en 2023. Les prix sont encore affichés en kunas à côté, en petit, comme un sous-titre.'
+        entete: 'au dos — Wat Arun',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        13,7437 N   100,4889 E',
+          'depuis l\u2019étape précédente   1 km',
+          'depuis le départ            1 km',
+          'tirages sur cette page      6'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '02-01   le prang éclairé, depuis l’autre rive',
+          '02-02   de face, depuis le pied',
+          '02-03   les marches, prises d’en bas',
+          '02-04   le prang principal et ses satellites',
+          '02-05   l’allée d’entrée, côté jardin',
+          '02-06   l’ubosot, toits superposés'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 3 */
+    /* ------------------------------------------------------------ étape 3 */
     {
       type: 'etape',
-      lieu: 'Zadar',
-      pays: 'Croatie',
-      jour: 'J5 – J6',
-      date: '6 – 7 septembre',
-      km: 315,
+      lieu: 'Talat Noi',
+      pays: 'Thaïlande',
+      jour: 'étape 3',
+      km: 4,
+      lat: 13.7375, lng: 100.5115,
       recto: {
-        chapeau: 'L’orgue de mer à 6 h 10, et ensuite une laverie.',
-        texte: [
-          'Tout le monde parle de l’orgue de mer. C’est une série de tuyaux sous le quai : la houle rentre dedans et ça fait des notes. À 18 h il y a deux cents personnes assises sur les marches et on entend surtout les deux cents personnes. À 6 h 10 il n’y a personne, et c’est autre chose.',
-          'Le son ne vient pas d’un point, il vient de tout le quai à la fois. Il n’est pas beau. Il est bas et un peu faux, comme un accordéon qu’on ouvre lentement. Ça dure tant qu’il y a de la mer, donc tout le temps.',
-          'Le reste de la journée, lessive. Trois heures dans une laverie de la rue <s>Špire</s><span class="corr">?</span> — je ne retrouve plus le nom et je n’ai pas envie d’aller le chercher. Le sèche-linge nº 2 chauffe mal, tout le monde le sait sauf ceux qui viennent d’arriver. Un homme m’a fait non de la tête quand j’ai voulu l’ouvrir. Il ne parlait pas anglais, moi pas croate, on s’est très bien compris.',
-          'J’ai relu mes notes des six premiers jours en attendant le cycle. Il n’y a presque rien sur les endroits. Il y a surtout des horaires et des prix.'
-        ],
-        marges: [
-          { haut: '46%', cote: 'droite', texte: 'y retourner à 6 h. pas à 18 h.' },
-          { haut: '80%', cote: 'gauche', texte: 'nº 2 = 40 min pour rien' }
-        ],
-        piece: {
-          type: 'billet',
-          angle: 1.2,
-          lignes: [
-            'PRAONICA  —  SAMOPOSLUGA',
-            'pranje 8 kg .......... 4,00',
-            'sušenje 30 min ....... 3,50',
-            'deterdžent ........... 1,00',
-            'žeton × 3'
-          ]
-        }
+        chapeau: 'Baan So Heng Tai, Baan Rim Naam, les murs peints.',
+        photos: [
+          { fichier: 'medias/03-talat-noi/03-01.jpg', legende: 'une porte rouge, et ce qui pousse devant',
+            angle: -1.7, pose: 'coins', reference: '03-01' },
+          { fichier: 'medias/03-talat-noi/03-02.jpg', legende: 'le vélo devant l’atelier',
+            angle: 2.1, pose: 'coins', reference: '03-02' },
+          { fichier: 'medias/03-talat-noi/03-03.jpg', legende: 'l’horloge et le carrelage en damier',
+            angle: -1.2, pose: 'ruban', reference: '03-03' },
+          { fichier: 'medias/03-talat-noi/03-04.jpg', legende: 'les murs peints, ruelle',
+            angle: 1.6, pose: 'coins', reference: '03-04' },
+          { fichier: 'medias/03-talat-noi/03-05.jpg', legende: 'la fresque, et les motos garées dessous',
+            angle: -2.4, pose: 'coins', reference: '03-05' },
+          { fichier: 'medias/03-talat-noi/03-06.jpg', legende: 'la voiture, laissée là',
+            angle: 1.3, pose: 'ruban', reference: '03-06' },
+          { fichier: 'medias/03-talat-noi/03-07.jpg', legende: 'la façade jaune',
+            angle: -0.9, pose: 'coins', reference: '03-07' }
+        ]
       },
       verso: {
-        entete: 'au dos — Zadar',
-        depenses: [
-          ['chambre, 2 nuits', '48,00'],
-          ['laverie', '8,50'],
-          ['café ×5', '7,50'],
-          ['bus Zadar → Split', '13,00'],
-          ['bus Split → Dubrovnik', '21,00'],
-          ['bus Dubrovnik → Kotor', '18,00']
-        ],
-        total: '116,00 €',
-        notes: [
-          'Deux frontières entre Dubrovnik et Kotor si on passe par Neum. Trois arrêts, deux tampons, une heure perdue.',
-          'Ce que je note : des horaires et des prix. Ce que je photographie : des murs, des sols, des panneaux. Presque personne. Je m’en rends compte en développant.'
+        entete: 'au dos — Talat Noi',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        13,7375 N   100,5115 E',
+          'depuis l\u2019étape précédente   3 km',
+          'depuis le départ            4 km',
+          'tirages sur cette page      7'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '03-01   une porte rouge, et ce qui pousse devant',
+          '03-02   le vélo devant l’atelier',
+          '03-03   l’horloge et le carrelage en damier',
+          '03-04   les murs peints, ruelle',
+          '03-05   la fresque, et les motos garées dessous',
+          '03-06   la voiture, laissée là',
+          '03-07   la façade jaune'
+        ] }
         ]
       }
     },
 
-
-    /* ------------------------------------------------------------ planche */
-    {
-      type: 'planche',
-      titre: 'Pellicule 1',
-      pays: '36 vues',
-      jalon: ['J1 – J7', 'Trieste, Rijeka, Zadar', 'développée à Split'],
-      photos: [
-        { fichier: 'medias/p1-01-golfe.jpg', large: true, angle: -0.8, pose: 'coins',
-          reference: 'pell. 1 · 01', legende: 'le golfe depuis le Molo Audace, avant tout le reste' },
-        { fichier: 'medias/p1-02-quai.jpg', angle: 1.9, pose: 'coins',
-          reference: 'pell. 1 · 09', legende: 'le quai de Rijeka, sous la pluie' },
-        { fichier: 'medias/p1-03-grues.jpg', angle: -2.2, pose: 'coins',
-          reference: 'pell. 1 · 11', legende: 'les grues, qui tournent quand même' },
-        { fichier: 'medias/p1-04-carrelage.jpg', angle: 1.3, pose: 'ruban',
-          reference: 'pell. 1 · 17', legende: 'le carrelage montait jusqu’au plafond' },
-        { fichier: 'medias/p1-05-orgue.jpg', angle: -1.5, pose: 'coins',
-          reference: 'pell. 1 · 22', legende: 'l’orgue de mer à 6 h 10. il n’y a rien à voir, c’est le problème.' }
-      ],
-      verso: {
-        entete: 'au dos — pellicule 1',
-        dosTirages: [
-          '2 sept. — Trieste, Molo Audace',
-          '3 sept. — Rijeka, le port',
-          '4 sept. — Rijeka, terminal',
-          '4 sept. — la chambre',
-          '6 sept. — Zadar, 6 h 10'
-        ],
-        notes: [
-          'Développée à Split en une heure, 9 €. Quatre vues perdues au début du rouleau.',
-          'La 22 est floue et je l’ai gardée quand même.',
-          'Ne plus charger la pellicule en plein soleil.'
-        ]
-      }
-    },
-
-    /* ------------------------------------------------------------------ 4 */
+    /* ------------------------------------------------------------ étape 4 */
     {
       type: 'etape',
-      lieu: 'Kotor',
-      pays: 'Monténégro',
-      jour: 'J8 – J10',
-      date: '9 – 11 septembre',
-      km: 815,
+      lieu: 'Yaowarat',
+      pays: 'Thaïlande',
+      jour: 'étape 4',
+      km: 5,
+      lat: 13.7398, lng: 100.5106,
       recto: {
-        chapeau: 'À 9 h la ville se remplit, à 17 h elle se vide, à 17 h 10 c’est un village.',
-        texte: [
-          'Le bateau entre dans la baie au ralenti, plus haut que tout ce qu’il y a autour. À 9 h il pose trois mille personnes sur le quai. Les trois mille font le même circuit, dans le même sens, avec le même autocollant rond sur la poitrine. À 17 h ils repartent. Les rues redeviennent des rues, les chats sortent, et les commerçants qui vendaient des aimants à 14 h dînent dehors à 19 h.',
-          'Je ne dis pas ça de haut. J’ai fait exactement le même circuit, dans le même sens, le premier jour, parce qu’entre les murs c’est le seul chemin possible.',
-          'Je suis monté au fort Saint-Jean à 6 h 20 pour éviter la chaleur. Ce sont mille trois cent cinquante marches, plus ou moins ; personne ne compte pareil. Mon genou droit a tenu à la montée. À la descente, non. J’ai mis une heure vingt pour redescendre ce que j’avais monté en cinquante minutes, à reculons dans les passages raides, ce qui est ridicule à voir et efficace.',
-          'J’avais payé les 15 € la première fois, à 14 h, avec le soleil sur la nuque. Le deuxième matin, à 6 h 20, il n’y avait personne pour vendre quoi que ce soit.'
-        ],
+        chapeau: 'Chinatown, la nuit.',
         photos: [
-          { fichier: 'medias/03-kotor-marches.jpg', apres: 3, angle: -2.4, cadrage: 'portrait',
-            pose: 'coins', reference: 'pell. 2 · 07',
-            legende: 'les marches, vers la neuf centième. je m’étais assis.' }
-        ],
-        marges: [
-          { haut: '34%', cote: 'droite', texte: 'compter les autocollants : bleus le matin, jaunes l’après-midi. deux bateaux.' },
-          { haut: '82%', cote: 'gauche', texte: 'acheter une genouillère à Shkodër' }
-        ],
-        piece: {
-          type: 'billet',
-          angle: -2.4,
-          lignes: [
-            'TVRĐAVA SV. IVAN  /  KOTOR',
-            'ULAZNICA — ADMISSION',
-            'nº 0 4 1 7 7 3',
-            '09 / 09        15,00 EUR',
-            'ne vrijedi za povratak'
-          ]
-        }
+          { fichier: 'medias/04-yaowarat/04-01.jpg', legende: 'Yaowarat, vers l’ouest',
+            angle: -1.7, pose: 'coins', reference: '04-01' },
+          { fichier: 'medias/04-yaowarat/04-02.jpg', legende: 'les enseignes, de près',
+            angle: 2.1, pose: 'coins', reference: '04-02' },
+          { fichier: 'medias/04-yaowarat/04-03.jpg', legende: 'au-dessus de la rue',
+            angle: -1.2, pose: 'ruban', reference: '04-03' }
+        ]
       },
       verso: {
-        entete: 'au dos — Kotor',
-        depenses: [
-          ['chambre, 3 nuits (Dobrota)', '75,00'],
-          ['forteresse', '15,00'],
-          ['bus local Dobrota ↔ Kotor ×6', '6,00'],
-          ['pharmacie — bande + ibuprofène', '7,40'],
-          ['restaurant, une fois', '19,00'],
-          ['bus Kotor → Shkodër', '14,00']
-        ],
-        total: '136,40 €',
-        notes: [
-          'Le Monténégro paie en euros sans être dans l’euro. Personne sur place ne trouve ça remarquable.',
-          'Dormir à Dobrota et pas dans les murs : moitié prix, vingt minutes à pied le long de l’eau, et on entend la ville sans être dedans.',
-          'Genouillère : pas achetée. Je l’écris pour la troisième fois.'
+        entete: 'au dos — Yaowarat',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        13,7398 N   100,5106 E',
+          'depuis l\u2019étape précédente   1 km',
+          'depuis le départ            5 km',
+          'tirages sur cette page      3'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '04-01   Yaowarat, vers l’ouest',
+          '04-02   les enseignes, de près',
+          '04-03   au-dessus de la rue'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 5 */
+    /* ------------------------------------------------------------ étape 5 */
     {
       type: 'etape',
-      lieu: 'Shkodër',
-      pays: 'Albanie',
-      jour: 'J13 – J15',
-      date: '14 – 16 septembre',
-      km: 945,
+      lieu: 'Wat Paknam',
+      pays: 'Thaïlande',
+      jour: 'étape 5',
+      km: 14,
+      lat: 13.7178, lng: 100.4685,
       recto: {
-        chapeau: 'Le passage de la frontière a duré quarante minutes pour huit personnes.',
-        texte: [
-          'Le poste de Hani i Hotit : deux cabanes et un auvent. Le bus s’arrête, tout le monde descend avec son passeport, on attend. Il n’y a pas de file, il y a un groupe. Quarante minutes pour huit personnes. Personne ne s’énerve, ce qui devrait me servir de leçon et ne me sert jamais de leçon.',
-          'Shkodër se fait à vélo. J’en ai loué un 500 lekë la journée dans une cour, sans papier, sans caution ; le type a juste donné son prénom — Dritan — comme si ça suffisait. Ça a suffi. La roue arrière était voilée. Je l’ai ramené le soir en m’excusant : il l’a mise dans l’étau, il a serré trois rayons, il a refusé l’argent que je voulais ajouter, et il a été un peu vexé que je propose.',
-          'Le lac est à quatre kilomètres. La route longe des maisons en construction, des fers à béton qui dépassent du dernier étage. On m’a expliqué que ce n’est pas de l’abandon, c’est de l’attente : tant que la maison n’est pas finie, on peut ajouter un étage pour le fils.',
-          'Trois personnes différentes m’ont fait cette réponse, dans les mêmes termes. Je ne sais pas si c’est vrai ou si c’est ce qu’on dit aux étrangers qui demandent.'
-        ],
+        chapeau: 'Le grand Bouddha de Phasi Charoen.',
         photos: [
-          { fichier: 'medias/04-shkoder-velo.jpg', apres: 2, angle: 1.6, pose: 'ruban',
-            reference: 'pell. 2 · 19',
-            legende: 'le vélo de Dritan, roue arrière redressée. il n’a pas voulu être dessus.' }
-        ],
-        marges: [
-          { haut: '42%', cote: 'droite', texte: '500 lekë ≈ 4,80 €. j’ai mis deux jours à arrêter de convertir.' },
-          { haut: '88%', cote: 'gauche', texte: 'vérifier l’histoire des fers à béton' }
-        ],
-        piece: {
-          type: 'recu',
-          angle: 1.8,
-          lignes: [
-            'QIRA BIÇIKLETE — 1 DITË',
-            'rr. Kolë Idromeno',
-            '16.09           500 LEKË',
-            '(pa dokument)',
-            'Dritan'
-          ]
-        }
+          { fichier: 'medias/05-wat-paknam/05-01.jpg', legende: 'le grand bouddha, de face',
+            angle: -1.7, pose: 'coins', reference: '05-01' },
+          { fichier: 'medias/05-wat-paknam/05-02.jpg', legende: 'depuis le parvis',
+            angle: 2.1, pose: 'coins', reference: '05-02' },
+          { fichier: 'medias/05-wat-paknam/05-03.jpg', legende: 'à travers les arbres',
+            angle: -1.2, pose: 'ruban', reference: '05-03' },
+          { fichier: 'medias/05-wat-paknam/05-04.jpg', legende: 'depuis le khlong, les barques au premier plan',
+            angle: 1.6, pose: 'coins', reference: '05-04' }
+        ]
       },
       verso: {
-        entete: 'au dos — Shkodër',
-        depenses: [
-          ['chambre, 3 nuits', '2 700 lekë'],
-          ['vélo, 2 jours', '1 000 lekë'],
-          ['byrek ×5', '500 lekë'],
-          ['café ×9', '810 lekë'],
-          ['bus → Sarandë (via Tirana)', '2 200 lekë']
-        ],
-        total: '7 210 lekë ≈ 69 €',
-        notes: [
-          'Retirer au distributeur de la Credins, pas à celui de l’hôtel : 0 % contre 4,5 %.',
-          'Les cafés se paient en partant, pas en arrivant. Deux fois j’ai voulu payer d’avance, deux fois on m’a fait signe de m’asseoir.',
-          'Le bus pour Tirana n’a pas d’horaire. Il part plein. Arriver tôt ne sert à rien, arriver tard non plus.'
+        entete: 'au dos — Wat Paknam',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        13,7178 N   100,4685 E',
+          'depuis l\u2019étape précédente   9 km',
+          'depuis le départ            14 km',
+          'tirages sur cette page      4'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '05-01   le grand bouddha, de face',
+          '05-02   depuis le parvis',
+          '05-03   à travers les arbres',
+          '05-04   depuis le khlong, les barques au premier plan'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 6 */
+    /* ------------------------------------------------------------ étape 6 */
     {
       type: 'etape',
-      lieu: 'Sarandë',
-      pays: 'Albanie',
-      jour: 'J18 – J19',
-      date: '19 – 20 septembre',
-      km: 1235,
+      lieu: 'Ayutthaya',
+      pays: 'Thaïlande',
+      jour: 'étape 6',
+      km: 94,
+      lat: 14.357, lng: 100.5679,
       recto: {
-        chapeau: 'J’ai payé 1 000 lekë pour voir des pierres et je n’ai rien senti.',
-        texte: [
-          'Butrint est à dix-huit kilomètres. C’est classé, il y a un théâtre grec, une basilique, un baptistère avec une mosaïque qu’on ne peut pas voir parce qu’on la recouvre de sable pour la protéger. J’ai marché deux heures et demie là-dedans. Je n’ai rien senti. Ce n’est pas la faute de Butrint.',
-          'Il y a un nombre de choses qu’on peut regarder par jour. Le mien tourne autour de deux. Au-delà, ça glisse. Au dix-huitième jour je regardais des ruines comme on regarde un couloir.',
-          'Sarandë monte en escalier au-dessus de sa baie et la moitié des immeubles n’ont pas de fenêtres. Le soir, ceux qui sont finis s’allument et on voit exactement lesquels.',
-          'Le ferry pour Corfou part à 10 h 30. Corfou est à vingt kilomètres, on la voit depuis la terrasse, tout le temps, ce qui est pénible. Je n’y suis pas allé. Je n’ai pas de bonne raison.'
-        ],
+        chapeau: 'Wat Mahathat, Wat Ratchaburana, Wat Chaiwatthanaram, Wat Thammikarat.',
         photos: [
-          { fichier: 'medias/05-sarande-fenetres.jpg', apres: 3, angle: -1.2, pose: 'coins',
-            reference: 'pell. 2 · 26',
-            legende: 'le soir. on voit lesquels sont finis.' }
-        ],
-        marges: [
-          { haut: '36%', cote: 'droite', texte: 'la mosaïque est sous le sable depuis 2010. on ne verra rien.' },
-          { haut: '90%', cote: 'gauche', texte: '25 € l’aller-retour. ce n’est pas une question d’argent.' }
-        ],
-        piece: {
-          type: 'billet',
-          angle: -1.1,
-          lignes: [
-            'PARKU KOMBËTAR I BUTRINTIT',
-            'BILETË / TICKET',
-            '19.09.2024     10:41',
-            '1000 LEKË      nr. 118402',
-            'ruaje biletën'
-          ]
-        }
+          { fichier: 'medias/06-ayutthaya/06-01.jpg', legende: 'la tête prise dans les racines',
+            angle: -1.7, pose: 'coins', reference: '06-01' },
+          { fichier: 'medias/06-ayutthaya/06-02.jpg', legende: 'le prang central',
+            angle: 2.1, pose: 'coins', reference: '06-02' },
+          { fichier: 'medias/06-ayutthaya/06-03.jpg', legende: 'un bouddha assis, de face',
+            angle: -1.2, pose: 'ruban', reference: '06-03' },
+          { fichier: 'medias/06-ayutthaya/06-04.jpg', legende: 'l’alignement, ce qu’il en reste',
+            angle: 1.6, pose: 'coins', reference: '06-04' },
+          { fichier: 'medias/06-ayutthaya/06-05.jpg', legende: 'les marches, entre deux murs',
+            angle: -2.4, pose: 'coins', reference: '06-05' },
+          { fichier: 'medias/06-ayutthaya/06-06.jpg', legende: 'le passage',
+            angle: 1.3, pose: 'ruban', reference: '06-06' },
+          { fichier: 'medias/06-ayutthaya/06-07.jpg', legende: 'le chedi, sous les arbres',
+            angle: -0.9, pose: 'coins', reference: '06-07' },
+          { fichier: 'medias/06-ayutthaya/06-08.jpg', legende: 'le chedi et la galerie',
+            angle: 2.6, pose: 'coins', reference: '06-08' },
+          { fichier: 'medias/06-ayutthaya/06-09.jpg', legende: 'l’étoffe jaune sur l’épaule',
+            angle: -1.5, pose: 'ruban', reference: '06-09' },
+          { fichier: 'medias/06-ayutthaya/06-10.jpg', legende: 'le prang, niche est',
+            angle: 1.9, pose: 'coins', reference: '06-10' },
+          { fichier: 'medias/06-ayutthaya/06-11.jpg', legende: 'le prang, encadré par la porte',
+            angle: -2.1, pose: 'coins', reference: '06-11' },
+          { fichier: 'medias/06-ayutthaya/06-12.jpg', legende: 'la même porte, plus près',
+            angle: 1.1, pose: 'ruban', reference: '06-12' }
+        ]
       },
       verso: {
-        entete: 'au dos — Sarandë',
-        depenses: [
-          ['chambre, 2 nuits', '3 400 lekë'],
-          ['Butrint, entrée', '1 000 lekë'],
-          ['bus n° 14 aller-retour', '600 lekë'],
-          ['poisson, une fois', '1 800 lekë'],
-          ['bus de nuit → Thessalonique', '4 500 lekë']
-        ],
-        total: '11 300 lekë ≈ 108 €',
-        releve: {
-          titre: 'bus de nuit Sarandë → Thessalonique',
-          lignes: [
-            'départ annoncé      19:30',
-            'départ réel         20:10',
-            'arrêt Gjirokastër   22:05  (25 min)',
-            'frontière Kakavijë  00:40  (55 min)',
-            'arrivée annoncée    06:30',
-            'arrivée réelle      04:50'
-          ]
-        },
-        notes: [
-          'Un bus en avance est pire qu’un bus en retard.',
-          'Garder la monnaie en lekë : elle ne se rechange nulle part passé la frontière.'
+        entete: 'au dos — Ayutthaya',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        14,3570 N   100,5679 E',
+          'depuis l\u2019étape précédente   80 km',
+          'depuis le départ            94 km',
+          'tirages sur cette page      12'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '06-01   la tête prise dans les racines',
+          '06-02   le prang central',
+          '06-03   un bouddha assis, de face',
+          '06-04   l’alignement, ce qu’il en reste',
+          '06-05   les marches, entre deux murs',
+          '06-06   le passage',
+          '06-07   le chedi, sous les arbres',
+          '06-08   le chedi et la galerie',
+          '06-09   l’étoffe jaune sur l’épaule',
+          '06-10   le prang, niche est',
+          '06-11   le prang, encadré par la porte',
+          '06-12   la même porte, plus près'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 7 */
+    /* ------------------------------------------------------------ étape 7 */
     {
       type: 'etape',
-      lieu: 'Thessalonique',
-      pays: 'Grèce',
-      jour: 'J23',
-      date: '24 septembre',
-      km: 1665,
+      lieu: 'Marché flottant d\'Ayothaya',
+      pays: 'Thaïlande',
+      jour: 'étape 7',
+      km: 100,
+      lat: 14.3536, lng: 100.6018,
       recto: {
-        chapeau: 'Le bus arrive à 4 h 50 dans une gare qui est à cinq kilomètres de tout.',
-        texte: [
-          'On m’avait promis 6 h 30. Le bus a fait mieux, ce qui n’est pas un service à rendre à quelqu’un. La gare routière est un bâtiment posé sur un rond-point, ouvert, éclairé au néon, avec un café qui sert à toute heure parce que quelqu’un a compris que les bus arrivent à toute heure.',
-          'J’ai attendu deux heures qu’il fasse jour, un café grec et un croissant sous plastique. Nous étions cinq. Personne ne parlait. C’est le moment du voyage dont je me souviens le mieux et il n’y a rien à en dire.',
-          'Ensuite le bus jusqu’au centre, la mer à gauche, la tour blanche, Ladadika. Vingt-trois jours, mille six cent soixante-cinq kilomètres au compteur plus ce que je n’ai pas compté, sept bus de nuit ou d’aube, et aucun bateau — alors que c’était toute l’idée du départ.',
-          'Je suis entré dans un magasin et j’ai acheté une chemise, parce que tout ce que j’avais sentait la même chose.'
-        ],
+        chapeau: 'En barque, puis les pontons de bambou.',
         photos: [
-          { fichier: 'medias/06-thessalonique-gare.jpg', apres: 2, angle: 2.0, pose: 'ruban',
-            reference: 'pell. 2 · 34',
-            legende: '5 h 06. nous étions cinq et personne ne parlait.' }
-        ],
-        marges: [
-          { haut: '58%', cote: 'droite', texte: 'le café de la gare routière : 1,80. le même à Ladadika : 4,20.' },
-          { haut: '92%', cote: 'gauche', texte: 'chemise 12,90. bleue. je la porte encore.' }
-        ],
-        piece: {
-          type: 'recu',
-          angle: 2.6,
-          lignes: [
-            'ΚΤΕΛ  ΜΑΚΕΔΟΝΙΑ',
-            'ΚΑΦΕΣ ΕΛΛΗΝΙΚΟΣ     1,80',
-            'ΚΡΟΥΑΣΑΝ            1,40',
-            '24/09      05:06',
-            'ΣΥΝΟΛΟ EUR          3,20'
-          ]
-        }
+          { fichier: 'medias/07-marche-flottant-d-ayothaya/07-01.jpg', legende: 'depuis la barque',
+            angle: -1.7, pose: 'coins', reference: '07-01' },
+          { fichier: 'medias/07-marche-flottant-d-ayothaya/07-02.jpg', legende: 'les pontons de bambou',
+            angle: 2.1, pose: 'coins', reference: '07-02' }
+        ]
       },
       verso: {
-        entete: 'au dos — Thessalonique',
-        depenses: [
-          ['café + croissant, 4 h 50', '3,20'],
-          ['bus centre-ville', '1,10'],
-          ['chemise', '12,90'],
-          ['chambre, 1 nuit', '34,00'],
-          ['train retour (plus tard)', '—']
-        ],
-        total: '51,20 €',
-        releve: {
-          titre: 'le compte, en gros',
-          lignes: [
-            'transports               298 €',
-            'chambres                 412 €',
-            'nourriture               236 €',
-            'entrées, musées           49 €',
-            'le reste                  74 €',
-            '-----------------------------',
-            '23 jours              1 069 €',
-            'par jour                46,50 €'
-          ]
-        },
-        notes: [
-          'Ce que j’ai le mieux dépensé : les nuits à Dobrota et le vélo de Dritan.',
-          'Ce que j’ai le plus mal dépensé : Butrint, et les 6 € de frais du distributeur de Trieste.'
+        entete: 'au dos — Marché flottant d\'Ayothaya',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        14,3536 N   100,6018 E',
+          'depuis l\u2019étape précédente   6 km',
+          'depuis le départ            100 km',
+          'tirages sur cette page      2'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '07-01   depuis la barque',
+          '07-02   les pontons de bambou'
+        ] }
         ]
       }
     },
 
-    /* ------------------------------------------------------------------ 8 */
+    /* ------------------------------------------------------------ étape 8 */
+    {
+      type: 'etape',
+      lieu: 'Ayutthaya la nuit',
+      pays: 'Thaïlande',
+      jour: 'étape 8',
+      km: 106,
+      lat: 14.357, lng: 100.5679,
+      recto: {
+        chapeau: 'Les mêmes ruines, éclairées.',
+        photos: [
+          { fichier: 'medias/08-ayutthaya-la-nuit/08-01.jpg', legende: 'les deux prangs, éclairés',
+            angle: -1.7, pose: 'coins', reference: '08-01' },
+          { fichier: 'medias/08-ayutthaya-la-nuit/08-02.jpg', legende: 'le prang, à la nuit',
+            angle: 2.1, pose: 'coins', reference: '08-02' },
+          { fichier: 'medias/08-ayutthaya-la-nuit/08-03.jpg', legende: 'la porte, éclairée',
+            angle: -1.2, pose: 'ruban', reference: '08-03' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Ayutthaya la nuit',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        14,3570 N   100,5679 E',
+          'depuis l\u2019étape précédente   6 km',
+          'depuis le départ            106 km',
+          'tirages sur cette page      3'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '08-01   les deux prangs, éclairés',
+          '08-02   le prang, à la nuit',
+          '08-03   la porte, éclairée'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 9 */
+    {
+      type: 'etape',
+      lieu: 'Wat Sri Suphan',
+      pays: 'Thaïlande',
+      jour: 'étape 9',
+      km: 696,
+      lat: 18.7793, lng: 98.9836,
+      recto: {
+        chapeau: 'Le temple d’argent, Chiang Mai.',
+        photos: [
+          { fichier: 'medias/09-wat-sri-suphan/09-01.jpg', legende: 'l’entrée, tout en argent repoussé',
+            angle: -1.7, pose: 'coins', reference: '09-01' },
+          { fichier: 'medias/09-wat-sri-suphan/09-02.jpg', legende: 'le bouddha d’argent',
+            angle: 2.1, pose: 'coins', reference: '09-02' },
+          { fichier: 'medias/09-wat-sri-suphan/09-03.jpg', legende: 'l’or contre l’argent',
+            angle: -1.2, pose: 'ruban', reference: '09-03' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Wat Sri Suphan',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        18,7793 N   98,9836 E',
+          'depuis l\u2019étape précédente   590 km',
+          'depuis le départ            696 km',
+          'tirages sur cette page      3'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '09-01   l’entrée, tout en argent repoussé',
+          '09-02   le bouddha d’argent',
+          '09-03   l’or contre l’argent'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 10 */
+    {
+      type: 'etape',
+      lieu: 'Chiang Mai',
+      pays: 'Thaïlande',
+      jour: 'étape 10',
+      km: 698,
+      lat: 18.79, lng: 98.9877,
+      recto: {
+        chapeau: 'Wat Inthakhin Sadue Muang, les lanternes, la place des Trois Rois.',
+        photos: [
+          { fichier: 'medias/10-chiang-mai/10-01.jpg', legende: 'les lanternes, en rangs',
+            angle: -1.7, pose: 'coins', reference: '10-01' },
+          { fichier: 'medias/10-chiang-mai/10-02.jpg', legende: 'les lanternes de papier, le soir',
+            angle: 2.1, pose: 'coins', reference: '10-02' },
+          { fichier: 'medias/10-chiang-mai/10-03.jpg', legende: 'un visage de pierre, sous l’auvent',
+            angle: -1.2, pose: 'ruban', reference: '10-03' },
+          { fichier: 'medias/10-chiang-mai/10-04.jpg', legende: 'les couleurs, de près',
+            angle: 1.6, pose: 'coins', reference: '10-04' },
+          { fichier: 'medias/10-chiang-mai/10-05.jpg', legende: 'les nagas, la nuit',
+            angle: -2.4, pose: 'coins', reference: '10-05' },
+          { fichier: 'medias/10-chiang-mai/10-06.jpg', legende: 'la passerelle, vers le wat',
+            angle: 1.3, pose: 'ruban', reference: '10-06' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Chiang Mai',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        18,7900 N   98,9877 E',
+          'depuis l\u2019étape précédente   2 km',
+          'depuis le départ            698 km',
+          'tirages sur cette page      6'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '10-01   les lanternes, en rangs',
+          '10-02   les lanternes de papier, le soir',
+          '10-03   un visage de pierre, sous l’auvent',
+          '10-04   les couleurs, de près',
+          '10-05   les nagas, la nuit',
+          '10-06   la passerelle, vers le wat'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 11 */
+    {
+      type: 'etape',
+      lieu: 'Krabi',
+      pays: 'Thaïlande',
+      jour: 'étape 11',
+      km: 1858,
+      lat: 8.1489, lng: 98.86,
+      recto: {
+        chapeau: 'Wat Bang Thong.',
+        photos: [
+          { fichier: 'medias/11-krabi/11-01.jpg', legende: 'Wat Bang Thong, sous la colline',
+            angle: -1.7, pose: 'coins', reference: '11-01' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Krabi',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        8,1489 N   98,8600 E',
+          'depuis l\u2019étape précédente   1 160 km',
+          'depuis le départ            1 858 km',
+          'tirages sur cette page      1'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '11-01   Wat Bang Thong, sous la colline'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 12 */
+    {
+      type: 'etape',
+      lieu: 'Khlong Thom',
+      pays: 'Thaïlande',
+      jour: 'étape 12',
+      km: 1920,
+      lat: 7.9247, lng: 99.2716,
+      recto: {
+        chapeau: 'Emerald Pool, Crystal Pool, sources chaudes.',
+        photos: [
+          { fichier: 'medias/12-khlong-thom/12-01.jpg', legende: 'le bassin, l’eau verte',
+            angle: -1.7, pose: 'coins', reference: '12-01' },
+          { fichier: 'medias/12-khlong-thom/12-02.jpg', legende: 'l’Emerald Pool',
+            angle: 2.1, pose: 'coins', reference: '12-02' },
+          { fichier: 'medias/12-khlong-thom/12-03.jpg', legende: 'les panneaux, au bord',
+            angle: -1.2, pose: 'ruban', reference: '12-03' },
+          { fichier: 'medias/12-khlong-thom/12-04.jpg', legende: 'les racines en contreforts',
+            angle: 1.6, pose: 'coins', reference: '12-04' },
+          { fichier: 'medias/12-khlong-thom/12-05.jpg', legende: 'les sources chaudes, le ressaut',
+            angle: -2.4, pose: 'coins', reference: '12-05' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Khlong Thom',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        7,9247 N   99,2716 E',
+          'depuis l\u2019étape précédente   62 km',
+          'depuis le départ            1 920 km',
+          'tirages sur cette page      5'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '12-01   le bassin, l’eau verte',
+          '12-02   l’Emerald Pool',
+          '12-03   les panneaux, au bord',
+          '12-04   les racines en contreforts',
+          '12-05   les sources chaudes, le ressaut'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 13 */
+    {
+      type: 'etape',
+      lieu: 'Ao Thalane',
+      pays: 'Thaïlande',
+      jour: 'étape 13',
+      km: 1996,
+      lat: 8.1653, lng: 98.7739,
+      recto: {
+        chapeau: 'Mangrove, karsts.',
+        photos: [
+          { fichier: 'medias/13-ao-thalane/13-01.jpg', legende: 'la mangrove',
+            angle: -1.7, pose: 'coins', reference: '13-01' },
+          { fichier: 'medias/13-ao-thalane/13-02.jpg', legende: 'les karsts, depuis l’eau',
+            angle: 2.1, pose: 'coins', reference: '13-02' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Ao Thalane',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        8,1653 N   98,7739 E',
+          'depuis l\u2019étape précédente   76 km',
+          'depuis le départ            1 996 km',
+          'tirages sur cette page      2'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '13-01   la mangrove',
+          '13-02   les karsts, depuis l’eau'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 14 */
+    {
+      type: 'etape',
+      lieu: 'Koh Kai',
+      pays: 'Thaïlande',
+      jour: 'étape 14',
+      km: 2038,
+      lat: 8.0177, lng: 98.7508,
+      recto: {
+        chapeau: 'L’île au Poulet.',
+        photos: [
+          { fichier: 'medias/14-koh-kai/14-01.jpg', legende: 'l’île au Poulet, de loin',
+            angle: -1.7, pose: 'coins', reference: '14-01' },
+          { fichier: 'medias/14-koh-kai/14-02.jpg', legende: 'de plus près, depuis la barque',
+            angle: 2.1, pose: 'coins', reference: '14-02' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Koh Kai',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        8,0177 N   98,7508 E',
+          'depuis l\u2019étape précédente   42 km',
+          'depuis le départ            2 038 km',
+          'tirages sur cette page      2'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '14-01   l’île au Poulet, de loin',
+          '14-02   de plus près, depuis la barque'
+        ] }
+        ]
+      }
+    },
+
+    /* ------------------------------------------------------------ étape 15 */
+    {
+      type: 'etape',
+      lieu: 'Railay',
+      pays: 'Thaïlande',
+      jour: 'étape 15',
+      km: 2044,
+      lat: 8.0072, lng: 98.8375,
+      recto: {
+        chapeau: 'Phra Nang, les grottes.',
+        photos: [
+          { fichier: 'medias/15-railay/15-01.jpg', legende: 'Phra Nang, sous le surplomb',
+            angle: -1.7, pose: 'coins', reference: '15-01' },
+          { fichier: 'medias/15-railay/15-02.jpg', legende: 'l’entrée de la grotte',
+            angle: 2.1, pose: 'coins', reference: '15-02' },
+          { fichier: 'medias/15-railay/15-03.jpg', legende: 'la paroi, pour l’échelle',
+            angle: -1.2, pose: 'ruban', reference: '15-03' }
+        ]
+      },
+      verso: {
+        entete: 'au dos — Railay',
+        releves: [
+        { titre: 'relevé', lignes: [
+          'position        8,0072 N   98,8375 E',
+          'depuis l\u2019étape précédente   6 km',
+          'depuis le départ            2 044 km',
+          'tirages sur cette page      3'
+        ] },
+        { titre: 'les tirages de cette page', lignes: [
+          '15-01   Phra Nang, sous le surplomb',
+          '15-02   l’entrée de la grotte',
+          '15-03   la paroi, pour l’échelle'
+        ] }
+        ]
+      }
+    },
+
+    /* ---------------------------------------------------------------- fin */
     {
       type: 'fin',
       recto: {
-        exergue: 'Fin du carnet nº 3.',
+        exergue: 'Fin du carnet.',
         lignes: [
-          'Écrit sur place, au stylo, dans sept bus et une gare routière.',
-          'Recopié ici sans être arrangé.',
-          'Les tirages ont été collés au retour, dans le désordre, puis remis dans l’ordre.',
-          'Le trait qui traverse les plis est le tracé de la côte, du golfe de Trieste au golfe Thermaïque. Il ne s’interrompt jamais, même dans les pliures.'
+          'Soixante tirages, collés dans l\u2019ordre du voyage.',
+          'Les légendes disent ce qu\u2019on voit. Les récits restent à écrire : chaque page en attend un.',
+          'Le trait est le profil du voyage en latitude, tracé depuis les coordonnées relevées.',
+          'Aucun cookie, aucun compte, aucun service tiers.'
         ],
-        pied: 'Carnet nº 4 : par le train, vers le nord. Un jour.'
+        pied: 'Revenir au début : touche Début. \u2190'
       },
       verso: {
         entete: 'au dos de la fin',
-        notes: [
-          'Pour écrire à Mano : le carnet se replie, l’adresse est dessous.',
-          'Ce site tient dans six fichiers et ne dépose aucun cookie.',
-          'Il n’y a pas de commentaires. Il n’y a pas de partage. Il n’y a pas de newsletter.',
-          'Les récits sont ceux d’un voyage. Les prix sont ceux de septembre. Les deux vieilliront.'
+        releves: [
+          { titre: 'le compte', lignes: [
+            'étapes                      15',
+            'tirages                     60',
+            'distance              2\u202f044 km',
+            'latitude     7,92 N  \u2192  18,79 N',
+            'longitude   98,75 E  \u2192  100,60 E'
+          ] }
         ]
       }
     }
