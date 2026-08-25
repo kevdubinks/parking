@@ -58,6 +58,71 @@
     return n;
   }
 
+
+  /* Un tirage collé dans la page. Tant que le fichier n'est pas là, on montre
+     l'emplacement — du papier photo non exposé — plutôt qu'une image cassée. */
+  function montrerTirage(photo, large) {
+    var f = el('figure', 'tirage tirage--' + (photo.cadrage || 'paysage'));
+    f.classList.add(photo.pose === 'ruban' ? 'tirage--ruban' : 'tirage--coins');
+    if (large) f.classList.add('tirage--large');
+    f.style.setProperty('--angle', (photo.angle || 0) + 'deg');
+    f.setAttribute('tabindex', '0');
+    f.setAttribute('role', 'button');
+    f.setAttribute('aria-label', 'Tirage : ' + photo.legende);
+
+    var cadre = el('div', 'cadre');
+    /* La boîte porte les proportions du tirage et le papier ; l'image vient s'y
+       loger. Séparer les deux permet de retirer purement et simplement l'image
+       quand le fichier manque, sans que la page perde sa mise en forme. */
+    var boite = el('div', 'vue-boite');
+    cadre.appendChild(boite);
+
+    if (photo.fichier) {
+      var img = document.createElement('img');
+      img.className = 'vue';
+      img.alt = photo.legende;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('error', function () {
+        img.remove();
+        poserAttente(f, boite, photo);
+      });
+      img.src = photo.fichier;
+      boite.appendChild(img);
+    } else {
+      poserAttente(f, boite, photo);
+    }
+
+    if (photo.pose !== 'ruban') {
+      ['hg', 'hd', 'bg', 'bd'].forEach(function (c) {
+        boite.appendChild(el('i', 'coin coin--' + c));
+      });
+    }
+    f.appendChild(cadre);
+    f.appendChild(el('figcaption', null, photo.legende));
+    return f;
+  }
+
+  /* Emplacement en attente : plus d'image du tout, juste le papier et sa
+     référence au crayon. Une <img> sans source garde l'icône d'image cassée du
+     navigateur — le carnet aurait l'air en panne au lieu d'avoir l'air en
+     attente. La légende reste sous le tirage. */
+  function poserAttente(figure, boite, photo) {
+    figure.classList.add('tirage--vide');
+    if (photo.reference) boite.appendChild(el('span', 'attente', photo.reference));
+  }
+
+  /* Les tirages d'une étape se glissent après le paragraphe indiqué par
+     `apres` ; sans indication, ils viennent à la fin du texte. */
+  function collerTirages(corps, photos) {
+    photos.forEach(function (photo) {
+      var t = montrerTirage(photo, false);
+      var cible = photo.apres != null ? corps.children[photo.apres] : null;
+      if (cible) corps.insertBefore(t, cible);
+      else corps.appendChild(t);
+    });
+  }
+
   function montrerRecto(volet, index) {
     var c = el('div', 'contenu');
 
@@ -77,6 +142,24 @@
       });
       c.appendChild(t);
       c.appendChild(el('div', 'pied', volet.recto.pied));
+      return c;
+    }
+
+    if (volet.type === 'planche') {
+      var ep = el('div', 'entete');
+      ep.appendChild(el('span', 'lieu', volet.titre));
+      ep.appendChild(el('span', 'pays', volet.pays || ''));
+      c.appendChild(ep);
+      if (volet.jalon) {
+        var jp = el('div', 'jalon');
+        volet.jalon.forEach(function (t) { jp.appendChild(el('span', null, t)); });
+        c.appendChild(jp);
+      }
+      var pl = el('div', 'planche');
+      volet.photos.forEach(function (photo) {
+        pl.appendChild(montrerTirage(photo, photo.large));
+      });
+      c.appendChild(pl);
       return c;
     }
 
@@ -107,6 +190,7 @@
     volet.recto.texte.forEach(function (p) {
       var n = el('p'); n.innerHTML = p; corps.appendChild(n);
     });
+    if (volet.recto.photos) collerTirages(corps, volet.recto.photos);
     c.appendChild(corps);
 
     if (volet.recto.piece) {
@@ -159,6 +243,18 @@
       r.appendChild(el('div', 'titre-releve', v.releve.titre));
       r.appendChild(el('pre', null, v.releve.lignes.join('\n')));
       c.appendChild(r);
+    }
+
+    /* Au dos d'un tirage on écrit la date et l'endroit. C'est le seul endroit
+       du carnet où l'écriture ne s'adresse à personne. */
+    if (v.dosTirages) {
+      var dt = el('div', 'dos-tirages');
+      v.dosTirages.forEach(function (t, k) {
+        var d = el('div', 'dos-tirage', t);
+        d.style.transform = 'rotate(' + (k % 2 ? 0.8 : -0.9) + 'deg)';
+        dt.appendChild(d);
+      });
+      c.appendChild(dt);
     }
 
     if (v.notes) {
@@ -227,7 +323,7 @@
 
   function nomDuPli(i) {
     var v = CARNET.volets[i];
-    return v.lieu || (v.type === 'couverture' ? 'couverture' : 'fin');
+    return v.lieu || v.titre || (v.type === 'couverture' ? 'couverture' : 'fin');
   }
 
   function rendre() {
@@ -257,8 +353,6 @@
         o.classList.toggle('ombre--miroir', f === 0 ? miroir : !miroir);
       }
       elsPli[i].classList.toggle('pli--lu', i === lu);
-      /* Un pli replié ne doit pas happer le clavier ni la sélection. */
-      elsPli[i].setAttribute('aria-hidden', i === lu ? 'false' : 'true');
     }
 
     /* Changer de pli, c'est tourner une page : on arrive par le haut quand on
@@ -271,6 +365,7 @@
       });
       dernierLu = lu;
       poussee = 0;
+      reposerTirage();
     }
 
     for (var k = 0; k < regle.children.length; k++) {
@@ -401,6 +496,11 @@
     else if (k === 'ArrowLeft' || k === 'PageUp') { viser(Math.round(cible) - 1); e.preventDefault(); }
     else if (k === 'Home') { viser(0); e.preventDefault(); }
     else if (k === 'End') { viser(N - 1); e.preventDefault(); }
+    else if (k === 'Escape') reposerTirage();
+    else if ((k === 'Enter' || k === ' ') && document.activeElement &&
+             document.activeElement.classList.contains('tirage')) {
+      tenirTirage(document.activeElement); e.preventDefault();
+    }
     else if (k === 'v' || k === 'V') retourner();
     else if (k === 'l' || k === 'L') basculerAplat();
   }
@@ -410,12 +510,29 @@
     var pli = e.target.closest ? e.target.closest('.pli') : null;
     if (!pli) return;
     var i = elsPli.indexOf(pli);
-    if (i >= 0 && i !== Math.round(cible)) viser(i);
+
+    /* Sur un pli replié, le clic ouvre le pli : on n'attrape pas un tirage
+       qu'on ne voit pas encore de face. */
+    if (i >= 0 && i !== Math.round(cible)) { viser(i); return; }
+
+    var t = e.target.closest('.tirage');
+    if (t) tenirTirage(t);
+  }
+
+  /* Un seul tirage en main à la fois : on repose le précédent. */
+  var enMain = null;
+  function tenirTirage(t) {
+    if (enMain && enMain !== t) enMain.classList.remove('tenu');
+    enMain = t.classList.toggle('tenu') ? t : null;
+  }
+  function reposerTirage() {
+    if (enMain) { enMain.classList.remove('tenu'); enMain = null; }
   }
 
   /* ------------------------------------------------------- faces et à-plat */
 
   function retourner() {
+    reposerTirage();
     var verso = bande.classList.toggle('carnet--verso');
     document.getElementById('bouton-face').textContent = verso ? 'voir le récit' : 'voir le dos';
     marquerSuite();
@@ -463,6 +580,13 @@
     scene.addEventListener('pointerup', surRelache);
     scene.addEventListener('pointercancel', surRelache);
     scene.addEventListener('click', surClic);
+    /* Atteindre un tirage au clavier doit déplier son pli, sinon le focus part
+       sur quelque chose qui est hors de l'écran. */
+    scene.addEventListener('focusin', function (e) {
+      var pli = e.target.closest && e.target.closest('.pli');
+      var i = pli ? elsPli.indexOf(pli) : -1;
+      if (i >= 0 && i !== Math.round(cible)) viser(i);
+    });
     window.addEventListener('keydown', surTouche);
     document.getElementById('bouton-face').addEventListener('click', retourner);
     document.getElementById('bouton-aplat').addEventListener('click', basculerAplat);

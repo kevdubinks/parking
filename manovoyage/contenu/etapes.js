@@ -27,12 +27,13 @@ window.CARNET = {
           '23 jours',
           '1 665 km au compteur',
           '7 bus de nuit ou d’aube',
-          '0 bateau'
+          '0 bateau',
+          '2 pellicules'
         ],
         pied: 'Se déplie vers la droite. →'
       },
       verso: {
-        entete: 'dos de la couverture',
+        entete: 'au dos de la couverture',
         notes: [
           'Carnet acheté à Trieste le 2 au matin, papier trop fin, l’encre traverse.',
           'Les pages de droite : ce qui s’est passé.',
@@ -58,6 +59,11 @@ window.CARNET = {
           'La veille j’avais passé la matinée sur le Molo Audace à ne rien faire. Un café à 1,10 au comptoir. Trieste est une ville où on peut rester assis longtemps sans que personne vienne demander si tout va bien.',
           'Je n’avais rien réservé après Rijeka. Ça me paraissait raisonnable à Trieste.'
         ],
+        photos: [
+          { fichier: 'medias/01-trieste-parking.jpg', apres: 1, angle: -1.7, pose: 'coins',
+            reference: 'pell. 1 · 03',
+            legende: 'le parking, 8 h 20. la table pliante n’est pas encore là.' }
+        ],
         marges: [
           { haut: '30%', cote: 'droite', texte: 'le carton est monté quand même' },
           { haut: '74%', cote: 'gauche', texte: 'ça me paraîtra moins raisonnable jeudi' }
@@ -75,7 +81,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 1 — Trieste',
+        entete: 'au dos — Trieste',
         depenses: [
           ['café, Molo Audace', '1,10'],
           ['billet Trieste → Rijeka', '14,50'],
@@ -108,6 +114,11 @@ window.CARNET = {
           'Rijeka sous la pluie ressemble à une ville industrielle qui a arrêté d’être industrielle sans qu’on lui dise quoi faire ensuite. Les grues du terminal à conteneurs tournent quand même. J’ai dormi trois nuits au-dessus d’un bar, carrelage jusqu’au plafond, une fenêtre sur une cour où quelqu’un réparait un scooter tous les soirs entre 19 h et 21 h.',
           'Le troisième soir j’ai compris qu’il ne le réparait pas. Il le démarrait, l’écoutait, l’arrêtait, et recommençait.'
         ],
+        photos: [
+          { fichier: 'medias/02-rijeka-cour.jpg', apres: 3, angle: 2.1, pose: 'ruban',
+            reference: 'pell. 1 · 14',
+            legende: 'la cour, depuis la fenêtre. le scooter est à gauche, hors champ.' }
+        ],
         marges: [
           { haut: '38%', cote: 'droite', texte: 'elle s’appelle Vesna. « no boat », avec le sourire de ceux qui l’ont dit mille fois' },
           { haut: '86%', cote: 'gauche', texte: 'je n’ai jamais su ce qu’il écoutait' }
@@ -127,7 +138,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 2 — Rijeka',
+        entete: 'au dos — Rijeka',
         depenses: [
           ['chambre, 3 nuits', '66,00'],
           ['courses', '5,27'],
@@ -186,7 +197,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 3 — Zadar',
+        entete: 'au dos — Zadar',
         depenses: [
           ['chambre, 2 nuits', '48,00'],
           ['laverie', '8,50'],
@@ -198,7 +209,43 @@ window.CARNET = {
         total: '116,00 €',
         notes: [
           'Deux frontières entre Dubrovnik et Kotor si on passe par Neum. Trois arrêts, deux tampons, une heure perdue.',
-          'Ce que je regarde vraiment : les horaires. Ce que je photographie : rien, je n’ai pas d’appareil. C’est pour ça que ce carnet est écrit.'
+          'Ce que je note : des horaires et des prix. Ce que je photographie : des murs, des sols, des panneaux. Presque personne. Je m’en rends compte en développant.'
+        ]
+      }
+    },
+
+
+    /* ------------------------------------------------------------ planche */
+    {
+      type: 'planche',
+      titre: 'Pellicule 1',
+      pays: '36 vues',
+      jalon: ['J1 – J7', 'Trieste, Rijeka, Zadar', 'développée à Split'],
+      photos: [
+        { fichier: 'medias/p1-01-golfe.jpg', large: true, angle: -0.8, pose: 'coins',
+          reference: 'pell. 1 · 01', legende: 'le golfe depuis le Molo Audace, avant tout le reste' },
+        { fichier: 'medias/p1-02-quai.jpg', angle: 1.9, pose: 'coins',
+          reference: 'pell. 1 · 09', legende: 'le quai de Rijeka, sous la pluie' },
+        { fichier: 'medias/p1-03-grues.jpg', angle: -2.2, pose: 'coins',
+          reference: 'pell. 1 · 11', legende: 'les grues, qui tournent quand même' },
+        { fichier: 'medias/p1-04-carrelage.jpg', angle: 1.3, pose: 'ruban',
+          reference: 'pell. 1 · 17', legende: 'le carrelage montait jusqu’au plafond' },
+        { fichier: 'medias/p1-05-orgue.jpg', angle: -1.5, pose: 'coins',
+          reference: 'pell. 1 · 22', legende: 'l’orgue de mer à 6 h 10. il n’y a rien à voir, c’est le problème.' }
+      ],
+      verso: {
+        entete: 'au dos — pellicule 1',
+        dosTirages: [
+          '2 sept. — Trieste, Molo Audace',
+          '3 sept. — Rijeka, le port',
+          '4 sept. — Rijeka, terminal',
+          '4 sept. — la chambre',
+          '6 sept. — Zadar, 6 h 10'
+        ],
+        notes: [
+          'Développée à Split en une heure, 9 €. Quatre vues perdues au début du rouleau.',
+          'La 22 est floue et je l’ai gardée quand même.',
+          'Ne plus charger la pellicule en plein soleil.'
         ]
       }
     },
@@ -219,6 +266,11 @@ window.CARNET = {
           'Je suis monté au fort Saint-Jean à 6 h 20 pour éviter la chaleur. Ce sont mille trois cent cinquante marches, plus ou moins ; personne ne compte pareil. Mon genou droit a tenu à la montée. À la descente, non. J’ai mis une heure vingt pour redescendre ce que j’avais monté en cinquante minutes, à reculons dans les passages raides, ce qui est ridicule à voir et efficace.',
           'J’avais payé les 15 € la première fois, à 14 h, avec le soleil sur la nuque. Le deuxième matin, à 6 h 20, il n’y avait personne pour vendre quoi que ce soit.'
         ],
+        photos: [
+          { fichier: 'medias/03-kotor-marches.jpg', apres: 3, angle: -2.4, cadrage: 'portrait',
+            pose: 'coins', reference: 'pell. 2 · 07',
+            legende: 'les marches, vers la neuf centième. je m’étais assis.' }
+        ],
         marges: [
           { haut: '34%', cote: 'droite', texte: 'compter les autocollants : bleus le matin, jaunes l’après-midi. deux bateaux.' },
           { haut: '82%', cote: 'gauche', texte: 'acheter une genouillère à Shkodër' }
@@ -236,7 +288,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 4 — Kotor',
+        entete: 'au dos — Kotor',
         depenses: [
           ['chambre, 3 nuits (Dobrota)', '75,00'],
           ['forteresse', '15,00'],
@@ -270,6 +322,11 @@ window.CARNET = {
           'Le lac est à quatre kilomètres. La route longe des maisons en construction, des fers à béton qui dépassent du dernier étage. On m’a expliqué que ce n’est pas de l’abandon, c’est de l’attente : tant que la maison n’est pas finie, on peut ajouter un étage pour le fils.',
           'Trois personnes différentes m’ont fait cette réponse, dans les mêmes termes. Je ne sais pas si c’est vrai ou si c’est ce qu’on dit aux étrangers qui demandent.'
         ],
+        photos: [
+          { fichier: 'medias/04-shkoder-velo.jpg', apres: 2, angle: 1.6, pose: 'ruban',
+            reference: 'pell. 2 · 19',
+            legende: 'le vélo de Dritan, roue arrière redressée. il n’a pas voulu être dessus.' }
+        ],
         marges: [
           { haut: '42%', cote: 'droite', texte: '500 lekë ≈ 4,80 €. j’ai mis deux jours à arrêter de convertir.' },
           { haut: '88%', cote: 'gauche', texte: 'vérifier l’histoire des fers à béton' }
@@ -287,7 +344,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 5 — Shkodër',
+        entete: 'au dos — Shkodër',
         depenses: [
           ['chambre, 3 nuits', '2 700 lekë'],
           ['vélo, 2 jours', '1 000 lekë'],
@@ -320,6 +377,11 @@ window.CARNET = {
           'Sarandë monte en escalier au-dessus de sa baie et la moitié des immeubles n’ont pas de fenêtres. Le soir, ceux qui sont finis s’allument et on voit exactement lesquels.',
           'Le ferry pour Corfou part à 10 h 30. Corfou est à vingt kilomètres, on la voit depuis la terrasse, tout le temps, ce qui est pénible. Je n’y suis pas allé. Je n’ai pas de bonne raison.'
         ],
+        photos: [
+          { fichier: 'medias/05-sarande-fenetres.jpg', apres: 3, angle: -1.2, pose: 'coins',
+            reference: 'pell. 2 · 26',
+            legende: 'le soir. on voit lesquels sont finis.' }
+        ],
         marges: [
           { haut: '36%', cote: 'droite', texte: 'la mosaïque est sous le sable depuis 2010. on ne verra rien.' },
           { haut: '90%', cote: 'gauche', texte: '25 € l’aller-retour. ce n’est pas une question d’argent.' }
@@ -337,7 +399,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 6 — Sarandë',
+        entete: 'au dos — Sarandë',
         depenses: [
           ['chambre, 2 nuits', '3 400 lekë'],
           ['Butrint, entrée', '1 000 lekë'],
@@ -380,6 +442,11 @@ window.CARNET = {
           'Ensuite le bus jusqu’au centre, la mer à gauche, la tour blanche, Ladadika. Vingt-trois jours, mille six cent soixante-cinq kilomètres au compteur plus ce que je n’ai pas compté, sept bus de nuit ou d’aube, et aucun bateau — alors que c’était toute l’idée du départ.',
           'Je suis entré dans un magasin et j’ai acheté une chemise, parce que tout ce que j’avais sentait la même chose.'
         ],
+        photos: [
+          { fichier: 'medias/06-thessalonique-gare.jpg', apres: 2, angle: 2.0, pose: 'ruban',
+            reference: 'pell. 2 · 34',
+            legende: '5 h 06. nous étions cinq et personne ne parlait.' }
+        ],
         marges: [
           { haut: '58%', cote: 'droite', texte: 'le café de la gare routière : 1,80. le même à Ladadika : 4,20.' },
           { haut: '92%', cote: 'gauche', texte: 'chemise 12,90. bleue. je la porte encore.' }
@@ -397,7 +464,7 @@ window.CARNET = {
         }
       },
       verso: {
-        entete: 'dos du pli 7 — Thessalonique',
+        entete: 'au dos — Thessalonique',
         depenses: [
           ['café + croissant, 4 h 50', '3,20'],
           ['bus centre-ville', '1,10'],
@@ -434,13 +501,13 @@ window.CARNET = {
         lignes: [
           'Écrit sur place, au stylo, dans sept bus et une gare routière.',
           'Recopié ici sans être arrangé.',
-          'Aucune photo : je n’avais pas d’appareil.',
+          'Les tirages ont été collés au retour, dans le désordre, puis remis dans l’ordre.',
           'Le trait qui traverse les plis est le tracé de la côte, du golfe de Trieste au golfe Thermaïque. Il ne s’interrompt jamais, même dans les pliures.'
         ],
         pied: 'Carnet nº 4 : par le train, vers le nord. Un jour.'
       },
       verso: {
-        entete: 'dos de la fin',
+        entete: 'au dos de la fin',
         notes: [
           'Pour écrire à Mano : le carnet se replie, l’adresse est dessous.',
           'Ce site tient dans six fichiers et ne dépose aucun cookie.',

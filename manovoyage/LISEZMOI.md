@@ -23,6 +23,7 @@ C'est ce qui fait que le carnet est un objet et non neuf cartes posées côte à
 | molette / doigt | fait défiler le texte ; arrivé en bas, passe au pli suivant |
 | glisser | tirer la bande latéralement |
 | clic sur un pli replié | l'ouvrir |
+| clic sur un tirage | le prendre en main ; `Échap` le repose |
 | `V` | retourner le carnet (recto ↔ verso) |
 | `L` | tout lire à plat, d'une traite |
 | `Début` `Fin` | premier / dernier pli |
@@ -66,12 +67,51 @@ Dans les textes, trois balises seulement :
 `piece.type` vaut `billet` ou `recu`. `marges[].cote` (`droite` / `gauche`) ne
 change que l'inclinaison de la note ; toutes s'écrivent dans la marge de droite.
 
+## Les photos
+
+Les photos sont des **tirages collés dans la page** : marge blanche, coins photo
+ou ruban adhésif, légende à la main dessous, et quelques degrés de travers.
+Jamais une image à fond perdu — ce serait une galerie, pas un carnet.
+
+Déposer les fichiers dans `medias/` (voir `medias/LISEZMOI.md` pour les tailles),
+puis les citer dans `contenu/etapes.js` :
+
+```js
+photos: [
+  { fichier: 'medias/03-kotor-marches.jpg',
+    legende: 'les marches, vers la neuf centième. je m’étais assis.',
+    apres: 3,               // se glisse après le 3ᵉ paragraphe ; sinon à la fin
+    cadrage: 'portrait',    // paysage (défaut) · portrait · carre
+    pose: 'coins',          // coins photo (défaut) · ruban adhésif
+    angle: -2.4,            // la gîte, en degrés
+    reference: 'pell. 2 · 07' }
+]
+```
+
+**Tant qu'un fichier n'est pas là, le carnet montre l'emplacement du tirage** —
+du papier photo non exposé avec sa référence au crayon — et jamais une image
+cassée. On peut donc écrire d'abord et coller les photos ensuite.
+
+Un clic sur un tirage le **prend en main** : il se redresse et se rapproche.
+Un second clic, `Échap`, ou changer de pli, le repose.
+
+### Une page de planche
+
+Un pli entier peut être une planche — les tirages d'une pellicule collés
+ensemble. `type: 'planche'`, avec `titre`, `jalon` et un tableau `photos`
+(ajouter `large: true` à celle qui ouvre la page). Au dos, `dosTirages` écrit ce
+qu'on note derrière un tirage :
+
+```js
+dosTirages: ['2 sept. — Trieste, Molo Audace', '3 sept. — Rijeka, le port']
+```
+
 ## Volontairement absent
 
-Pas de photos — le carnet est écrit, pas illustré, et le seul dessin est le trait
-de côte, tracé par le code. Pas de commentaires, pas de partage, pas d'infolettre,
-pas de bandeau de cookies : le site ne dépose rien et n'appelle aucun service
-tiers, à l'exception des polices Google (avec repli local si elles ne chargent pas).
+Pas de commentaires, pas de partage, pas d'infolettre, pas de bandeau de cookies :
+le site ne dépose rien et n'appelle aucun service tiers, à l'exception des polices
+Google (avec repli local si elles ne chargent pas). Le seul dessin est le trait de
+côte, tracé par le code.
 
 ## Lire autrement
 
@@ -88,6 +128,7 @@ tiers, à l'exception des polices Google (avec repli local si elles ne chargent 
 ```
 index.html
 contenu/etapes.js     tout le texte — le seul fichier à modifier pour écrire
+medias/               les photos, déposées telles quelles
 scripts/pliage.js     la géométrie de l'accordéon
 scripts/trait.js      le tracé de côte, unique et continu
 scripts/carnet.js     montage des plis, molette, clavier, faces
