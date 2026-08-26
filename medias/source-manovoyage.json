@@ -1,0 +1,215 @@
+{
+  "trip": "manovoyage",
+  "stops": [
+    {
+      "order": 1,
+      "name": "Wat Pho",
+      "text": "Bangkok, rive est du Chao Phraya.",
+      "lat": 13.7465,
+      "lng": 100.4927,
+      "km": 0,
+      "photos": [
+        "01-wat-pho/01-01.jpg"
+      ]
+    },
+    {
+      "order": 2,
+      "name": "Wat Arun",
+      "text": "Le prang, de jour puis à la tombée du soir.",
+      "lat": 13.7437,
+      "lng": 100.4889,
+      "km": 1,
+      "photos": [
+        "02-wat-arun/02-01.jpg",
+        "02-wat-arun/02-02.jpg",
+        "02-wat-arun/02-03.jpg",
+        "02-wat-arun/02-04.jpg",
+        "02-wat-arun/02-05.jpg",
+        "02-wat-arun/02-06.jpg"
+      ]
+    },
+    {
+      "order": 3,
+      "name": "Talat Noi",
+      "text": "Baan So Heng Tai, Baan Rim Naam, les murs peints.",
+      "lat": 13.7375,
+      "lng": 100.5115,
+      "km": 4,
+      "photos": [
+        "03-talat-noi/03-01.jpg",
+        "03-talat-noi/03-02.jpg",
+        "03-talat-noi/03-03.jpg",
+        "03-talat-noi/03-04.jpg",
+        "03-talat-noi/03-05.jpg",
+        "03-talat-noi/03-06.jpg",
+        "03-talat-noi/03-07.jpg"
+      ]
+    },
+    {
+      "order": 4,
+      "name": "Yaowarat",
+      "text": "Chinatown, la nuit.",
+      "lat": 13.7398,
+      "lng": 100.5106,
+      "km": 5,
+      "photos": [
+        "04-yaowarat/04-01.jpg",
+        "04-yaowarat/04-02.jpg",
+        "04-yaowarat/04-03.jpg"
+      ]
+    },
+    {
+      "order": 5,
+      "name": "Wat Paknam",
+      "text": "Le grand Bouddha de Phasi Charoen.",
+      "lat": 13.7178,
+      "lng": 100.4685,
+      "km": 14,
+      "photos": [
+        "05-wat-paknam/05-01.jpg",
+        "05-wat-paknam/05-02.jpg",
+        "05-wat-paknam/05-03.jpg",
+        "05-wat-paknam/05-04.jpg"
+      ]
+    },
+    {
+      "order": 6,
+      "name": "Ayutthaya",
+      "text": "Wat Mahathat, Wat Ratchaburana, Wat Chaiwatthanaram, Wat Thammikarat.",
+      "lat": 14.357,
+      "lng": 100.5679,
+      "km": 94,
+      "photos": [
+        "06-ayutthaya/06-01.jpg",
+        "06-ayutthaya/06-02.jpg",
+        "06-ayutthaya/06-03.jpg",
+        "06-ayutthaya/06-04.jpg",
+        "06-ayutthaya/06-05.jpg",
+        "06-ayutthaya/06-06.jpg",
+        "06-ayutthaya/06-07.jpg",
+        "06-ayutthaya/06-08.jpg",
+        "06-ayutthaya/06-09.jpg",
+        "06-ayutthaya/06-10.jpg",
+        "06-ayutthaya/06-11.jpg",
+        "06-ayutthaya/06-12.jpg"
+      ]
+    },
+    {
+      "order": 7,
+      "name": "Marche flottant d'Ayothaya",
+      "text": "En barque, puis les pontons de bambou.",
+      "lat": 14.3536,
+      "lng": 100.6018,
+      "km": 100,
+      "photos": [
+        "07-marche-flottant-d-ayothaya/07-01.jpg",
+        "07-marche-flottant-d-ayothaya/07-02.jpg"
+      ]
+    },
+    {
+      "order": 8,
+      "name": "Ayutthaya la nuit",
+      "text": "Les mêmes ruines, éclairées.",
+      "lat": 14.357,
+      "lng": 100.5679,
+      "km": 106,
+      "photos": [
+        "08-ayutthaya-la-nuit/08-01.jpg",
+        "08-ayutthaya-la-nuit/08-02.jpg",
+        "08-ayutthaya-la-nuit/08-03.jpg"
+      ]
+    },
+    {
+      "order": 9,
+      "name": "Wat Sri Suphan",
+      "text": "Le temple d'argent, Chiang Mai.",
+      "lat": 18.7793,
+      "lng": 98.9836,
+      "km": 696,
+      "photos": [
+        "09-wat-sri-suphan/09-01.jpg",
+        "09-wat-sri-suphan/09-02.jpg",
+        "09-wat-sri-suphan/09-03.jpg"
+      ]
+    },
+    {
+      "order": 10,
+      "name": "Chiang Mai",
+      "text": "Wat Inthakhin Sadue Muang, les lanternes, la place des Trois Rois.",
+      "lat": 18.79,
+      "lng": 98.9877,
+      "km": 698,
+      "photos": [
+        "10-chiang-mai/10-01.jpg",
+        "10-chiang-mai/10-02.jpg",
+        "10-chiang-mai/10-03.jpg",
+        "10-chiang-mai/10-04.jpg",
+        "10-chiang-mai/10-05.jpg",
+        "10-chiang-mai/10-06.jpg"
+      ]
+    },
+    {
+      "order": 11,
+      "name": "Krabi",
+      "text": "Wat Bang Thong.",
+      "lat": 8.1489,
+      "lng": 98.86,
+      "km": 1858,
+      "photos": [
+        "11-krabi/11-01.jpg"
+      ]
+    },
+    {
+      "order": 12,
+      "name": "Khlong Thom",
+      "text": "Emerald Pool, Crystal Pool, sources chaudes.",
+      "lat": 7.9247,
+      "lng": 99.2716,
+      "km": 1920,
+      "photos": [
+        "12-khlong-thom/12-01.jpg",
+        "12-khlong-thom/12-02.jpg",
+        "12-khlong-thom/12-03.jpg",
+        "12-khlong-thom/12-04.jpg",
+        "12-khlong-thom/12-05.jpg"
+      ]
+    },
+    {
+      "order": 13,
+      "name": "Ao Thalane",
+      "text": "Mangrove, karsts.",
+      "lat": 8.1653,
+      "lng": 98.7739,
+      "km": 1996,
+      "photos": [
+        "13-ao-thalane/13-01.jpg",
+        "13-ao-thalane/13-02.jpg"
+      ]
+    },
+    {
+      "order": 14,
+      "name": "Koh Kai",
+      "text": "L'ile au Poulet.",
+      "lat": 8.0177,
+      "lng": 98.7508,
+      "km": 2038,
+      "photos": [
+        "14-koh-kai/14-01.jpg",
+        "14-koh-kai/14-02.jpg"
+      ]
+    },
+    {
+      "order": 15,
+      "name": "Railay",
+      "text": "Phra Nang, les grottes.",
+      "lat": 8.0072,
+      "lng": 98.8375,
+      "km": 2044,
+      "photos": [
+        "15-railay/15-01.jpg",
+        "15-railay/15-02.jpg",
+        "15-railay/15-03.jpg"
+      ]
+    }
+  ]
+}

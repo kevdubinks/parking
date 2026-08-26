@@ -1,0 +1,467 @@
+/* manovoyage — la carte de bord.
+   Un poste de pilotage la nuit : bleu profond, chiffres à l'ambre, et la
+   lumière ne vient que de la planète et des photos. */
+
+:root {
+  --nuit:        #05080d;
+  --nuit-haute:  #0a1017;
+  --texte:       #ddd6c6;
+  --faible:      #8a887e;
+  --ambre:       #e0a94f;
+  --ambre-pale:  #f2dcae;
+  --papier:      #ece4d2;
+  --papier-dos:  #e4dcc8;
+  --encre:       #23272b;
+  --encre-marge: #3a5570;
+  --rouge:       #b04a30;
+  --bord:        rgba(224,169,79,.28);
+  --voile:       rgba(5,8,13,.86);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--nuit);
+  color: var(--texte);
+  font-family: 'EB Garamond', Garamond, Georgia, serif;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- le ciel */
+
+.ciel {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 30%, #0d1520 0%, #05080d 62%, #03050a 100%);
+}
+/* Les étoiles sont posées une fois pour toutes par le script, en fond. */
+.etoiles { position: fixed; inset: 0; pointer-events: none; opacity: .8; }
+
+.globe {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+.globe.tire { cursor: grabbing; }
+
+/* ----------------------------------------------------------- marqueurs */
+
+.reperes { position: fixed; inset: 0; pointer-events: none; }
+
+.repere {
+  position: absolute;
+  pointer-events: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: opacity .35s;
+}
+/* Le point est sur les coordonnées, toujours. La bulle se déplace autour de lui
+   quand une autre ville la gênerait, et un filet les relie. */
+.repere .bulle {
+  position: absolute;
+  left: 0; top: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  transition: transform .32s cubic-bezier(.3,0,.2,1);
+}
+.repere .bulle::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: -16px;
+  width: 1px; height: 16px;
+  background: linear-gradient(to bottom, rgba(224,169,79,.55), rgba(224,169,79,0));
+}
+.repere .bulle.dessous::after { bottom: auto; top: -16px;
+  background: linear-gradient(to top, rgba(224,169,79,.55), rgba(224,169,79,0)); }
+.repere .bulle.dessous { grid-template-areas: 'e' 'c' 'v'; }
+.repere .bulle.dessous .vignette { order: 3; }
+.repere .bulle.dessous .etiquette { order: 1; }
+.repere .bulle.dessous .compte { order: 2; }
+.repere .vignette {
+  width: 58px; height: 77px;
+  object-fit: cover;
+  display: block;
+  background: #1a2128;
+  padding: 3px;
+  box-shadow: 0 6px 20px -6px #000, 0 0 0 1px rgba(224,169,79,.35);
+  transition: transform .3s cubic-bezier(.3,0,.2,1), box-shadow .3s;
+}
+.repere:hover .vignette,
+.repere:focus-visible .vignette {
+  transform: scale(1.12) rotate(-1.4deg);
+  box-shadow: 0 12px 30px -8px #000, 0 0 0 1px var(--ambre);
+}
+.repere:focus-visible { outline: none; }
+.repere:focus-visible .etiquette { color: var(--ambre-pale); }
+
+.repere .etiquette {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--ambre);
+  white-space: nowrap;
+  text-shadow: 0 1px 6px #000;
+}
+.repere .compte {
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: var(--faible);
+}
+/* Une ville passée derrière la Terre : on la retire, sans la faire disparaître
+   d'un coup — c'est le globe qui tourne, pas l'interface qui clignote. */
+.repere.derriere { opacity: 0; pointer-events: none; }
+
+/* Le point posé au sol, sous la vignette. */
+.repere .point {
+  position: absolute;
+  left: -3.5px; top: -3.5px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ambre);
+  box-shadow: 0 0 0 4px rgba(224,169,79,.18), 0 0 12px rgba(224,169,79,.7);
+}
+
+/* ---------------------------------------------------- lecture d'instruments */
+
+.instruments {
+  position: fixed;
+  left: 26px; bottom: 24px;
+  z-index: 20;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+  color: var(--faible);
+  pointer-events: none;
+  text-shadow: 0 1px 6px #000;
+}
+.instruments b { color: var(--ambre); font-weight: 400; }
+.instruments .cap-suivant { color: var(--texte); }
+.instruments dl { display: grid; grid-template-columns: auto auto; gap: 0 14px; margin: 0; }
+.instruments dt { text-transform: uppercase; letter-spacing: .16em; }
+.instruments dd { margin: 0; text-align: right; color: var(--texte); }
+
+/* ------------------------------------------------------------- ouverture */
+
+.seuil {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 26px;
+  text-align: center;
+  padding: 24px;
+  background: radial-gradient(60% 50% at 50% 46%, rgba(5,8,13,.35), rgba(5,8,13,.9));
+  transition: opacity .7s, visibility .7s;
+}
+.seuil.parti { opacity: 0; visibility: hidden; }
+.seuil h1 {
+  margin: 0;
+  font-size: clamp(44px, 9vw, 92px);
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: .95;
+}
+.seuil .lieu {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: var(--ambre);
+  margin: 0;
+}
+.seuil p.sous { margin: 0; max-width: 34ch; color: var(--faible); font-size: 18px; line-height: 1.5; }
+
+.bouton {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ambre);
+  background: transparent;
+  border: 1px solid var(--bord);
+  padding: 13px 26px;
+  cursor: pointer;
+  transition: border-color .25s, color .25s, background .25s;
+}
+.bouton:hover { border-color: var(--ambre); background: rgba(224,169,79,.07); }
+.bouton:focus-visible { outline: 2px solid var(--ambre); outline-offset: 3px; }
+
+/* --------------------------------------------------------------- la barre */
+
+.barre {
+  position: fixed;
+  top: 20px; left: 22px; right: 22px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+.barre > * { pointer-events: auto; }
+.barre .marque {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--faible);
+}
+.barre .droite { margin-left: auto; display: flex; gap: 10px; }
+.barre .bouton { padding: 9px 16px; }
+
+/* --------------------------------------------------------- panneau ville */
+
+.panneau {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 28;
+  max-height: 82vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(to bottom, rgba(6,10,16,.72) 0%, rgba(5,8,13,.97) 16%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--bord);
+  transform: translateY(101%);
+  transition: transform .62s cubic-bezier(.3,.02,.15,1);
+}
+.panneau.ouvert { transform: none; }
+.panneau .dedans { max-width: 1180px; margin: 0 auto; padding: 34px 30px 70px; }
+
+.panneau .haut { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+.panneau h2 { margin: 0; font-size: clamp(34px, 5vw, 54px); font-weight: 400; letter-spacing: -.015em; line-height: 1; }
+.panneau .sous { color: var(--ambre); font-size: 15px; font-style: italic; }
+.panneau .coord {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px; letter-spacing: .1em; color: var(--faible);
+}
+.ville-corps {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(190px, .72fr);
+  gap: 46px;
+  margin: 26px 0 4px;
+  align-items: start;
+}
+.panneau .histoire { columns: 2; column-gap: 38px; }
+.panneau .histoire p { margin: 0 0 1.05em; line-height: 1.62; break-inside: avoid; }
+
+/* La fiche : ce qui se mesure, en face de ce qui se raconte. */
+.fiche { border-left: 1px solid rgba(224,169,79,.18); padding-left: 22px; font-size: 11.5px; }
+.fiche dl { display: grid; grid-template-columns: auto auto; gap: 3px 12px; margin: 0 0 20px; }
+.fiche dt { text-transform: uppercase; letter-spacing: .16em; color: var(--faible); }
+.fiche dd { margin: 0; text-align: right; color: var(--ambre); }
+.liste-sites { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.liste-sites li { display: flex; align-items: baseline; gap: 10px; }
+.aller {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif; font-size: 16px;
+  color: var(--texte); text-align: left; border-bottom: 1px solid transparent;
+}
+.aller:hover, .aller:focus-visible { color: var(--ambre-pale); border-bottom-color: var(--bord); outline: none; }
+.compte-site { margin-left: auto; color: var(--faible); }
+.panneau .histoire p:first-child::first-letter {
+  font-size: 2.6em; line-height: .86; float: left; padding: .06em .09em 0 0; color: var(--ambre);
+}
+
+.site { margin-top: 40px; }
+.site .titre-site {
+  display: flex; align-items: baseline; gap: 12px;
+  border-bottom: 1px solid rgba(224,169,79,.16);
+  padding-bottom: 7px; margin-bottom: 16px;
+}
+.site h3 { margin: 0; font-size: 21px; font-weight: 400; }
+.site .note { color: var(--faible); font-size: 15px; font-style: italic; }
+.site .km {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10.5px; letter-spacing: .12em; color: var(--faible);
+}
+
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 16px; }
+.cliche {
+  display: grid; gap: 8px;
+  background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit;
+  text-align: left;
+}
+.cliche img {
+  width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
+  background: #12181e;
+  transition: transform .35s cubic-bezier(.3,0,.2,1), box-shadow .35s;
+  box-shadow: 0 6px 18px -8px #000;
+}
+.cliche:hover img, .cliche:focus-visible img {
+  transform: scale(1.035) translateY(-3px);
+  box-shadow: 0 16px 34px -12px #000, 0 0 0 1px var(--bord);
+}
+.cliche:focus-visible { outline: none; }
+.cliche figcaption { font-size: 14px; line-height: 1.3; color: var(--faible); }
+.cliche:hover figcaption { color: var(--texte); }
+
+/* ------------------------------------------------------- index découverte */
+
+.index { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; margin-top: 22px; }
+.carte-ville {
+  position: relative; display: block; padding: 0; border: 0; cursor: pointer;
+  background: none; color: inherit; font: inherit; text-align: left;
+}
+.carte-ville img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; transition: transform .4s; }
+.carte-ville:hover img { transform: scale(1.04); }
+.carte-ville .voile {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(5,8,13,.92) 6%, rgba(5,8,13,.1) 62%);
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; padding: 16px;
+}
+.carte-ville .nom { font-size: 25px; line-height: 1; }
+.carte-ville .chiffres {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ambre);
+}
+
+/* ------------------------------------------------------- la carte postale */
+
+.postale {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center;
+  padding: 30px 20px 88px;
+  background: var(--voile);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0; visibility: hidden;
+  transition: opacity .4s, visibility .4s;
+}
+.postale.ouverte { opacity: 1; visibility: visible; }
+
+.carte {
+  position: relative;
+  width: min(86vw, calc((100vh - 200px) * 0.75));
+  aspect-ratio: 3 / 4;
+  transform-style: preserve-3d;
+  transition: transform .78s cubic-bezier(.42,.02,.18,1);
+  cursor: pointer;
+}
+.postale.retournee .carte { transform: rotateY(180deg); }
+
+.face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--papier);
+  box-shadow: 0 40px 80px -30px #000, 0 0 0 1px rgba(0,0,0,.5);
+  padding: 13px 13px 15px;
+  display: flex; flex-direction: column;
+}
+.face--dos { transform: rotateY(180deg); background: var(--papier-dos); padding: 26px 28px; }
+
+.face--recto img { width: 100%; flex: 1; min-height: 0; object-fit: cover; display: block; background: #cdc6b4; }
+.face--recto figcaption {
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-size: 20px; line-height: 1.15; color: var(--encre-marge);
+  padding-top: 9px;
+}
+
+/* Le dos d'une carte postale : le mot à gauche, le timbre et le cachet à droite. */
+.dos-grille { display: grid; grid-template-columns: 1.25fr 1fr; gap: 22px; height: 100%; }
+.dos-mot {
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-size: clamp(19px, 2.1vw, 25px);
+  line-height: 1.32;
+  color: var(--encre-marge);
+  border-right: 1px solid rgba(35,39,43,.22);
+  padding-right: 20px;
+  overflow: auto;
+}
+.dos-droite { display: flex; flex-direction: column; gap: 16px; color: var(--encre); }
+/* La dentelure ne mord que les quatre bords : quatre bandes de festons, plus
+   un fond plein au milieu. Un masque appliqué à toute la surface faisait un
+   damier — un timbre n'est perforé que sur son pourtour. */
+.timbre {
+  align-self: flex-end;
+  width: 94px; height: 114px;
+  padding: 9px;
+  background:
+    radial-gradient(circle at 50% 0,    #0000 4.2px, #f6f1e2 4.6px) top    / 11px 11px repeat-x,
+    radial-gradient(circle at 50% 100%, #0000 4.2px, #f6f1e2 4.6px) bottom / 11px 11px repeat-x,
+    radial-gradient(circle at 0 50%,    #0000 4.2px, #f6f1e2 4.6px) left   / 11px 11px repeat-y,
+    radial-gradient(circle at 100% 50%, #0000 4.2px, #f6f1e2 4.6px) right  / 11px 11px repeat-y,
+    linear-gradient(#f6f1e2, #f6f1e2) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
+  filter: drop-shadow(0 2px 7px rgba(0,0,0,.4));
+}
+.timbre img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cachet {
+  align-self: flex-end;
+  margin-top: -70px; margin-right: 54px;
+  width: 116px; height: 116px;
+  border: 2px solid var(--rouge);
+  border-radius: 50%;
+  color: var(--rouge);
+  display: grid; place-content: center; text-align: center;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 8.5px; letter-spacing: .08em; line-height: 1.9;
+  text-transform: uppercase;
+  transform: rotate(-11deg);
+  opacity: .72;
+  white-space: nowrap;
+}
+.cachet .coord-cachet { letter-spacing: .02em; }
+.dos-adresse { margin-top: auto; display: grid; gap: 15px; }
+.dos-adresse i { display: block; height: 1px; background: rgba(35,39,43,.22); }
+.dos-legende {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px; letter-spacing: .1em; color: rgba(35,39,43,.55);
+}
+
+.postale .commandes {
+  position: fixed; left: 0; right: 0; bottom: 22px;
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  z-index: 41;
+}
+.postale .compteur {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px; letter-spacing: .16em; color: var(--faible); min-width: 76px; text-align: center;
+}
+
+/* ------------------------------------------------------------- réglages */
+
+.pouce { position: absolute; left: -9999px; }   /* préchargement discret */
+
+@media (max-width: 860px) {
+  .panneau .histoire { columns: 1; }
+  .ville-corps { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .fiche { border-left: 0; border-top: 1px solid rgba(224,169,79,.18); padding: 18px 0 0; }
+  .panneau .dedans { padding: 24px 18px 60px; }
+  .instruments { left: 16px; bottom: 16px; font-size: 10px; }
+  .barre { top: 14px; left: 14px; right: 14px; }
+  .repere .vignette { width: 46px; height: 61px; }
+  .carte { width: min(90vw, calc((100vh - 190px) * 0.75)); }
+  .dos-grille { grid-template-columns: 1fr; }
+  .dos-mot { border-right: 0; border-bottom: 1px solid rgba(35,39,43,.22); padding: 0 0 14px; }
+  .timbre { width: 70px; height: 86px; }
+  .cachet { width: 84px; height: 84px; margin-top: -52px; margin-right: 44px; font-size: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte, .panneau, .cliche img, .repere .vignette, .seuil { transition-duration: .01ms; }
+}

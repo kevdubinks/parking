@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>manovoyage — Thaïlande</title>
+<meta name="description" content="Un voyage en Thaïlande vu d'en haut : le globe, les villes, et soixante photos qui s'ouvrent en cartes postales.">
+<!-- Accessible par son lien, mais pas référencé : soixante photos
+     personnelles n'ont rien à faire dans les résultats de recherche.
+     Retirer cette ligne le jour où l'on veut être trouvé. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#05080d">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Les polices ne doivent pas retarder le globe. media="print" les fait
+     chercher sans bloquer l'affichage ; le script les rebranche à l'arrivée.
+     Réseau lent ou Google injoignable, le site s'affiche quand même, avec ses
+     polices de repli. -->
+<link rel="stylesheet" media="print" data-polices
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap">
+<noscript><link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap"></noscript>
+<link rel="stylesheet" href="styles/vol.css">
+</head>
+<body>
+
+<div class="ciel"></div>
+<canvas class="etoiles" aria-hidden="true"></canvas>
+<canvas class="globe" aria-label="Globe terrestre — faire glisser pour tourner, molette pour descendre"></canvas>
+<div class="reperes"></div>
+
+<div class="instruments mono" aria-live="off"></div>
+
+<nav class="barre" hidden>
+  <span class="marque">manovoyage</span>
+  <span class="droite">
+    <button class="bouton" type="button" data-action="decouverte">Découverte</button>
+    <button class="bouton" type="button" data-action="remonter">Remonter</button>
+  </span>
+</nav>
+
+<!-- Le panneau de ville, et la section Découverte : même surface, même geste. -->
+<section class="panneau" tabindex="-1" aria-label="Ville"></section>
+
+<div class="postale" role="dialog" aria-modal="true" aria-label="Carte postale">
+  <div class="carte"></div>
+  <div class="commandes">
+    <button class="bouton" type="button" data-action="precedent">←</button>
+    <span class="compteur mono"></span>
+    <button class="bouton" type="button" data-action="suivant">→</button>
+    <button class="bouton" type="button" data-action="retourner">Retourner</button>
+    <button class="bouton" type="button" data-action="fermer">Fermer</button>
+  </div>
+</div>
+
+<div class="seuil">
+  <p class="lieu">Thaïlande · 2 044 km</p>
+  <h1>manovoyage</h1>
+  <p class="sous">Quinze lieux, quatre villes, soixante photos. On commence en haut.</p>
+  <button class="bouton" type="button">Descendre</button>
+</div>
+
+<noscript>
+  <p style="padding:40px;color:#ddd6c6;font-family:serif">
+    Ce voyage a besoin de JavaScript pour afficher le globe.
+  </p>
+</noscript>
+
+<script src="donnees/terre.js"></script>
+<script src="contenu/lieux.js"></script>
+<script src="scripts/globe.js"></script>
+<script src="scripts/vol.js"></script>
+</body>
+</html>
