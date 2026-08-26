@@ -45,12 +45,14 @@
 
 <div class="postale" role="dialog" aria-modal="true" aria-label="Carte postale">
   <div class="carte"></div>
+  <!-- Fermer est une croix en haut : dans la barre du bas, cinq boutons ne
+       tenaient pas dans la largeur d'un téléphone. -->
+  <button class="croix" type="button" data-action="fermer" aria-label="Fermer">×</button>
   <div class="commandes">
-    <button class="bouton" type="button" data-action="precedent">←</button>
+    <button class="bouton" type="button" data-action="precedent" aria-label="Photo précédente">←</button>
     <span class="compteur mono"></span>
-    <button class="bouton" type="button" data-action="suivant">→</button>
+    <button class="bouton" type="button" data-action="suivant" aria-label="Photo suivante">→</button>
     <button class="bouton" type="button" data-action="retourner">Retourner</button>
-    <button class="bouton" type="button" data-action="fermer">Fermer</button>
   </div>
 </div>
 

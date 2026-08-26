@@ -145,7 +145,7 @@ html, body {
 
 .instruments {
   position: fixed;
-  left: 26px; bottom: 24px;
+  left: 26px; bottom: calc(24px + env(safe-area-inset-bottom));
   z-index: 20;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 11px;
@@ -213,7 +213,7 @@ html, body {
 
 .barre {
   position: fixed;
-  top: 20px; left: 22px; right: 22px;
+  top: calc(20px + env(safe-area-inset-top)); left: 22px; right: 22px;
   z-index: 25;
   display: flex;
   align-items: center;
@@ -248,7 +248,8 @@ html, body {
   transition: transform .62s cubic-bezier(.3,.02,.15,1);
 }
 .panneau.ouvert { transform: none; }
-.panneau .dedans { max-width: 1180px; margin: 0 auto; padding: 34px 30px 70px; }
+.panneau .dedans { max-width: 1180px; margin: 0 auto;
+  padding: 34px 30px calc(70px + env(safe-area-inset-bottom)); }
 
 .panneau .haut { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .panneau h2 { margin: 0; font-size: clamp(34px, 5vw, 54px); font-weight: 400; letter-spacing: -.015em; line-height: 1; }
@@ -345,7 +346,10 @@ html, body {
 .postale {
   position: fixed; inset: 0; z-index: 40;
   display: grid; place-items: center;
-  padding: 30px 20px 88px;
+  /* La barre du bas et l'encoche mordent sur la hauteur : la carte doit
+     compter avec, sinon elle passe dessous. */
+  padding: max(46px, env(safe-area-inset-top)) 16px
+           calc(74px + env(safe-area-inset-bottom)) 16px;
   background: var(--voile);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -356,7 +360,8 @@ html, body {
 
 .carte {
   position: relative;
-  width: min(86vw, calc((100vh - 200px) * 0.75));
+  /* 3:4, borné par la largeur ET par la hauteur restante. */
+  width: min(88vw, calc((100dvh - 140px) * 0.75));
   aspect-ratio: 3 / 4;
   transform-style: preserve-3d;
   transition: transform .78s cubic-bezier(.42,.02,.18,1);
@@ -383,7 +388,7 @@ html, body {
 }
 
 /* Le dos d'une carte postale : le mot à gauche, le timbre et le cachet à droite. */
-.dos-grille { display: grid; grid-template-columns: 1.25fr 1fr; gap: 22px; height: 100%; }
+.dos-grille { position: relative; display: grid; grid-template-columns: 1.25fr 1fr; gap: 22px; height: 100%; }
 .dos-mot {
   font-family: 'Caveat', 'Segoe Script', cursive;
   font-size: clamp(19px, 2.1vw, 25px);
@@ -433,9 +438,28 @@ html, body {
   font-size: 10px; letter-spacing: .1em; color: rgba(35,39,43,.55);
 }
 
+.croix {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top)); right: 12px;
+  z-index: 42;
+  width: 44px; height: 44px;      /* cible tactile confortable */
+  display: grid; place-items: center;
+  font: 400 27px/1 'EB Garamond', Georgia, serif;
+  color: var(--texte);
+  background: rgba(10,16,23,.6);
+  border: 1px solid var(--bord);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.croix:hover { color: var(--ambre); border-color: var(--ambre); }
+.croix:focus-visible { outline: 2px solid var(--ambre); outline-offset: 3px; }
+
 .postale .commandes {
-  position: fixed; left: 0; right: 0; bottom: 22px;
-  display: flex; justify-content: center; align-items: center; gap: 10px;
+  position: fixed; left: 0; right: 0;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex; justify-content: center; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+  padding: 0 12px;
   z-index: 41;
 }
 .postale .compteur {
@@ -451,15 +475,85 @@ html, body {
   .panneau .histoire { columns: 1; }
   .ville-corps { grid-template-columns: minmax(0, 1fr); gap: 26px; }
   .fiche { border-left: 0; border-top: 1px solid rgba(224,169,79,.18); padding: 18px 0 0; }
-  .panneau .dedans { padding: 24px 18px 60px; }
-  .instruments { left: 16px; bottom: 16px; font-size: 10px; }
-  .barre { top: 14px; left: 14px; right: 14px; }
+  .panneau .dedans { padding: 24px 18px calc(52px + env(safe-area-inset-bottom)); }
+  .instruments { left: 14px; bottom: calc(12px + env(safe-area-inset-bottom)); font-size: 10px; }
+  .barre { top: calc(12px + env(safe-area-inset-top)); left: 14px; right: 14px; }
   .repere .vignette { width: 46px; height: 61px; }
-  .carte { width: min(90vw, calc((100vh - 190px) * 0.75)); }
-  .dos-grille { grid-template-columns: 1fr; }
-  .dos-mot { border-right: 0; border-bottom: 1px solid rgba(35,39,43,.22); padding: 0 0 14px; }
-  .timbre { width: 70px; height: 86px; }
-  .cachet { width: 84px; height: 84px; margin-top: -52px; margin-right: 44px; font-size: 8px; }
+}
+
+/* Sur un écran étroit, le dos cesse d'être une carte postale à deux colonnes :
+   le mot prend toute la carte, et le timbre se pose par-dessus, en coin. Les
+   colonnes réduisaient le texte à un tiers de sa place et il fallait le faire
+   défiler pour le lire — sur une carte postale, c'est raté. */
+@media (max-width: 620px) {
+  .face--dos { padding: 20px 18px; }
+  .dos-grille { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .dos-mot {
+    border-right: 0;
+    padding: 0;
+    font-size: clamp(15px, 4.1vw, 21px);
+    line-height: 1.34;
+  }
+  /* Réserver le coin du timbre et du cachet : sur une carte postale on écrit
+     autour, on n'écrit pas dessous. */
+  .dos-mot::before {
+    content: '';
+    float: right;
+    width: 118px; height: 128px;
+    shape-outside: inset(0);
+  }
+  .dos-droite { position: absolute; inset: 0; pointer-events: none; }
+  .timbre {
+    position: absolute; top: 0; right: 0;
+    width: 58px; height: 71px; padding: 6px;
+    background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px,
+                     calc(100% - 16px) calc(100% - 16px);
+  }
+  .cachet {
+    position: absolute; top: 42px; right: 34px;
+    width: 78px; height: 78px; margin: 0;
+    font-size: 7.5px; line-height: 1.8;
+  }
+  .dos-adresse { display: none; }        /* personne n'écrit l'adresse ici */
+  .dos-legende { position: absolute; left: 0; bottom: 0; font-size: 9px; }
+  .commandes .bouton { padding: 10px 13px; letter-spacing: .12em; }
+  .compteur { min-width: 62px; font-size: 10px; }
+}
+
+/* Téléphone couché : la hauteur devient la ressource rare. La carte se règle
+   sur elle, et le mot passe à côté de la photo plutôt qu'au dos d'un timbre
+   minuscule. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .postale { padding: 8px 12px calc(56px + env(safe-area-inset-bottom)); }
+  .carte { width: auto; height: min(88dvh, 460px); aspect-ratio: 3 / 4; }
+  .face--dos { padding: 15px 15px; }
+
+  /* Le dos passe aussi en une colonne : ce n'est pas la largeur de l'écran qui
+     compte ici mais celle de la carte, et couchée elle est étroite. Deux
+     colonnes y réduisaient le mot à un ruban de vingt caractères. */
+  .dos-grille { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .dos-mot { border-right: 0; padding: 0; font-size: clamp(12px, 2.5vh, 16px); line-height: 1.32; }
+  .dos-mot::before { content: ''; float: right; width: 94px; height: 102px; shape-outside: inset(0); }
+  .dos-droite { position: absolute; inset: 0; pointer-events: none; }
+  .timbre {
+    position: absolute; top: 0; right: 0;
+    width: 46px; height: 56px; padding: 5px;
+    background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px,
+                     calc(100% - 14px) calc(100% - 14px);
+  }
+  .cachet {
+    position: absolute; top: 32px; right: 26px;
+    width: 62px; height: 62px; margin: 0; font-size: 6.5px; line-height: 1.75;
+  }
+  .dos-adresse { display: none; }
+  .dos-legende { position: absolute; left: 0; bottom: 0; font-size: 8px; }
+  .face--recto figcaption { font-size: 15px; padding-top: 6px; }
+  .panneau { max-height: 92dvh; }
+  .panneau .dedans { padding-top: 16px; }
+  .seuil { gap: 14px; }
+  .seuil h1 { font-size: clamp(34px, 8vh, 56px); }
+  .seuil p.sous { font-size: 15px; }
+  .instruments { font-size: 9px; line-height: 1.6; }
 }
 
 @media (prefers-reduced-motion: reduce) {
