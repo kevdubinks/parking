@@ -119,7 +119,30 @@ statiques.
 
 ## La mise en ligne
 
-GitHub Pages sert la branche **`gh-pages`**, qui ne contient que le contenu de
+Deux hébergeurs possibles, le site étant purement statique.
+
+### Vercel
+
+```
+VERCEL_TOKEN=… node outils/deployer-vercel.mjs
+node outils/deployer-vercel.mjs --essai      # liste ce qui partirait, sans rien envoyer
+```
+
+Rien à installer : le script parle directement à l'API. Il téléverse les
+fichiers puis crée le déploiement à partir de leurs empreintes — Vercel garde
+ceux qu'il connaît déjà, si bien qu'une deuxième mise en ligne ne renvoie que
+ce qui a changé. `LISEZMOI.md` et `outils/` restent au sol.
+
+Le jeton se crée sur vercel.com/account/settings/tokens, et vaut pour tout le
+compte : à révoquer une fois le site en ligne. Pour un compte d'équipe, ajouter
+`VERCEL_TEAM_ID`.
+
+`vercel.json` fixe les en-têtes de cache : un an pour les photos, qui ne
+changent jamais, une heure pour le code.
+
+### GitHub Pages
+
+Sert la branche **`gh-pages`**, qui ne contient que le contenu de
 `manovoyage/` à sa racine. Le workflow `.github/workflows/manovoyage.yml` l'y
 recopie à chaque modification poussée : il n'y a rien à faire à la main.
 
