@@ -1,5 +1,7 @@
 # manovoyage
 
+**En ligne : https://kevdubinks.github.io/parking/**
+
 Un voyage en Thaïlande, vu d'en haut. Quatre villes, quinze lieux, soixante
 photos, 2 044 km — de Bangkok aux karsts d'Andaman.
 
@@ -112,8 +114,25 @@ medias/source-manovoyage.json   l'export du voyage, tel qu'il est arrivé
 ```
 
 Aucune dépendance, aucune compilation, aucun serveur : ouvrir `index.html`
-suffit. Pour publier, déposer le dossier tel quel chez n'importe quel
-hébergeur de fichiers statiques. Aucun cookie, aucun compte, aucun service
+suffit. Il se dépose tel quel chez n'importe quel hébergeur de fichiers
+statiques.
+
+## La mise en ligne
+
+GitHub Pages sert la branche **`gh-pages`**, qui ne contient que le contenu de
+`manovoyage/` à sa racine. Le workflow `.github/workflows/manovoyage.yml` l'y
+recopie à chaque modification poussée : il n'y a rien à faire à la main.
+
+`gh-pages` est une branche produite, pas une branche de travail — ne rien y
+écrire directement, ce serait écrasé à la publication suivante.
+
+Le site porte un `noindex` : accessible par son lien, mais absent des moteurs
+de recherche. Une ligne à retirer dans `index.html` le jour où l'on veut être
+trouvé.
+
+Pour une adresse plus jolie, deux chemins : un nom de domaine (déposer un
+fichier `CNAME` contenant le domaine à la racine du site), ou un dépôt dédié
+`manovoyage`, qui donnerait `kevdubinks.github.io/manovoyage/`. Aucun cookie, aucun compte, aucun service
 tiers — seules les polices viennent de Google, avec repli local.
 
 ## L'ancienne version

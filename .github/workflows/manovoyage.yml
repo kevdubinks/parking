@@ -1,11 +1,12 @@
-# Publie le dossier manovoyage/ sur GitHub Pages.
+# Tient le site manovoyage à jour sur https://kevdubinks.github.io/parking/
 #
-# Le site est statique : rien à compiler, on téléverse le dossier tel quel.
-# `enablement: true` active Pages au premier passage, sans avoir à toucher aux
-# réglages du dépôt à la main.
+# GitHub Pages sert la branche `gh-pages`, activée automatiquement lors de son
+# premier envoi. Ce workflow y recopie le contenu de manovoyage/ à chaque
+# modification, et rien d'autre : l'application parking n'est ni construite ni
+# publiée.
 #
-# Ne touche à rien d'autre du dépôt : l'application parking n'est ni construite
-# ni publiée, seul le contenu de manovoyage/ est servi.
+# `gh-pages` ne contient que du contenu produit — elle n'est pas une branche de
+# travail. Les sources vivent sur la branche de développement.
 
 name: Publier manovoyage
 
@@ -18,29 +19,18 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Une publication à la fois, et on ne coupe pas celle qui est en cours.
 concurrency:
-  group: pages
+  group: publication-manovoyage
   cancel-in-progress: false
 
 jobs:
   publier:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploiement.outputs.page_url }}
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
-
-      - name: Activer et configurer Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Vérifier que le site est complet
         run: |
@@ -49,14 +39,30 @@ jobs:
           vues=$(find manovoyage/medias -name '*.jpg' -not -path '*vignettes*' | wc -l)
           vign=$(find manovoyage/medias/vignettes -name '*.jpg' | wc -l)
           echo "photos : $vues   vignettes : $vign"
-          test "$vues" -eq 60
-          test "$vign" -eq 60
+          # Publier un site à trous serait pire que ne rien publier.
+          test "$vues" -eq "$vign"
+          test "$vues" -gt 0
 
-      - name: Téléverser le site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: manovoyage
-
-      - name: Publier
-        id: deploiement
-        uses: actions/deploy-pages@v4
+      - name: Recopier sur gh-pages
+        run: |
+          set -e
+          git config --global user.name  'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin gh-pages --depth=1
+          git worktree add /tmp/site origin/gh-pages
+          cd /tmp/site
+          git checkout -B gh-pages
+          # Remplacer le contenu, pas le compléter : un fichier retiré de la
+          # source doit disparaître du site.
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r "$GITHUB_WORKSPACE/manovoyage/." .
+          rm -f LISEZMOI.md          # la doc du dépôt n'a rien à faire en ligne
+          touch .nojekyll            # ne pas traiter le dossier comme un site Jekyll
+          git add -A
+          if git diff --cached --quiet; then
+            echo "site déjà à jour, rien à publier"
+            exit 0
+          fi
+          git commit -q -m "manovoyage — publication depuis ${GITHUB_SHA:0:7}"
+          git push origin gh-pages
+          echo "publié : https://kevdubinks.github.io/parking/"
