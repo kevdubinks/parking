@@ -1,0 +1,62 @@
+# Publie le dossier manovoyage/ sur GitHub Pages.
+#
+# Le site est statique : rien à compiler, on téléverse le dossier tel quel.
+# `enablement: true` active Pages au premier passage, sans avoir à toucher aux
+# réglages du dépôt à la main.
+#
+# Ne touche à rien d'autre du dépôt : l'application parking n'est ni construite
+# ni publiée, seul le contenu de manovoyage/ est servi.
+
+name: Publier manovoyage
+
+on:
+  push:
+    branches: [claude/manovoyage-travel-blog-nnst89]
+    paths:
+      - 'manovoyage/**'
+      - '.github/workflows/manovoyage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une publication à la fois, et on ne coupe pas celle qui est en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Activer et configurer Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Vérifier que le site est complet
+        run: |
+          set -e
+          test -f manovoyage/index.html
+          vues=$(find manovoyage/medias -name '*.jpg' -not -path '*vignettes*' | wc -l)
+          vign=$(find manovoyage/medias/vignettes -name '*.jpg' | wc -l)
+          echo "photos : $vues   vignettes : $vign"
+          test "$vues" -eq 60
+          test "$vign" -eq 60
+
+      - name: Téléverser le site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: manovoyage
+
+      - name: Publier
+        id: deploiement
+        uses: actions/deploy-pages@v4
