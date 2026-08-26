@@ -1,150 +1,127 @@
 # manovoyage
 
-Un carnet de voyage qui se **déplie**. Thaïlande : quinze étapes, 2 044 km,
-soixante tirages, de Bangkok aux karsts d'Andaman.
+Un voyage en Thaïlande, vu d'en haut. Quatre villes, quinze lieux, soixante
+photos, 2 044 km — de Bangkok aux karsts d'Andaman.
 
-Le site n'est pas une suite d'articles : c'est une seule bande de papier pliée en
-accordéon. On avance dedans latéralement, le pli qu'on lit est à plat, et le reste
-du voyage est replié de part et d'autre — visiblement, physiquement. L'épaisseur
-des plis à gauche et à droite dit combien de chemin il reste de chaque côté.
+Ce n'est pas un site avec une carte : c'est **une carte de bord**. L'écran de
+siège d'un avion, en plus beau — la Terre, la route, et des compteurs qui
+disent où l'on est. On y descend, on y atterrit, on repart.
 
-Chaque pli a un **dos**. Le recto porte les tirages ; le verso, sur papier
-quadrillé, porte la position relevée, les distances et l'inventaire des tirages
-de la page. Touche `V`, ou le bouton « voir le dos ».
-
-Un **trait unique** traverse les dix-sept plis sans jamais s'interrompre, pliures
-comprises. Ce n'est pas une décoration : c'est le profil du voyage en latitude,
-tracé depuis les coordonnées relevées à chaque étape. Il monte jusqu'à Chiang Mai,
-au 19ᵉ parallèle, et redescend jusqu'à la mer d'Andaman. Chaque étape tombe au
-milieu de sa page, et une petite croix rouge marque l'endroit où le trait la touche.
-
-## Se déplacer
+## Les quatre altitudes
 
 | | |
 |---|---|
-| `←` `→` | déplier d'un pli |
-| molette / doigt | fait défiler le texte ; arrivé en bas, passe au pli suivant |
-| glisser | tirer la bande latéralement |
-| clic sur un pli replié | l'ouvrir |
-| clic sur un tirage | le prendre en main ; `Échap` le repose |
-| `V` | retourner le carnet (recto ↔ verso) |
-| `L` | tout lire à plat, d'une traite |
-| `Début` `Fin` | premier / dernier pli |
+| **Croisière** | le globe entier. On le fait tourner à la souris ou au doigt. |
+| **Approche** | la Thaïlande, ses quatre villes posées à leurs coordonnées. |
+| **Ville** | son histoire, ses lieux, toutes ses photos. C'est la section Découverte. |
+| **Carte postale** | une photo en grand. On la retourne : au dos, le mot de la ville, un timbre et le cachet. |
 
-Deux axes, deux sens : **vertical, on lit ; horizontal, on voyage.** Comme on ne
-peut pas descendre plus bas que la fin d'un pli, continuer vers le bas passe au
-suivant — on n'a donc jamais besoin de savoir qu'il y a deux axes.
+**`Échap` remonte d'un cran. Toujours.** C'est la seule chose à savoir, et il
+n'y a jamais rien d'empilé : pas de fil d'Ariane, pas de menu, pas de retour
+arrière qui surprend.
+
+| | |
+|---|---|
+| glisser | faire tourner la Terre |
+| molette | descendre, remonter |
+| clic sur une ville | y aller — l'avion se déplace, il ne saute pas |
+| clic sur une photo | l'ouvrir en carte postale |
+| clic sur la carte, ou `Espace` | la retourner |
+| `←` `→` | la photo précédente, la suivante |
+| `Échap` | remonter d'une altitude |
+
+## Le globe
+
+Une projection orthographique dessinée au canvas : la Terre vue d'assez loin
+pour que la courbure se voie. Les contours viennent de Natural Earth. Deux
+niveaux de détail, et le fin ne se charge qu'à l'approche, quand les côtes
+grossières commenceraient à se voir.
+
+Le point de vue est toujours au centre de l'écran. Descendre sur une ville,
+c'est amener ses coordonnées là et faire grandir le rayon : d'où la sensation
+de descente, sans qu'aucune caméra n'existe vraiment.
+
+Un vol prend d'abord un peu de hauteur avant de redescendre. Sans cette bosse,
+un déplacement est un fondu ; avec, c'est un vol.
+
+Les repères ne se chevauchent jamais : chaque bulle cherche une place libre
+au-dessus, en dessous, ou de côté. Le point, lui, ne bouge pas — il est sur les
+coordonnées. Bangkok et Ayutthaya sont à soixante-dix kilomètres l'une de
+l'autre et restent lisibles.
 
 ## Écrire
 
-Tout le contenu est dans **`contenu/etapes.js`**, et rien que là. Les étapes,
-les coordonnées, les kilométrages et les photos viennent de l'export du voyage,
-conservé tel quel dans `medias/source-manovoyage.json`.
-
-**Les récits restent à écrire.** Une page sans récit est une page de tirages, et
-elle est finie comme ça — rien n'y signale un manque. Le jour où un `texte`
-arrive, les paragraphes apparaissent et les tirages viennent se glisser dedans :
+Tout est dans **`contenu/lieux.js`**. Les étapes, coordonnées, kilométrages et
+photos viennent de l'export du voyage, conservé tel quel dans
+`medias/source-manovoyage.json`.
 
 ```js
 {
-  type: 'etape',
-  lieu: 'Ayutthaya', jour: 'étape 6', km: 94,
-  lat: 14.357, lng: 100.5679,          // sert à tracer le trait
-  recto: {
-    chapeau: 'Wat Mahathat, Wat Ratchaburana…',   // la ligne sous le titre
-    texte: [ 'Un paragraphe.', 'Un autre.' ],     // absent pour l'instant
-    photos: [ … ]
-  },
-  verso: { entete: 'au dos — Ayutthaya', releves: [ … ] }
+  id: 'bangkok', nom: 'Bangkok', sous: 'Krung Thep',
+  lat: 13.7398, lng: 100.5106,
+  mot: 'Ce qui s’écrit au dos de la carte postale.',
+  histoire: [ 'Un paragraphe.', 'Un autre.' ],   // section Découverte
+  sites: [
+    { nom: 'Wat Pho', texte: 'Bangkok, rive est du Chao Phraya.',
+      lat: 13.7465, lng: 100.4927, km: 0,
+      photos: [ { fichier: 'medias/01-wat-pho/01-01.jpg',
+                  legende: 'le bouddha couché, et les offrandes à sa tête',
+                  ref: '01-01' } ] }
+  ]
 }
 ```
 
-Dans les textes, trois balises seulement : `<em>` pour l'italique, `<s>mot</s>`
-pour un mot rayé, et `<s>mot</s><span class="corr">?</span>` pour une correction
-à la main au-dessus.
-
-Le **dos** de chaque page porte des `releves` — des blocs de lignes en
-caractères de machine sur le papier quadrillé. Pour l'instant : la position
-relevée, les distances, et l'inventaire des tirages de la page. C'est aussi là
-que des notes personnelles auraient leur place, via `notes: [ … ]`.
+**Les textes parlent des lieux, pas du voyage de quelqu'un.** Histoire,
+géologie, ce qu'on voit sur place : rien qui prétende être un souvenir. Les
+légendes décrivent ce qui est sur la photo. Le jour où de vrais souvenirs
+viennent s'ajouter, ils prennent la place de ces textes-là — ou s'y ajoutent.
 
 ## Les photos
 
-Les photos sont des **tirages collés dans la page** : marge blanche, coins photo
-ou ruban adhésif, légende à la main dessous, quelques degrés de travers. Jamais
-une image à fond perdu — ce serait une galerie, pas un carnet.
+Deux tailles, et c'est important : `medias/<étape>/<ref>.jpg` en pleine
+résolution, et `medias/vignettes/<ref>.jpg` à 400 px. Les repères et les
+grilles n'affichent que les vignettes ; la photo pleine taille n'est chargée
+qu'à l'ouverture de la carte postale. Sans cela, ouvrir une ville tirerait
+vingt méga-octets d'un coup.
 
-Les soixante tirages sont dans `medias/`, rangés par étape. Une entrée ressemble
-à ça :
+La vignette se déduit du nom du fichier — rien à écrire dans le contenu. Pour
+en régénérer après avoir ajouté des photos :
 
-```js
-{ fichier: 'medias/06-ayutthaya/06-01.jpg',
-  legende: 'la tête prise dans les racines',
-  angle: -1.7,              // la gîte, en degrés
-  pose: 'coins',            // coins photo (défaut) · ruban adhésif
-  reference: '06-01',
-  apres: 2 }                // si un récit existe : après le 2ᵉ paragraphe
 ```
-
-Sans `cadrage`, le tirage garde les proportions d'un tirage — 3:4, celles de
-toutes les photos du carnet, qui ne sont donc **jamais recadrées**. `cadrage`
-vaut `paysage`, `portrait` ou `carre` pour recadrer au centre si un jour des
-vues d'un autre format s'ajoutent.
-
-**Tant qu'un fichier manque, le carnet montre l'emplacement du tirage** — du
-papier photo non exposé avec sa référence au crayon — et jamais une image
-cassée. On peut donc écrire d'abord et coller les photos ensuite.
-
-Un clic sur un tirage le **prend en main** : il se redresse et se rapproche.
-Un second clic, `Échap`, ou changer de pli, le repose.
-
-Les sources ne sont posées qu'à l'approche du pli, deux plis d'avance. Soixante
-tirages chargés d'un coup, ce serait vingt méga-octets pour des pages qu'on n'a
-pas encore dépliées.
-
-## Volontairement absent
-
-Pas de commentaires, pas de partage, pas d'infolettre, pas de bandeau de cookies :
-le site ne dépose rien et n'appelle aucun service tiers, à l'exception des polices
-Google (avec repli local si elles ne chargent pas). Le seul dessin est le trait de
-côte, tracé par le code.
-
-## Lire autrement
-
-- **À plat** (`L`, ou le bouton) : le même carnet en une page verticale, lisible
-  d'une traite et imprimable. C'est aussi ce que lisent les moteurs de recherche
-  et les synthèses vocales — tout le texte est dans la page, pas fabriqué après coup.
-- **Sans JavaScript** : la version à plat s'affiche seule.
-- **Sur téléphone** : un pli occupe l'écran, les notes de marge passent sous le texte.
-- **Mouvement réduit** : le carnet garde ses plis mais ne glisse plus. Le pliage
-  n'est pas un effet, c'est la mise en page — le retirer rendrait le site illisible.
+python3 -c "
+from PIL import Image; import glob, os
+os.makedirs('medias/vignettes', exist_ok=True)
+for f in glob.glob('medias/*/*.jpg'):
+    if 'vignettes' in f: continue
+    im = Image.open(f); im.thumbnail((400, 800), Image.LANCZOS)
+    im.save('medias/vignettes/' + os.path.basename(f), 'JPEG', quality=76, optimize=True)
+"
+```
 
 ## Les fichiers
 
 ```
 index.html
-contenu/etapes.js     tout le texte — le seul fichier à modifier pour écrire
-medias/               les soixante tirages, rangés par étape
+contenu/lieux.js      villes, lieux, textes, photos — le seul fichier pour écrire
+donnees/terre.js      les contours des terres (Natural Earth, deux détails)
+scripts/globe.js      la projection et le dessin du globe
+scripts/vol.js        les altitudes, les vols, les repères, la carte postale
+styles/vol.css        le poste de pilotage
+medias/               les soixante photos, plus les vignettes
 medias/source-manovoyage.json   l'export du voyage, tel qu'il est arrivé
-scripts/pliage.js     la géométrie de l'accordéon
-scripts/trait.js      le tracé de côte, unique et continu
-scripts/carnet.js     montage des plis, molette, clavier, faces
-styles/carnet.css     le papier
 ```
 
 Aucune dépendance, aucune compilation, aucun serveur : ouvrir `index.html`
-suffit, en local comme en ligne. Pour publier, déposer le dossier tel quel chez
-n'importe quel hébergeur de fichiers statiques.
+suffit. Pour publier, déposer le dossier tel quel chez n'importe quel
+hébergeur de fichiers statiques. Aucun cookie, aucun compte, aucun service
+tiers — seules les polices viennent de Google, avec repli local.
 
-## Comment ça tient debout
+## L'ancienne version
 
-Le pliage est calculé, pas imité. On place les **pliures**, pas les panneaux :
-elles alternent entre le plan du lecteur et le fond, et cette alternance appartient
-au papier — elle est indexée sur le numéro de la pliure, pas sur l'endroit où on
-regarde. Le pli qu'on lit est le seul accident : étant à plat, ses deux pliures
-sont à la même profondeur, ce qui décale l'alternance d'un cran. Ce décrochement
-voyage avec la lecture, et rien d'autre ne bouge.
+Ce dossier a d'abord été un carnet dépliant en accordéon. Il est intact dans
+l'historique git, au commit « Le vrai voyage : Thaïlande » :
 
-Chaque panneau reçoit ensuite sa longueur exacte, `Δx = √(L² − Δz²)` : aucun
-étirement, aucun trou dans les pliures, aucune dérive en profondeur.
-`scripts/pliage.js` fait quatre-vingts lignes et explique le reste.
+```
+git show 6fc101f --stat
+git checkout 6fc101f -- manovoyage   # pour le récupérer entièrement
+```
