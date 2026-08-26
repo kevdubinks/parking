@@ -6,9 +6,17 @@
 <title>manovoyage — Thaïlande</title>
 <meta name="description" content="Un voyage en Thaïlande vu d'en haut : le globe, les villes, et soixante photos qui s'ouvrent en cartes postales.">
 <meta name="theme-color" content="#05080d">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap">
+<!-- Les polices ne doivent pas retarder le globe. media="print" les fait
+     chercher sans bloquer l'affichage ; le script les rebranche à l'arrivée.
+     Réseau lent ou Google injoignable, le site s'affiche quand même, avec ses
+     polices de repli. -->
+<link rel="stylesheet" media="print" data-polices
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap">
+<noscript><link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap"></noscript>
 <link rel="stylesheet" href="styles/vol.css">
 </head>
 <body>

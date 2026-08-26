@@ -17,13 +17,13 @@
 
   var COULEURS = {
     merClaire: '#183away', merSombre: '#050d15',
-    terre: '#242a1d', cote: '#71835a',
+    terre: '#2b3323', cote: '#8fa270',
     grille: 'rgba(150,190,205,.085)',
     halo: 'rgba(86,150,196,.20)',
     limbe: 'rgba(0,0,0,.6)',
     horizon: 'rgba(150,196,215,.26)'
   };
-  COULEURS.merClaire = '#17364a';
+  COULEURS.merClaire = '#1b3d53';
 
   var canvas, ciel, globe, elReperes, elPanneau, elPostale, elInstruments, elSeuil, elBarre;
   var vue = 'seuil';
@@ -146,7 +146,7 @@
 
     for (i = 0; i < reperes.length; i++) {
       r = reperes[i]; d = r.donnees;
-      var visible = (d.pays !== villes);
+      var visible = (d.pays !== villes) && vue !== 'seuil';
       var p = globe.projeter(d.lng, d.lat);
       var dedans = p.devant && p.x > -80 && p.x < globe.largeur + 80 &&
                               p.y > -80 && p.y < globe.hauteur + 80;
@@ -544,6 +544,12 @@
   /* --------------------------------------------------------------- départ */
 
   function demarrer() {
+    /* Rebrancher les polices : elles ont été demandées en media="print" pour
+       ne pas retarder le premier affichage. Un attribut onload aurait fait la
+       même chose, mais il tombe sous les règles de sécurité de certains hôtes. */
+    var polices = document.querySelector('link[data-polices]');
+    if (polices) polices.media = 'all';
+
     canvas = document.querySelector('.globe');
     ciel = document.querySelector('.etoiles');
     elReperes = document.querySelector('.reperes');
