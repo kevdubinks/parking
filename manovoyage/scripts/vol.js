@@ -457,33 +457,92 @@
 
   /* ------------------------------------------------------------- gestes */
 
-  var tire = null, elan = { x: 0, y: 0 }, pincee = null;
+  /* Les doigts posés sur le globe. Un doigt fait tourner, deux font zoomer :
+     sur un téléphone il n'y a pas de molette, et sans le pincement on ne
+     pourrait pas descendre autrement qu'en visant un repère. */
+  var doigts = new Map();
+  var tire = null, pincee = null, dernierTap = 0;
+
+  /* Le pincement passe par les événements tactiles, pas par les pointeurs :
+     à deux doigts, le navigateur reconnaît un zoom de page et consomme le geste
+     avant que les pointeurs n'arrivent. `touch-action` ne l'en empêche pas. On
+     le lui refuse ici, et sur le globe seulement — dans les panneaux et sur la
+     carte postale, agrandir la page reste possible. */
+  function ecartTactile(t) {
+    return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  }
+
+  function surToucheDebut(e) {
+    if (vue !== 'globe' || e.touches.length < 2) return;
+    e.preventDefault();
+    tire = null;
+    doigts.clear();
+    canvas.classList.remove('tire');
+    pincee = { depart: ecartTactile(e.touches), R: globe.R };
+  }
+
+  function surToucheBouge(e) {
+    if (!pincee || e.touches.length < 2) return;
+    e.preventDefault();
+    var d = ecartTactile(e.touches);
+    if (pincee.depart > 12) zoomerVers(pincee.R * (d / pincee.depart));
+  }
+
+  function surToucheFin(e) {
+    if (e.touches.length < 2) pincee = null;
+  }
 
   function surAppui(e) {
-    if (vue !== 'globe' || vol) return;
-    tire = { x: e.clientX, y: e.clientY, bouge: false };
-    elan.x = elan.y = 0;
-    canvas.setPointerCapture(e.pointerId);
+    if (vue !== 'globe') return;
+    doigts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    /* La capture peut échouer si le pointeur a déjà été relâché : ce n'est pas
+       une raison pour perdre le geste. */
+    try { canvas.setPointerCapture(e.pointerId); } catch (rien) {}
+
+    if (doigts.size > 1 || pincee) {
+      /* Un deuxième doigt : le pincement prend la main, plus de rotation. */
+      tire = null;
+      canvas.classList.remove('tire');
+      return;
+    }
+    if (vol) return;
+
+    /* Deux appuis rapprochés au même endroit : on descend d'un cran. */
+    var t = performance.now();
+    if (t - dernierTap < 300) { zoomer(2.1, 620); dernierTap = 0; return; }
+    dernierTap = t;
+
+    tire = { x: e.clientX, y: e.clientY };
     canvas.classList.add('tire');
   }
+
   function surGlisse(e) {
-    if (!tire) return;
-    var dx = e.clientX - tire.x, dy = e.clientY - tire.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) tire.bouge = true;
-    globe.tourner(dx, dy);
-    elan.x = dx; elan.y = dy;
+    if (!doigts.has(e.pointerId)) return;
+    doigts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pincee) return;
+    if (!tire || vol) return;
+    globe.tourner(e.clientX - tire.x, e.clientY - tire.y);
     tire.x = e.clientX; tire.y = e.clientY;
   }
-  function surRelache() {
-    if (!tire) return;
-    tire = null;
-    canvas.classList.remove('tire');
+
+  function surRelache(e) {
+    doigts.delete(e.pointerId);
+    if (doigts.size === 0) { tire = null; canvas.classList.remove('tire'); }
+    else if (doigts.size === 1) {
+      /* Un doigt reste : il reprend la rotation là où il est, sans saut. */
+      var d = doigts.values().next().value;
+      tire = { x: d.x, y: d.y };
+    }
   }
 
+  function borner(R) {
+    return Math.max(rayonPour(ETENDUES.croisiere) * 0.8,
+                    Math.min(rayonPour(ETENDUES.ville) * 2.4, R));
+  }
+  function zoomerVers(R) { globe.R = borner(R); }
   function zoomer(facteur, duree) {
-    var min = rayonPour(ETENDUES.croisiere) * 0.8;
-    var max = rayonPour(ETENDUES.ville) * 2.4;
-    var R = Math.max(min, Math.min(max, globe.R * facteur));
+    var R = borner(globe.R * facteur);
     if (duree) volerVers(globe.lambda, globe.phi, R, duree);
     else globe.R = R;
   }
@@ -579,6 +638,16 @@
     canvas.addEventListener('pointerup', surRelache);
     canvas.addEventListener('pointercancel', surRelache);
     canvas.addEventListener('wheel', surMolette, { passive: false });
+    /* Non passifs : sans quoi preventDefault est ignoré et le navigateur
+       garde le pincement pour lui. */
+    /* Sur la fenêtre et non sur le canvas : les repères sont posés par-dessus,
+       et un pincement dont un doigt tombe sur une vignette n'atteindrait jamais
+       le globe. Tant qu'on est à l'altitude du globe, l'écran entier est la
+       carte — le panneau et la carte postale sont d'autres vues. */
+    window.addEventListener('touchstart', surToucheDebut, { passive: false });
+    window.addEventListener('touchmove', surToucheBouge, { passive: false });
+    window.addEventListener('touchend', surToucheFin);
+    window.addEventListener('touchcancel', surToucheFin);
     window.addEventListener('keydown', surTouche);
 
     document.querySelector('.seuil .bouton').addEventListener('click', decoller);
@@ -586,7 +655,8 @@
     document.querySelector('[data-action="remonter"]').addEventListener('click', function () {
       if (vue === 'ville') { fermerPanneau(); approcher(); } else croisiere();
     });
-    elPostale.querySelector('[data-action="fermer"]').addEventListener('click', fermerPostale);
+    Array.prototype.forEach.call(elPostale.querySelectorAll('[data-action="fermer"]'),
+      function (b) { b.addEventListener('click', fermerPostale); });
     elPostale.querySelector('[data-action="retourner"]').addEventListener('click', function () {
       elPostale.classList.toggle('retournee');
     });
